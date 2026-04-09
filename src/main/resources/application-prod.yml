@@ -1,0 +1,26 @@
+logging:
+  level:
+    root: info
+    org:
+      hibernate.SQL: error
+      springframework:
+        security=DEBUG:
+
+  file:
+    path: logs
+
+spring:
+  datasource:
+    password: ${DATABASE_PASSWORD}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+    show-sql: false
+
+    properties:
+      hibernate:
+        format_sql: true

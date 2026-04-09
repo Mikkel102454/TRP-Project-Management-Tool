@@ -1,0 +1,46 @@
+plugins {
+    java
+    id("org.springframework.boot") version "4.0.5"
+    id("io.spring.dependency-management") version "1.1.7"
+}
+
+group = "solutions.trp"
+version = "0.0.1-SNAPSHOT"
+description = "pmt"
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+
+    implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+
+    implementation("org.scijava:native-lib-loader:2.5.0")
+    implementation("me.paulschwarz:spring-dotenv:4.0.0")
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.6")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
+    implementation("com.google.code.gson:gson:2.13.1")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
+    runtimeOnly("com.mysql:mysql-connector-j")
+
+    implementation("org.json:json:20171018")
+    implementation("commons-io:commons-io:2.15.1")
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
