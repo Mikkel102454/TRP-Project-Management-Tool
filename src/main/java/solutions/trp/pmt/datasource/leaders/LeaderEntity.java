@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 
-@Entity(name = "leaders")
+@Entity(name = "leader")
 public class LeaderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

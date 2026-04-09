@@ -7,13 +7,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.session.SessionInformation;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import solutions.trp.pmt.controller.api.execption.NotFoundException;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.util.PasswordEncoding;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -53,5 +56,27 @@ public class UserService {
             System.err.println(e.getMessage());
             return 1;
         }
+    }
+
+    public void updateUser(int userId, String username, String password, Boolean admin, Boolean enabled) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        if(username != null && !username.isBlank() && !Objects.equals(user.getUsername(), username)) {
+            user.setUsername(username);
+        }
+
+        if(password != null && !password.isBlank()) {
+            user.setPassword(PasswordEncoding.encode("bcrypt", password));
+        }
+
+        if(admin != null) {
+            user.setAdmin(admin);
+        }
+
+        if(enabled != null) {
+            user.setEnabled(enabled);
+        }
+
+        userRepository.save(user);
     }
 }

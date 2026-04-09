@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import solutions.trp.pmt.dto.FullProjectDto;
 import solutions.trp.pmt.dto.ProjectDto;
 
-@Entity(name = "projects")
+@Entity(name = "project")
 public class ProjectEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

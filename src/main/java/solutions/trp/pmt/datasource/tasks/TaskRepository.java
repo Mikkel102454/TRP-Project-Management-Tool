@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface TaskRepository extends JpaRepository<TaskEntity, Integer> {
-    @Query("SELECT COALESCE(MAX(t.taskOrder), 0) FROM tasks t")
+    @Query("SELECT COALESCE(MAX(t.taskOrder), 0) FROM task t")
     int findMaxOrder();
 
-    List<TaskEntity> findAllByProjectId(int order);
+    List<TaskEntity> findAllByProjectEntity_Id(int order);
 }

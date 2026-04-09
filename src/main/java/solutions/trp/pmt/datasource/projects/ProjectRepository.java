@@ -9,11 +9,11 @@ import org.springframework.data.repository.query.Param;
 public interface ProjectRepository extends JpaRepository<ProjectEntity, Integer> {
     boolean existsByTitle(String title);
 
-    @Query("SELECT COALESCE(MAX(p.projectOrder), 0) FROM projects p")
+    @Query("SELECT COALESCE(MAX(p.projectOrder), 0) FROM project p")
     int findMaxOrder();
 
     @Query("""
-    SELECT p FROM projects p
+    SELECT p FROM project p
     WHERE (:title IS NULL OR p.title LIKE %:title%)
 """)
     Page<ProjectEntity> findProjects(

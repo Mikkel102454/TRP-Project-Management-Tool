@@ -4,12 +4,12 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
-import solutions.trp.pmt.dto.ProjectDto;
+import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.dto.TaskDto;
 
 import java.sql.Timestamp;
 
-@Entity(name = "tasks")
+@Entity(name = "task")
 public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,6 +23,10 @@ public class TaskEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity projectEntity;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private UserEntity creatorEntity;
+
     @Column(unique = false, nullable = false, name = "is_completed")
     private Boolean isCompleted;
 
@@ -34,6 +38,9 @@ public class TaskEntity {
 
     @Column(unique = false, nullable = false, name = "estimated_time")
     private int estimatedTime;
+
+    @Column(unique = false, nullable = false, name = "description")
+    private String description;
 
     public int getId() {
         return id;
@@ -53,6 +60,14 @@ public class TaskEntity {
 
     public void setProjectEntity(ProjectEntity projectEntity) {
         this.projectEntity = projectEntity;
+    }
+
+    public UserEntity getCreatorEntity() {
+        return creatorEntity;
+    }
+
+    public void setCreatorEntity(UserEntity creatorEntity) {
+        this.creatorEntity = creatorEntity;
     }
 
     public Boolean getCompleted() {
@@ -87,6 +102,14 @@ public class TaskEntity {
         this.estimatedTime = estimatedTime;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public TaskDto toDto() {
         TaskDto dto = new TaskDto();
         dto.setId(id);
@@ -96,6 +119,8 @@ public class TaskEntity {
         dto.setTaskOrder(taskOrder);
         dto.setEstimatedTime(estimatedTime);
         dto.setTaskOrder(taskOrder);
+        dto.setCreatorId(creatorEntity.getId());
+        dto.setDescription(description);
 
         return dto;
     }

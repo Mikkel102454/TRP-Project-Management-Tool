@@ -14,6 +14,8 @@ public class TaskDto {
     private int taskOrder;
     private LocalDateTime deadline;
     private int estimatedTime;
+    private int creatorId;
+    private String description;
 
     public int getId() {
         return id;
@@ -69,5 +71,21 @@ public class TaskDto {
 
     public void setEstimatedTime(int estimatedTime) {
         this.estimatedTime = estimatedTime;
+    }
+
+    public int getCreatorId() {
+        return creatorId;
+    }
+
+    public void setCreatorId(int creatorId) {
+        this.creatorId = creatorId;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

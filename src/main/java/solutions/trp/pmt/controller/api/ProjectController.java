@@ -9,11 +9,11 @@ import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.tasks.TaskEntity;
 import solutions.trp.pmt.dto.FullProjectDto;
 import solutions.trp.pmt.dto.ProjectDto;
+import solutions.trp.pmt.dto.request.*;
 import solutions.trp.pmt.service.ProjectService;
 import solutions.trp.pmt.service.TaskService;
 
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -57,10 +57,10 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createProject(
-            @RequestParam String title
+            @RequestBody CreateProjectRequest request
     ) {
 
-        projectService.createProject(title);
+        projectService.createProject(request.title());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok());
@@ -69,13 +69,17 @@ public class ProjectController {
     @PostMapping("/{projectId}/task")
     public ResponseEntity<ApiResponse<Void>> createTask(
             @PathVariable int projectId,
-            @RequestParam String title,
-            @RequestParam(defaultValue = "false") boolean isCompleted,
-            @RequestParam(required = false) LocalDateTime deadline,
-            @RequestParam(defaultValue = "0") int estimatedTime
+            @RequestBody CreateTaskRequest request
     ) {
 
-        taskService.createTask(title, projectId, isCompleted, Timestamp.valueOf(deadline), estimatedTime);
+        taskService.createTask(
+                request.title(),
+                projectId,
+                request.isCompleted() != null ? request.isCompleted() : false,
+                Timestamp.valueOf(request.deadline()),
+                request.estimatedTime() != null ? request.estimatedTime() : 0,
+                request.description() != null ? request.description() : ""
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok());

@@ -6,7 +6,7 @@ import solutions.trp.pmt.datasource.users.UserEntity;
 
 import java.time.LocalDateTime;
 
-@Entity(name = "actives")
+@Entity(name = "active")
 public class ActiveEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

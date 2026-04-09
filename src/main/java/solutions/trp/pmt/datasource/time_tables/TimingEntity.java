@@ -4,10 +4,8 @@ import jakarta.persistence.*;
 import solutions.trp.pmt.datasource.tasks.TaskEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 
-import java.time.LocalDateTime;
-
-@Entity(name = "time_tables")
-public class TimeTableEntity {
+@Entity(name = "timing")
+public class TimingEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

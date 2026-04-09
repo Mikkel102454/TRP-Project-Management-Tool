@@ -66,7 +66,7 @@ public class ProjectService {
     }
 
     public void addProjectLeader(int projectId, int userId) {
-        if(leaderRepository.existsByUserIdAndProjectId(userId, projectId)) {
+        if(leaderRepository.existsByUserEntity_IdAndProjectEntity_Id(userId, projectId)) {
             throw new ConflictException("This user is already a leader in this project");
         }
 
@@ -81,7 +81,7 @@ public class ProjectService {
     }
 
     public void removeProjectLeader(int projectId, int userId) {
-        if(!leaderRepository.existsByUserIdAndProjectId(userId, projectId)) {
+        if(!leaderRepository.existsByUserEntity_IdAndProjectEntity_Id(userId, projectId)) {
             throw new ConflictException("This user is not a leader in this project");
         }
 

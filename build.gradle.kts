@@ -24,6 +24,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
 
     implementation("org.thymeleaf.extras:thymeleaf-extras-springsecurity6")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     implementation("org.scijava:native-lib-loader:2.5.0")
     implementation("me.paulschwarz:spring-dotenv:4.0.0")
