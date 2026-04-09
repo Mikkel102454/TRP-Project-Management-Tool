@@ -1,7 +1,11 @@
 package solutions.trp.pmt.datasource.tasks;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
+import solutions.trp.pmt.dto.ProjectDto;
+import solutions.trp.pmt.dto.TaskDto;
 
 import java.sql.Timestamp;
 
@@ -16,12 +20,13 @@ public class TaskEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "project_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ProjectEntity projectEntity;
 
     @Column(unique = false, nullable = false, name = "is_completed")
     private Boolean isCompleted;
 
-    @Column(unique = false, nullable = false, name = "task_order")
+    @Column(unique = true, nullable = false, name = "task_order")
     private int taskOrder;
 
     @Column(unique = false, nullable = false, name = "deadline")
@@ -80,5 +85,18 @@ public class TaskEntity {
 
     public void setEstimatedTime(int estimatedTime) {
         this.estimatedTime = estimatedTime;
+    }
+
+    public TaskDto toDto() {
+        TaskDto dto = new TaskDto();
+        dto.setId(id);
+        dto.setTitle(title);
+        dto.setProjectId(projectEntity.getId());
+        dto.setCompleted(isCompleted);
+        dto.setTaskOrder(taskOrder);
+        dto.setEstimatedTime(estimatedTime);
+        dto.setTaskOrder(taskOrder);
+
+        return dto;
     }
 }

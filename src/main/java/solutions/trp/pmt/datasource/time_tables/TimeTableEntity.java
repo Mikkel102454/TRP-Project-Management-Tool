@@ -20,22 +20,11 @@ public class TimeTableEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity userEntity;
 
-    @Column(unique = false, nullable = false, name = "start_stamp")
-    private LocalDateTime startStamp;
-
-    @Column(unique = false, nullable = false, name = "end_stamp")
-    private LocalDateTime endStamp;
+    @Column(unique = false, nullable = false, name = "time")
+    private long time;
 
     public int getId() {
         return id;
-    }
-
-    public LocalDateTime getStartStamp() {
-        return startStamp;
-    }
-
-    public void setStartStamp(LocalDateTime startStamp) {
-        this.startStamp = startStamp;
     }
 
     public TaskEntity getTaskEntity() {
@@ -46,11 +35,19 @@ public class TimeTableEntity {
         this.taskEntity = taskEntity;
     }
 
-    public LocalDateTime getEndStamp() {
-        return endStamp;
+    public UserEntity getUserEntity() {
+        return userEntity;
     }
 
-    public void setEndStamp(LocalDateTime endStamp) {
-        this.endStamp = endStamp;
+    public void setUserEntity(UserEntity userEntity) {
+        this.userEntity = userEntity;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 }
