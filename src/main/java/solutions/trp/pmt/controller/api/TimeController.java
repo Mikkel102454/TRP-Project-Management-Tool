@@ -11,7 +11,7 @@ import solutions.trp.pmt.service.TimeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/admin")
+@RequestMapping("/api/time")
 public class TimeController {
     private final TimeService timeService;
 
