@@ -24,18 +24,14 @@ public class UserEntity implements UserDetails {
     @Column(unique = false, nullable = false, name = "password")
     private String password;
 
-    @Column(unique = false, nullable = false, name = "enabled")
+    @Column(unique = false, nullable = false, name = "is_enabled")
     private boolean enabled;
 
-    @Column(unique = false, nullable = false, name = "admin")
+    @Column(unique = false, nullable = false, name = "is_admin")
     private boolean admin;
 
     public int getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     @Override
