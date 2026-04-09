@@ -21,6 +21,9 @@ public class UserEntity implements UserDetails {
     @Column(unique = true, nullable = false, name = "username")
     private String username;
 
+    @Column(unique = false, nullable = false, name = "initial")
+    private String initial;
+
     @Column(unique = false, nullable = false, name = "password")
     private String password;
 
@@ -41,6 +44,14 @@ public class UserEntity implements UserDetails {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getInitial() {
+        return initial;
+    }
+
+    public void setInitial(String initial) {
+        this.initial = initial;
     }
 
     @Override

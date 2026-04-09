@@ -37,7 +37,7 @@ public class UserService {
      * @return exit code
      *
      */
-    public int addUser(String username, String password, boolean admin, boolean enabled) {
+    public int addUser(String username, String initial, String password, boolean admin, boolean enabled) {
         try{
             if(userRepository.existsByUsername(username)) { return 2; }
             if(password.length() < 3) { return 3; }
@@ -45,6 +45,7 @@ public class UserService {
 
             UserEntity user = new UserEntity();
             user.setUsername(username);
+            user.setInitial(initial);
             user.setPassword(PasswordEncoding.encode("bcrypt", password));
             user.setAdmin(admin);
             user.setEnabled(enabled);
@@ -58,11 +59,15 @@ public class UserService {
         }
     }
 
-    public void updateUser(int userId, String username, String password, Boolean admin, Boolean enabled) {
+    public void updateUser(int userId, String username, String initial, String password, Boolean admin, Boolean enabled) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
         if(username != null && !username.isBlank() && !Objects.equals(user.getUsername(), username)) {
             user.setUsername(username);
+        }
+
+        if(initial != null && !initial.isBlank() && !Objects.equals(user.getInitial(), initial)) {
+            user.setInitial(initial);
         }
 
         if(password != null && !password.isBlank()) {

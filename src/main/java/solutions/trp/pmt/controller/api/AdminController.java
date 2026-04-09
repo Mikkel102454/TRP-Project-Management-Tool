@@ -51,6 +51,7 @@ public class AdminController {
 
         userService.addUser(
                 request.username(),
+                request.initial(),
                 request.password(),
                 request.isAdmin() != null ? request.isAdmin() : false,
                 request.isEnabled() != null ? request.isEnabled() : true
@@ -68,6 +69,7 @@ public class AdminController {
         userService.updateUser(
                 request.userId(),
                 request.username(),
+                request.initial(),
                 request.password(),
                 request.isAdmin(),
                 request.isEnabled()
