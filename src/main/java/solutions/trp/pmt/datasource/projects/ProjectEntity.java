@@ -10,7 +10,7 @@ public class ProjectEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = false, nullable = false, name = "title")
+    @Column(nullable = false, name = "title")
     private String title;
 
     @Column(unique = true, nullable = false, name = "project_order")

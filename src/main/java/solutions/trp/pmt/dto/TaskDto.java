@@ -5,6 +5,7 @@ import solutions.trp.pmt.datasource.projects.ProjectEntity;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class TaskDto {
     private int id;
@@ -16,6 +17,8 @@ public class TaskDto {
     private int estimatedTime;
     private int creatorId;
     private String description;
+    private List<UserDto> actives;
+    private List<UserDto> scheduled;
 
     public int getId() {
         return id;
@@ -87,5 +90,21 @@ public class TaskDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public List<UserDto> getActives() {
+        return actives;
+    }
+
+    public void setActives(List<UserDto> actives) {
+        this.actives = actives;
+    }
+
+    public List<UserDto> getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(List<UserDto> scheduled) {
+        this.scheduled = scheduled;
     }
 }

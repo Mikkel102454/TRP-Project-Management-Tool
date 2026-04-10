@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import solutions.trp.pmt.dto.ProjectDto;
+import solutions.trp.pmt.dto.UserDto;
 
 import java.util.Collection;
 import java.util.List;
@@ -87,5 +89,14 @@ public class UserEntity implements UserDetails {
         } else {
             return List.of(new SimpleGrantedAuthority("ROLE_USER"));
         }
+    }
+
+    public UserDto toDto() {
+        UserDto dto = new UserDto();
+        dto.setId(id);
+        dto.setUsername(username);
+        dto.setInitial(initial);
+
+        return dto;
     }
 }

@@ -7,5 +7,6 @@ public enum ApiErrorCode {
     VALIDATION_ERROR,
     DATABASE_ERROR,
     CONFLICT,
-    INTERNAL_ERROR
+    INTERNAL_ERROR,
+    BAD_REQUEST,
 }

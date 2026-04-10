@@ -1,8 +1,10 @@
 package solutions.trp.pmt.controller.api.execption;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 import solutions.trp.pmt.controller.api.response.ApiErrorCode;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 
@@ -35,6 +37,16 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<?> handleNotFound(NoResourceFoundException ex) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail(
+                        ApiErrorCode.NOT_FOUND,
+                        "Could not find the request resource."
+
+                ));
+    }
+
     /* ===================== 409 ===================== */
 
     @ExceptionHandler(ConflictException.class)
@@ -58,6 +70,26 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(
                         ApiErrorCode.VALIDATION_ERROR,
                         ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadRequest(
+            BadRequestException ex) {
+
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(
+                        ApiErrorCode.BAD_REQUEST,
+                        ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<?> handleBadRequest(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(
+                        ApiErrorCode.BAD_REQUEST,
+                        "Request body could not be read properly."
                 ));
     }
 

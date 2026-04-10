@@ -14,6 +14,9 @@ public class TimeService {
     }
 
     public long calculateTime(Integer taskId, Integer projectId, List<Integer> userIds) {
+        if(userIds == null || userIds.isEmpty()) {
+            return timingRepository.sumTime(taskId, projectId);
+        }
         return timingRepository.sumTime(taskId, projectId, userIds);
     }
 }

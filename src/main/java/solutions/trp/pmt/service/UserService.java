@@ -9,6 +9,8 @@ import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import solutions.trp.pmt.controller.api.execption.BadRequestException;
+import solutions.trp.pmt.controller.api.execption.ConflictException;
 import solutions.trp.pmt.controller.api.execption.NotFoundException;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
@@ -38,25 +40,20 @@ public class UserService {
      *
      */
     public int addUser(String username, String initial, String password, boolean admin, boolean enabled) {
-        try{
-            if(userRepository.existsByUsername(username)) { return 2; }
-            if(password.length() < 3) { return 3; }
-            if(username.length() < 3) { return 4; }
+        if (userRepository.existsByUsername(username)) throw new ConflictException("Username already in use");
+        if (password.length() < 3) throw new BadRequestException("Password must be at least 3 characters");
+        if (username.length() < 3) throw new BadRequestException("Username must be at least 3 characters");
 
-            UserEntity user = new UserEntity();
-            user.setUsername(username);
-            user.setInitial(initial);
-            user.setPassword(PasswordEncoding.encode("bcrypt", password));
-            user.setAdmin(admin);
-            user.setEnabled(enabled);
+        UserEntity user = new UserEntity();
+        user.setUsername(username);
+        user.setInitial(initial);
+        user.setPassword(PasswordEncoding.encode("bcrypt", password));
+        user.setAdmin(admin);
+        user.setEnabled(enabled);
 
-            userRepository.save(user);
+        userRepository.save(user);
 
-            return 0;
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
-            return 1;
-        }
+        return 0;
     }
 
     public void updateUser(int userId, String username, String initial, String password, Boolean admin, Boolean enabled) {

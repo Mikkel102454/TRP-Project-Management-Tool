@@ -15,7 +15,7 @@ public class TaskEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(unique = false, nullable = false, name = "title")
+    @Column(nullable = false, name = "title")
     private String title;
 
     @ManyToOne(optional = false)
@@ -27,19 +27,19 @@ public class TaskEntity {
     @JoinColumn(name = "creator_id", nullable = false)
     private UserEntity creatorEntity;
 
-    @Column(unique = false, nullable = false, name = "is_completed")
+    @Column(nullable = false, name = "is_completed")
     private Boolean isCompleted;
 
     @Column(unique = true, nullable = false, name = "task_order")
     private int taskOrder;
 
-    @Column(unique = false, nullable = false, name = "deadline")
+    @Column(name = "deadline")
     private Timestamp deadline;
 
-    @Column(unique = false, nullable = false, name = "estimated_time")
+    @Column(name = "estimated_time")
     private int estimatedTime;
 
-    @Column(unique = false, nullable = false, name = "description")
+    @Column(nullable = false, name = "description")
     private String description;
 
     public int getId() {
@@ -121,7 +121,6 @@ public class TaskEntity {
         dto.setTaskOrder(taskOrder);
         dto.setCreatorId(creatorEntity.getId());
         dto.setDescription(description);
-
         return dto;
     }
 }

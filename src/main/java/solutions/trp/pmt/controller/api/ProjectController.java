@@ -6,9 +6,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
-import solutions.trp.pmt.datasource.tasks.TaskEntity;
+import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.dto.FullProjectDto;
 import solutions.trp.pmt.dto.ProjectDto;
+import solutions.trp.pmt.dto.TaskDto;
 import solutions.trp.pmt.dto.request.*;
 import solutions.trp.pmt.service.ProjectService;
 import solutions.trp.pmt.service.TaskService;
@@ -37,19 +38,30 @@ public class ProjectController {
 
         List<ProjectEntity> projects = projectService.search(title, offset, limit);
 
+        List<ProjectDto> projectDtos = projects.stream().map(project -> {
+            ProjectDto dto = project.toDto();
+            dto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
+            dto.setScheduled(projectService.getAllScheduledUsers(project).stream().map(UserEntity::toDto).toList());
+            dto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
+            return dto;
+        }).toList();
+
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(projects.stream().map(ProjectEntity::toDto).toList()));
+                .body(ApiResponse.ok(projectDtos));
     }
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ApiResponse<FullProjectDto>> getProject(
             @PathVariable int projectId
     ) {
-        List<TaskEntity> tasks = taskService.getFromProjectId(projectId);
+        List<TaskDto> tasks = taskService.getFromProjectId(projectId);
         ProjectEntity project = projectService.getFromId(projectId);
 
         FullProjectDto projectDto = project.toFullDto();
-        projectDto.setTasks(tasks.stream().map(TaskEntity::toDto).toList());
+        projectDto.setTasks(tasks);
+        projectDto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
+        projectDto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
+
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(projectDto));
@@ -76,7 +88,7 @@ public class ProjectController {
                 request.title(),
                 projectId,
                 request.isCompleted() != null ? request.isCompleted() : false,
-                Timestamp.valueOf(request.deadline()),
+                request.deadline() != null ? Timestamp.valueOf(request.deadline()) : null,
                 request.estimatedTime() != null ? request.estimatedTime() : 0,
                 request.description() != null ? request.description() : ""
         );
@@ -127,6 +139,32 @@ public class ProjectController {
     ) {
 
         projectService.removeProjectLeader(projectId, userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
+
+    @PostMapping("/{projectId}/schedule")
+    public ResponseEntity<ApiResponse<Void>> scheduleUser(
+            @PathVariable int projectId,
+            @RequestParam int taskId,
+            @RequestParam int userId
+    ) {
+
+        taskService.scheduleUser(taskId, userId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
+
+    @DeleteMapping("/{projectId}/schedule")
+    public ResponseEntity<ApiResponse<Void>> unscheduleUser(
+            @PathVariable int projectId,
+            @RequestParam int taskId,
+            @RequestParam int userId
+    ) {
+
+        taskService.unscheduleUser(taskId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());

@@ -9,6 +9,8 @@ public class FullProjectDto {
     private String title;
     private int projectOrder;
     List<TaskDto> tasks;
+    boolean isWorkedOn;
+    List<UserDto> leader;
 
     public int getId() {
         return id;
@@ -44,5 +46,21 @@ public class FullProjectDto {
 
     public void addTask(TaskDto task) {
         this.tasks.add(task);
+    }
+
+    public boolean getIsWorkedOn() {
+        return isWorkedOn;
+    }
+
+    public void setIsWorkedOn(boolean workedOn) {
+        isWorkedOn = workedOn;
+    }
+
+    public List<UserDto> getLeader() {
+        return leader;
+    }
+
+    public void setLeader(List<UserDto> leader) {
+        this.leader = leader;
     }
 }

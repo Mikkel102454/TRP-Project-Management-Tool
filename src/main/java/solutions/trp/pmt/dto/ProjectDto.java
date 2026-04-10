@@ -1,9 +1,14 @@
 package solutions.trp.pmt.dto;
 
+import java.util.List;
+
 public class ProjectDto {
     private int id;
     private String title;
     private int projectOrder;
+    private boolean isWorkedOn;
+    List<UserDto> scheduled;
+    List<UserDto> leader;
 
     public int getId() {
         return id;
@@ -27,5 +32,29 @@ public class ProjectDto {
 
     public void setProjectOrder(int projectOrder) {
         this.projectOrder = projectOrder;
+    }
+
+    public boolean getIsWorkedOn() {
+        return isWorkedOn;
+    }
+
+    public void setIsWorkedOn(boolean workedOn) {
+        isWorkedOn = workedOn;
+    }
+
+    public List<UserDto> getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(List<UserDto> scheduled) {
+        this.scheduled = scheduled;
+    }
+
+    public List<UserDto> getLeader() {
+        return leader;
+    }
+
+    public void setLeader(List<UserDto> leader) {
+        this.leader = leader;
     }
 }

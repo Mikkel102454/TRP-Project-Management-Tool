@@ -14,7 +14,9 @@ import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.projects.ProjectRepository;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
+import solutions.trp.pmt.dto.TaskDto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -22,12 +24,14 @@ public class ProjectService {
     private final ProjectRepository repository;
     private final UserRepository userRepository;
     private final LeaderRepository leaderRepository;
+    private final TaskService taskService;
 
     @Autowired
-    public ProjectService(ProjectRepository repository, UserRepository userRepository, LeaderRepository leaderRepository) {
+    public ProjectService(ProjectRepository repository, UserRepository userRepository, LeaderRepository leaderRepository, TaskService taskService) {
         this.repository = repository;
         this.userRepository = userRepository;
         this.leaderRepository = leaderRepository;
+        this.taskService = taskService;
     }
 
     public ProjectEntity getFromId(int id){
@@ -85,8 +89,33 @@ public class ProjectService {
             throw new ConflictException("This user is not a leader in this project");
         }
 
-        LeaderEntity leaderEntity = leaderRepository.findById(userId).orElseThrow(() -> new NotFoundException("Could not find leader with user id: " + userId + " in this project"));
+        LeaderEntity leaderEntity = leaderRepository.findByUserEntity_IdAndProjectEntity_Id(userId, projectId).orElseThrow(() -> new NotFoundException("Could not find leader with user id: " + userId + " in this project"));
 
         leaderRepository.delete(leaderEntity);
+    }
+
+    public boolean isProjectWorkedOn(ProjectEntity project) {
+        List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
+        for (TaskDto task : tasks){
+            if(!task.getActives().isEmpty()) return true;
+        }
+        return false;
+    }
+
+    public List<UserEntity> getAllScheduledUsers(ProjectEntity project) {
+        List<UserEntity> scheduledUsers = new ArrayList<>();
+        List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
+
+        for (TaskDto task : tasks){
+            List<UserEntity> taskUsers = taskService.getScheduled(task.getId());
+            for(UserEntity user : taskUsers){
+                if(!scheduledUsers.contains(user)) scheduledUsers.add(user);
+            }
+        }
+        return scheduledUsers;
+    }
+
+    public List<UserEntity> getProjectLeaders(ProjectEntity project) {
+        return leaderRepository.findAllByProjectEntity_Id(project.getId()).stream().map(LeaderEntity::getUserEntity).toList();
     }
 }
