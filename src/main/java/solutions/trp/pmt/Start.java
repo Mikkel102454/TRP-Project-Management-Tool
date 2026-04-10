@@ -20,7 +20,7 @@ public class Start implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if(!userRepository.existsByAdminTrue()){
-            userService.addUser("admin", "admin", true, true);
+            userService.addUser("admin", "ad", "admin", true, true);
         }
     }
 }
