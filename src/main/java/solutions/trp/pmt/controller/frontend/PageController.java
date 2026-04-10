@@ -31,6 +31,13 @@ public class PageController {
 
         if (resource.exists()) {
             return "frontend/page/" + page;
+        }
+
+        path = "classpath:/frontend/page/" + page + ".php";
+        resource = resourceLoader.getResource(path);
+
+        if (resource.exists()) {
+            return "frontend/page/" + page;
         } else {
             return "handler/404";
         }
