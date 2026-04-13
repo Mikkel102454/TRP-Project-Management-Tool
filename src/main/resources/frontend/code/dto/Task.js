@@ -43,7 +43,7 @@ class Task{
 
             return new Task(json.id, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled)
         } catch (e){
-            log(e, Levels.WARING)
+            log(e, Levels.WARNING)
             return null;
         }
     }

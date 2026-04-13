@@ -42,10 +42,6 @@ async function createProject(title) {
             })
         });
 
-        if (!response.ok) {
-            log("Could not create new project.", Levels.SEVERE)
-        }
-
         const data = await response.json();
 
         if (!data.success) return false;
@@ -66,10 +62,6 @@ async function removeProject(id){
             },
         });
 
-        if (!response.ok) {
-            log("Could not delete project.", Levels.SEVERE)
-        }
-
         const data = await response.json();
 
         return data.success;
@@ -88,10 +80,6 @@ async function addProjectLeader(id, userId){
             },
         });
 
-        if (!response.ok) {
-            log("Could not add leader to project.", Levels.SEVERE)
-        }
-
         const data = await response.json();
 
         return data.success;
@@ -109,10 +97,6 @@ async function removeProjectLeader(id, userId){
                 "Content-Type": "application/json"
             },
         });
-
-        if (!response.ok) {
-            log("Could not remove leader from project.", Levels.SEVERE)
-        }
 
         const data = await response.json();
 

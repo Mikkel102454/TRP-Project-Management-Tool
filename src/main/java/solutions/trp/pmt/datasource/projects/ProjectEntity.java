@@ -1,7 +1,6 @@
 package solutions.trp.pmt.datasource.projects;
 
 import jakarta.persistence.*;
-import solutions.trp.pmt.dto.FullProjectDto;
 import solutions.trp.pmt.dto.ProjectDto;
 
 @Entity(name = "project")
@@ -38,15 +37,6 @@ public class ProjectEntity {
 
     public ProjectDto toDto() {
         ProjectDto dto = new ProjectDto();
-        dto.setId(id);
-        dto.setTitle(title);
-        dto.setProjectOrder(projectOrder);
-
-        return dto;
-    }
-
-    public FullProjectDto toFullDto() {
-        FullProjectDto dto = new FullProjectDto();
         dto.setId(id);
         dto.setTitle(title);
         dto.setProjectOrder(projectOrder);

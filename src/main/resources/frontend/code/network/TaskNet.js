@@ -15,15 +15,9 @@ async function createTask(projectId, title, isCompleted, deadline, estimatedTime
             })
         });
 
-        if (!response.ok) {
-            log("Could not create new task.", Levels.SEVERE)
-        }
-
         const data = await response.json();
 
-        if (!data.success) return false;
-
-        return true;
+        return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);
         return false;
@@ -37,10 +31,6 @@ async function removeTask(id){
                 "Content-Type": "application/json"
             },
         });
-
-        if (!response.ok) {
-            log("Could not unschedule user from project.", Levels.SEVERE)
-        }
 
         const data = await response.json();
 
@@ -59,10 +49,6 @@ async function scheduleUser(id, userId){
             },
         });
 
-        if (!response.ok) {
-            log("Could not schedule user to project.", Levels.SEVERE)
-        }
-
         const data = await response.json();
 
         return data.success;
@@ -79,10 +65,6 @@ async function unscheduleUser(id, userId){
                 "Content-Type": "application/json"
             },
         });
-
-        if (!response.ok) {
-            log("Could not unschedule user from project.", Levels.SEVERE)
-        }
 
         const data = await response.json();
 

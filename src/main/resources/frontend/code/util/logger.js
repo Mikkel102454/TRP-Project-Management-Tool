@@ -1,6 +1,6 @@
 const Levels = Object.freeze({
     INFO: 0,
-    WARING: 1,
+    WARNING: 1,
     SEVERE: 2
 });
 

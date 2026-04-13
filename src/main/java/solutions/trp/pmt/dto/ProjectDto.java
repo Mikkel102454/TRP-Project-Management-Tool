@@ -9,6 +9,7 @@ public class ProjectDto {
     private boolean isWorkedOn;
     List<UserDto> scheduled;
     List<UserDto> leader;
+    List<TaskDto> tasks;
 
     public int getId() {
         return id;
@@ -56,5 +57,13 @@ public class ProjectDto {
 
     public void setLeader(List<UserDto> leader) {
         this.leader = leader;
+    }
+
+    public List<TaskDto> getTasks() {
+        return tasks;
+    }
+
+    public void setTasks(List<TaskDto> tasks) {
+        this.tasks = tasks;
     }
 }

@@ -7,14 +7,13 @@ import org.springframework.web.bind.annotation.*;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
-import solutions.trp.pmt.dto.FullProjectDto;
 import solutions.trp.pmt.dto.ProjectDto;
 import solutions.trp.pmt.dto.TaskDto;
 import solutions.trp.pmt.dto.request.*;
 import solutions.trp.pmt.service.ProjectService;
 import solutions.trp.pmt.service.TaskService;
 
-import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -43,6 +42,13 @@ public class ProjectController {
             dto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
             dto.setScheduled(projectService.getAllScheduledUsers(project).stream().map(UserEntity::toDto).toList());
             dto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
+            List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
+
+            if (tasks.size() > 2) {
+                dto.setTasks(tasks.subList(2, tasks.size()));
+            } else {
+                dto.setTasks(new ArrayList<>());
+            }
             return dto;
         }).toList();
 
@@ -51,13 +57,13 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectId}")
-    public ResponseEntity<ApiResponse<FullProjectDto>> getProject(
+    public ResponseEntity<ApiResponse<ProjectDto>> getProject(
             @PathVariable int projectId
     ) {
         List<TaskDto> tasks = taskService.getFromProjectId(projectId);
         ProjectEntity project = projectService.getFromId(projectId);
 
-        FullProjectDto projectDto = project.toFullDto();
+        ProjectDto projectDto = project.toDto();
         projectDto.setTasks(tasks);
         projectDto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
         projectDto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());

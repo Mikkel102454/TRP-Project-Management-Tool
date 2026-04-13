@@ -12,7 +12,7 @@ class User{
         try {
             return new User(json.id, json.username, json.initial)
         } catch (e){
-            log(e, Levels.WARING)
+            log(e, Levels.WARNING)
             return null;
         }
     }
