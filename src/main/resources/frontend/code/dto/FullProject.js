@@ -11,7 +11,7 @@ class FullProject extends Project{
             const scheduled = [];
 
             for (const entry of json.scheduled) {
-                actives.push(User.fromJson(entry));
+                scheduled.push(User.fromJson(entry));
             }
 
             const leaders = [];

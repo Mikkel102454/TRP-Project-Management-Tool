@@ -3,6 +3,7 @@ package solutions.trp.pmt.dto.request;
 import java.time.LocalDateTime;
 
 public record CreateTaskRequest(
+    Integer projectId,
     String title,
     Boolean isCompleted,
     LocalDateTime deadline,

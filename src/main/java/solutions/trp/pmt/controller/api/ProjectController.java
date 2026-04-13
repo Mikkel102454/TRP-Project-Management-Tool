@@ -78,37 +78,6 @@ public class ProjectController {
                 .body(ApiResponse.ok());
     }
 
-    @PostMapping("/{projectId}/task")
-    public ResponseEntity<ApiResponse<Void>> createTask(
-            @PathVariable int projectId,
-            @RequestBody CreateTaskRequest request
-    ) {
-
-        taskService.createTask(
-                request.title(),
-                projectId,
-                request.isCompleted() != null ? request.isCompleted() : false,
-                request.deadline() != null ? Timestamp.valueOf(request.deadline()) : null,
-                request.estimatedTime() != null ? request.estimatedTime() : 0,
-                request.description() != null ? request.description() : ""
-        );
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.ok());
-    }
-
-    @DeleteMapping("/{projectId}/task")
-    public ResponseEntity<ApiResponse<Void>> removeTask(
-            @PathVariable int projectId,
-            @RequestParam int taskId
-    ) {
-
-        taskService.deleteTask(taskId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok());
-    }
-
     @DeleteMapping("/{projectId}")
     public ResponseEntity<ApiResponse<Void>> removeProject(
             @PathVariable int projectId
@@ -139,32 +108,6 @@ public class ProjectController {
     ) {
 
         projectService.removeProjectLeader(projectId, userId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok());
-    }
-
-    @PostMapping("/{projectId}/schedule")
-    public ResponseEntity<ApiResponse<Void>> scheduleUser(
-            @PathVariable int projectId,
-            @RequestParam int taskId,
-            @RequestParam int userId
-    ) {
-
-        taskService.scheduleUser(taskId, userId);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok());
-    }
-
-    @DeleteMapping("/{projectId}/schedule")
-    public ResponseEntity<ApiResponse<Void>> unscheduleUser(
-            @PathVariable int projectId,
-            @RequestParam int taskId,
-            @RequestParam int userId
-    ) {
-
-        taskService.unscheduleUser(taskId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
