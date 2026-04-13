@@ -11,6 +11,7 @@ public class FullProjectDto {
     List<TaskDto> tasks;
     boolean isWorkedOn;
     List<UserDto> leader;
+    List<UserDto> scheduled;
 
     public int getId() {
         return id;
@@ -62,5 +63,13 @@ public class FullProjectDto {
 
     public void setLeader(List<UserDto> leader) {
         this.leader = leader;
+    }
+
+    public List<UserDto> getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(List<UserDto> scheduled) {
+        this.scheduled = scheduled;
     }
 }

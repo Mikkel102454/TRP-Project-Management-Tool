@@ -61,7 +61,7 @@ public class ProjectController {
         projectDto.setTasks(tasks);
         projectDto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
         projectDto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
-
+        projectDto.setScheduled(projectService.getAllScheduledUsers(project).stream().map(UserEntity::toDto).toList());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(projectDto));

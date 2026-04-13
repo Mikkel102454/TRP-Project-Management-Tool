@@ -15,7 +15,7 @@ public class TaskDto {
     private int taskOrder;
     private LocalDateTime deadline;
     private int estimatedTime;
-    private int creatorId;
+    private UserDto creator;
     private String description;
     private List<UserDto> actives;
     private List<UserDto> scheduled;
@@ -76,12 +76,12 @@ public class TaskDto {
         this.estimatedTime = estimatedTime;
     }
 
-    public int getCreatorId() {
-        return creatorId;
+    public UserDto getCreator() {
+        return creator;
     }
 
-    public void setCreatorId(int creatorId) {
-        this.creatorId = creatorId;
+    public void setCreator(UserDto creator) {
+        this.creator = creator;
     }
 
     public String getDescription() {

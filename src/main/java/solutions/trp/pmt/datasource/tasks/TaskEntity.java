@@ -119,7 +119,7 @@ public class TaskEntity {
         dto.setTaskOrder(taskOrder);
         dto.setEstimatedTime(estimatedTime);
         dto.setTaskOrder(taskOrder);
-        dto.setCreatorId(creatorEntity.getId());
+        dto.setCreator(creatorEntity.toDto());
         dto.setDescription(description);
         return dto;
     }
