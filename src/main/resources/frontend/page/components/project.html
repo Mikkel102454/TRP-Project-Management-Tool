@@ -1,4 +1,5 @@
-<div class="bg-white p-4 rounded-xl shadow hover:shadow-md transition flex justify-between items-start">
+<div class="bg-white p-4 rounded-xl shadow hover:shadow-md transition flex justify-between items-start cursor-pointer"
+     onclick="window.location.href = 'task?id={{id}}';">
 
     <!-- LEFT -->
     <div class="flex-1">
@@ -21,7 +22,7 @@
 
     <!-- RIGHT -->
     <div class="flex items-start ml-4 mt-1">
-        <div class="w-2.5 h-2.5 bg-green-500 rounded-full"></div>
+        <div class="w-2.5 h-2.5 bg-green-500 rounded-full {{isActive}}"></div>
     </div>
 
 </div>

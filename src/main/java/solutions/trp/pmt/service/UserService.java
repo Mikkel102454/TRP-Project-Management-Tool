@@ -24,10 +24,12 @@ import java.util.UUID;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final AppUserDetailsService appUserDetailsService;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, AppUserDetailsService appUserDetailsService) {
         this.userRepository = userRepository;
+        this.appUserDetailsService = appUserDetailsService;
     }
 
     /**
@@ -80,5 +82,9 @@ public class UserService {
         }
 
         userRepository.save(user);
+    }
+
+    public UserEntity getCurrentUser(){
+        return appUserDetailsService.getUserEntity();
     }
 }

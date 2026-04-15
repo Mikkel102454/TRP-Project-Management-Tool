@@ -121,6 +121,7 @@ public class TaskEntity {
         dto.setTaskOrder(taskOrder);
         dto.setCreator(creatorEntity.toDto());
         dto.setDescription(description);
+        dto.setDeadline(deadline != null ? deadline.toLocalDateTime() : null);
         return dto;
     }
 }

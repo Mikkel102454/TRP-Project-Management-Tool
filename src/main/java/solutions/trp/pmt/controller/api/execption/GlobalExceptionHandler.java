@@ -2,6 +2,7 @@ package solutions.trp.pmt.controller.api.execption;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -70,6 +71,17 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(
                         ApiErrorCode.VALIDATION_ERROR,
                         ex.getMessage()
+                ));
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleValidationArgument(
+            MethodArgumentNotValidException ex) {
+
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(
+                        ApiErrorCode.BAD_REQUEST,
+                        "Bad request"
                 ));
     }
 

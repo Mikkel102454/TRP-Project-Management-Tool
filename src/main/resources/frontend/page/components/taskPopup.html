@@ -1,0 +1,70 @@
+<div id="taskModal"
+     class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
+
+        <button onclick="document.getElementById('taskModal').remove()"
+                class="absolute top-3 right-3 text-gray-500 hover:text-black">
+            ✕
+        </button>
+
+        <h2 class="text-xl font-semibold mb-4">{{title}}</h2>
+
+        <div class="space-y-4 text-sm text-gray-700">
+
+            <div class="flex justify-between">
+                <span>Priority</span>
+                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">{{priority}}</span>
+            </div>
+
+            <div class="flex justify-between items-center">
+                <span>Users</span>
+                <div class="flex -space-x-2">
+                    {{scheduled}}
+                </div>
+            </div>
+
+            <div class="flex justify-between items-center gap-4">
+                <span>Estimated time</span>
+                <input type="text"
+                       id="taskEstimatedTimeInput"
+                       placeholder="e.g. 2h, 3d"
+                       value="{{estimatedTime}}"
+                       class="px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none text-right">
+            </div>
+
+            <div class="flex justify-between items-center gap-4">
+                <span>Deadline</span>
+                <input type="date"
+                       id="taskDeadlineInput"
+                       class="px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none">
+            </div>
+
+            <div class="flex justify-between items-center">
+                <span>Doing</span>
+                <div class="flex items-center gap-2">
+                    {{actives}}
+                </div>
+            </div>
+
+            <div>
+                <p class="mb-1">Description</p>
+                <textarea id="taskDescriptionInput"
+                          class="w-full bg-gray-100 p-3 rounded text-gray-600 outline-none"
+                >{{description}}</textarea>
+            </div>
+
+        </div>
+
+        <div class="mt-6 text-right">
+            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+                    onclick="(async () => { await {{isTimedAction}}; loadProject(); document.getElementById('taskModal').remove(); })()">
+                {{isTimed}}
+            </button>
+            <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">
+                Save
+            </button>
+        </div>
+
+    </div>
+</div>

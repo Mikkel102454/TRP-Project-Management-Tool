@@ -1,0 +1,15 @@
+<div draggable="true"
+     onclick="openModal({{id}})"
+     class="task-item flex items-center justify-between px-6 py-4 border-b hover:bg-gray-50 cursor-grab transition-all duration-200">
+
+    <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center text-xs font-bold">
+            {{estimatedTime}}
+        </div>
+        <span class="text-gray-800">{{title}}</span>
+    </div>
+
+    <div class="flex items-center gap-3">
+        {{actives}}
+    </div>
+</div>

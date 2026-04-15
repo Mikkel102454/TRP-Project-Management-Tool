@@ -1,5 +1,6 @@
 package solutions.trp.pmt.controller.api;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -75,9 +76,9 @@ public class TaskController {
                 .body(ApiResponse.ok());
     }
 
-    @PostMapping("/{projectId}/task")
+    @PostMapping
     public ResponseEntity<ApiResponse<Void>> createTask(
-            @RequestBody CreateTaskRequest request
+            @Valid @RequestBody CreateTaskRequest request
     ) {
 
         taskService.createTask(

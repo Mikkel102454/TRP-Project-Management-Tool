@@ -1,0 +1,71 @@
+<div id="taskModal"
+     class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+
+    <div class="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
+
+        <!-- Close -->
+        <button onclick="document.getElementById('taskModal').remove()"
+                class="absolute top-3 right-3 text-gray-500 hover:text-black">
+            ✕
+        </button>
+
+        <!-- Title -->
+        <h2 class="text-xl font-semibold mb-4">Create Task</h2>
+
+        <div class="space-y-4 text-sm text-gray-700">
+
+            <!-- Task Name -->
+            <div>
+                <label class="block mb-1">Title</label>
+                <input type="text"
+                       id="taskTitleInput"
+                       placeholder="Task name..."
+                       class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none">
+            </div>
+
+            <!-- Estimated time -->
+            <div class="flex justify-between items-center gap-4">
+                <span>Estimated</span>
+                <input type="text"
+                       id="taskEstimateInput"
+                       placeholder="e.g. 4h"
+                       class="w-24 px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none text-right">
+            </div>
+
+            <!-- Deadline -->
+            <div class="flex justify-between items-center gap-4">
+                <span>Deadline</span>
+                <input type="datetime-local"
+                       id="taskDeadlineInput"
+                       class="px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none">
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label class="block mb-1">Description</label>
+                <textarea rows="3"
+                          id="taskDescriptionInput"
+                          placeholder="Write details..."
+                          class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none"></textarea>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="mt-6 flex justify-between items-center">
+
+            <button onclick="document.getElementById('taskModal').remove()"
+                    class="text-sm text-gray-500 hover:text-black">
+                Cancel
+            </button>
+
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+            onclick="startCreateTask(document.getElementById('taskTitleInput').value, document.getElementById('taskEstimateInput').value,
+            document.getElementById('taskDeadlineInput').value, document.getElementById('taskDescriptionInput').value); document.getElementById('taskModal').remove()">
+                Create Task
+            </button>
+
+        </div>
+
+    </div>
+</div>

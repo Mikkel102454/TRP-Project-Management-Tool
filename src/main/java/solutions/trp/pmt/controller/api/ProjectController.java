@@ -1,5 +1,6 @@
 package solutions.trp.pmt.controller.api;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,11 +45,7 @@ public class ProjectController {
             dto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
             List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
 
-            if (tasks.size() > 2) {
-                dto.setTasks(tasks.subList(2, tasks.size()));
-            } else {
-                dto.setTasks(new ArrayList<>());
-            }
+            dto.setTasks(tasks.subList(0, Math.min(2, tasks.size())));
             return dto;
         }).toList();
 
@@ -75,7 +72,7 @@ public class ProjectController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createProject(
-            @RequestBody CreateProjectRequest request
+            @Valid @RequestBody CreateProjectRequest request
     ) {
 
         projectService.createProject(request.title());

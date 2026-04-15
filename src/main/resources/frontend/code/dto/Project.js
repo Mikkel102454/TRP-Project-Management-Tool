@@ -50,11 +50,11 @@ class Project{
     }
 
     async loadPreview(parent) {
-        let html = getComponent("project")
+        let html = await getComponent("project")
 
         const users = renderAvatars(this.scheduled.map(user => user.initial))
         const leaders = renderAvatars(this.leader.map(user => user.initial))
-        let tasks;
+        let tasks = "";
         for (const task of this.task) {
             tasks += await task.loadHtml();
         }
@@ -65,9 +65,15 @@ class Project{
             "isWorkedOn": this.isWorkedOn,
             "scheduled": users,
             "leader": leaders,
-            "tasks": tasks
+            "tasks": tasks,
+            "isActive": this.isWorkedOn ? "" : "hidden"
         })
 
-        parent.append(html)
+        parent.innerHTML += html;
+    }
+
+    async loadFull(parent) {
+        let html = await getComponent("projectFull")
+
     }
 }

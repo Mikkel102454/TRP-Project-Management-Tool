@@ -8,7 +8,7 @@ function renderAvatars(initialsList) {
 
     visible.forEach((initials, i) => {
         html += `
-            <div class="w-7 h-7 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold">
+            <div class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold leading-none">
                 ${initials}
             </div>
         `;
@@ -16,7 +16,7 @@ function renderAvatars(initialsList) {
 
     if (remaining > 0) {
         html += `
-            <div class="w-7 h-7 bg-gray-200 rounded-full flex items-center justify-center text-xs font-bold">
+            <div class="w-8 h-8 bg-blue-200 rounded-full flex items-center justify-center text-xs font-bold leading-none">
                 +${remaining}
             </div>
         `;

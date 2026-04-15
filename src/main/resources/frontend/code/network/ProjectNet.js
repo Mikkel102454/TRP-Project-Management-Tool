@@ -24,7 +24,7 @@ async function getProject(id){
 
         if (!data.success) return null;
 
-        return FullProject.fromJson(data.data);
+        return Project.fromJson(data.data);
     } catch (e) {
         log(e, Levels.SEVERE)
     }

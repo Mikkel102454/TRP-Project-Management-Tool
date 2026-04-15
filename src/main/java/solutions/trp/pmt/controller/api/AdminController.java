@@ -1,5 +1,6 @@
 package solutions.trp.pmt.controller.api;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -46,7 +47,7 @@ public class AdminController {
 
     @PostMapping("/user")
     public ResponseEntity<ApiResponse<Void>> createUser(
-            @RequestBody CreateUserRequest request
+            @Valid @RequestBody CreateUserRequest request
     ) {
 
         userService.addUser(
@@ -63,7 +64,7 @@ public class AdminController {
 
     @PatchMapping("/user")
     public ResponseEntity<ApiResponse<Void>> updateUser(
-            @RequestBody UpdateUserRequest request
+            @Valid @RequestBody UpdateUserRequest request
     ) {
 
         userService.updateUser(
