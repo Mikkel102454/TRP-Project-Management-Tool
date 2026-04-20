@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.dto.request.CreateTaskRequest;
+import solutions.trp.pmt.dto.request.UpdateTaskRequest;
 import solutions.trp.pmt.service.TaskService;
 
 import java.sql.Timestamp;
@@ -41,7 +42,7 @@ public class TaskController {
                 .body(ApiResponse.ok());
     }
 
-    @PostMapping("//schedule")
+    @PostMapping("/schedule")
     public ResponseEntity<ApiResponse<Void>> scheduleUser(
             @RequestParam int taskId,
             @RequestParam int userId
@@ -70,7 +71,7 @@ public class TaskController {
             @RequestParam int taskId
     ) {
 
-        taskService.deleteTask(taskId);
+        taskService.deleteTask(taskId, true);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
@@ -91,6 +92,36 @@ public class TaskController {
         );
 
         return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.ok());
+    }
+
+    @PatchMapping
+    public ResponseEntity<ApiResponse<Void>> updateTask(
+            @Valid @RequestBody UpdateTaskRequest request
+    ) {
+
+        taskService.updateTask(
+                request.title(),
+                request.taskId(),
+                request.isCompleted(),
+                request.deadline() != null ? Timestamp.valueOf(request.deadline()) : null,
+                request.estimatedTime(),
+                request.description()
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
+
+    @PostMapping("/order")
+    public ResponseEntity<ApiResponse<Void>> changeTaskPriority(
+            @RequestParam int taskId,
+            @RequestParam int priority
+    ) {
+
+        taskService.changeTaskPriority(taskId, priority);
+
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
     }
 }

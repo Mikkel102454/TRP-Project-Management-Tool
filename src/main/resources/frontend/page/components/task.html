@@ -1,10 +1,35 @@
 <div draggable="true"
      onclick="openModal({{id}})"
-     class="task-item flex items-center justify-between px-6 py-4 border-b hover:bg-gray-50 cursor-grab transition-all duration-200">
+     class="task-item flex items-center justify-between px-6 py-4 border-b hover:bg-gray-50 cursor-grab transition-all duration-200"
+     data-id="{{id}}">
 
     <div class="flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center text-xs font-bold">
-            {{estimatedTime}}
+        <div class="relative w-10 h-10">
+
+            <!-- Background circle -->
+            <svg class="w-10 h-10 rotate-[-90deg]">
+                <circle
+                        cx="20" cy="20" r="16"
+                        stroke="#e5e7eb"
+                        stroke-width="3"
+                        fill="transparent" />
+
+                <!-- Progress circle -->
+                <circle
+                        cx="20" cy="20" r="16"
+                        stroke="currentColor"
+                        stroke-width="3"
+                        fill="transparent"
+                        stroke-linecap="round"
+                        stroke-dasharray="100"
+                        stroke-dashoffset="{{progressOffset}}"
+                        class="{{progressColor}} transition-all duration-300" />
+            </svg>
+
+            <!-- Center content -->
+            <div class="absolute inset-0 flex items-center justify-center text-xs font-bold">
+                {{estimatedTime}}
+            </div>
         </div>
         <span class="text-gray-800">{{title}}</span>
     </div>

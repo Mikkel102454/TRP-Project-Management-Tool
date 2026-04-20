@@ -10,4 +10,6 @@ public interface ScheduledRepository extends JpaRepository<ScheduledEntity, Inte
     boolean existsByUserEntity_IdAndTaskEntity_Id(Integer userId, Integer taskId);
     Optional<ScheduledEntity> findByUserEntity_IdAndTaskEntity_Id(Integer userId, Integer taskId);
     List<ScheduledEntity> findAllByTaskEntity_Id(Integer taskId);
+
+    void deleteByTaskEntity_Id(Integer taskId);
 }

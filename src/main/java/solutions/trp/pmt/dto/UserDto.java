@@ -4,7 +4,8 @@ public class UserDto {
     private int id;
     private String username;
     private String initial;
-
+    private boolean isAdmin;
+    private boolean isEnabled;
     public int getId() {
         return id;
     }
@@ -27,5 +28,21 @@ public class UserDto {
 
     public void setInitial(String initial) {
         this.initial = initial;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
+    }
+
+    public boolean isEnabled() {
+        return isEnabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        isEnabled = enabled;
     }
 }

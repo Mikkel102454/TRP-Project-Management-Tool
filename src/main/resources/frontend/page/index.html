@@ -12,10 +12,39 @@
 <!-- NAVBAR -->
 <header class="bg-white shadow-sm">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 class="text-xl font-semibold text-gray-800">Dashboard</h1>
+        <a href="/" class="block rounded">
+            <h1 class="text-xl font-semibold text-gray-800">Projects</h1>
+        </a>
 
-        <div class="w-10 h-10 flex items-center justify-center rounded-full bg-blue-500 text-white font-semibold">
-            MK
+        <div class="relative inline-block">
+
+            <!-- User icon -->
+            <div id="headerIcon"
+                 class="w-10 h-10 bg-blue-200 font-bold rounded-full flex items-center justify-center cursor-pointer"
+                 onclick="toggleUserMenu()">...
+            </div>
+
+            <!-- Dropdown -->
+            <div id="userDropdown"
+                 class="hidden absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+
+                <!-- Logout -->
+                <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                        onclick="window.location.href = '/login';">
+                    Logout
+                </button>
+
+                <!-- Admin only -->
+                <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+
+                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                            onclick="window.location.href='/setup'">
+                        Setup Account
+                    </button>
+
+                </div>
+
+            </div>
         </div>
     </div>
 </header>
@@ -58,6 +87,14 @@
 
 </script>
 
+<script>
+    const headerIcon = document.getElementById("headerIcon");
+
+    const cachedInitial = localStorage.getItem("userInitial");
+    if (cachedInitial) {
+        headerIcon.innerText = cachedInitial;
+    }
+</script>
 <script src="/code/util/logger.js"></script>
 <script src="/code/util/components.js"></script>
 <script src="/code/util/avatar.js"></script>
@@ -67,6 +104,7 @@
 <script src="/code/dto/User.js"></script>
 <script src="/code/dto/Task.js"></script>
 <script src="/code/dto/Project.js"></script>
+<script src="/code/util/header.js"></script>
 
 <script src="/code/network/ProjectNet.js"></script>
 <script src="/code/network/TaskNet.js"></script>

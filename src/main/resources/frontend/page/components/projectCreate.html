@@ -33,8 +33,17 @@
         Cancel
       </button>
 
-      <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
-              onclick="createProject(document.getElementById('projectTitleInput').value); loadProjects(); document.getElementById('projectModal').remove();">
+      <button
+              class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
+              onclick="(async () => {
+    const input = document.getElementById('projectTitleInput');
+    const modal = document.getElementById('projectModal');
+
+    await createProject(input.value);
+    await loadProjects();
+
+    modal.remove();
+  })()">
         Create Project
       </button>
 

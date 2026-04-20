@@ -5,10 +5,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
+import solutions.trp.pmt.datasource.users.UserEntity;
+import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.dto.request.CreateUserRequest;
 import solutions.trp.pmt.dto.request.UpdateUserRequest;
 import solutions.trp.pmt.service.TaskService;
 import solutions.trp.pmt.service.UserService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/admin")

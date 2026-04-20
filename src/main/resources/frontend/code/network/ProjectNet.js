@@ -32,6 +32,10 @@ async function getProject(id){
 
 async function createProject(title) {
     try {
+        if(title === null || title === "") {
+            log("Title cannot be empty", Levels.SEVERE);
+            return;
+        }
         const response = await fetch(`${API_ROOT}/project`, {
             method: "POST",
             headers: {
@@ -55,7 +59,7 @@ async function createProject(title) {
 
 async function removeProject(id){
     try {
-        const response = await fetch(`${API_ROOT}/project?projectId=${encodeURIComponent(id)}`, {
+        const response = await fetch(`${API_ROOT}/project/${encodeURIComponent(id)}`, {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json"

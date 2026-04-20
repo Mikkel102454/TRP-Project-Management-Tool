@@ -6,10 +6,20 @@ import org.hibernate.annotations.OnDeleteAction;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.dto.TaskDto;
+import solutions.trp.pmt.service.TimeService;
 
 import java.sql.Timestamp;
 
 @Entity(name = "task")
+@Table(
+        name = "task",
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "uk_project_task_order",
+                        columnNames = {"project_id", "task_order"}
+                )
+        }
+)
 public class TaskEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +40,7 @@ public class TaskEntity {
     @Column(nullable = false, name = "is_completed")
     private Boolean isCompleted;
 
-    @Column(unique = true, nullable = false, name = "task_order")
+    @Column(unique = false, nullable = false, name = "task_order")
     private int taskOrder;
 
     @Column(name = "deadline")
@@ -110,7 +120,7 @@ public class TaskEntity {
         this.description = description;
     }
 
-    public TaskDto toDto() {
+    public TaskDto toDto(TimeService timeService) {
         TaskDto dto = new TaskDto();
         dto.setId(id);
         dto.setTitle(title);
@@ -122,6 +132,7 @@ public class TaskEntity {
         dto.setCreator(creatorEntity.toDto());
         dto.setDescription(description);
         dto.setDeadline(deadline != null ? deadline.toLocalDateTime() : null);
+        dto.setSpent(timeService.calculateTime(id, projectEntity.getId(), null));
         return dto;
     }
 }

@@ -19,6 +19,7 @@ public class TaskDto {
     private String description;
     private List<UserDto> actives;
     private List<UserDto> scheduled;
+    private int spent;
 
     public int getId() {
         return id;
@@ -106,5 +107,13 @@ public class TaskDto {
 
     public void setScheduled(List<UserDto> scheduled) {
         this.scheduled = scheduled;
+    }
+
+    public int getSpent() {
+        return spent;
+    }
+
+    public void setSpent(int spent) {
+        this.spent = spent;
     }
 }

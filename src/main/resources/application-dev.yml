@@ -10,6 +10,13 @@ logging:
     path: logs
 
 spring:
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          no-store: false
+          cache-public: true
+          max-age: 365d
   datasource:
     password: TRPnimda10
     url: jdbc:mysql://localhost:3306/pmt
@@ -17,7 +24,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create-only
 
     show-sql: false
 

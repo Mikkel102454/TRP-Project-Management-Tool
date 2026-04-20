@@ -96,6 +96,8 @@ public class UserEntity implements UserDetails {
         dto.setId(id);
         dto.setUsername(username);
         dto.setInitial(initial);
+        dto.setAdmin(admin);
+        dto.setEnabled(enabled);
 
         return dto;
     }

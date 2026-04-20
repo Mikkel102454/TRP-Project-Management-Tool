@@ -14,6 +14,7 @@ function log(msg, level){
             break;
         case 2:
             console.error(msg);
+            alert(msg);
             break;
         default:
             console.warn("---------------------------------");

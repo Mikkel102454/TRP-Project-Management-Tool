@@ -12,6 +12,7 @@ import solutions.trp.pmt.datasource.leaders.LeaderEntity;
 import solutions.trp.pmt.datasource.leaders.LeaderRepository;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.projects.ProjectRepository;
+import solutions.trp.pmt.datasource.tasks.TaskEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.dto.TaskDto;
@@ -66,6 +67,9 @@ public class ProjectService {
     }
 
     public void deleteProject(int projectId) {
+        for(TaskDto task : taskService.getFromProjectId(projectId)) {
+            taskService.deleteTask(task.getId(), false);
+        }
         repository.deleteById(projectId);
     }
 

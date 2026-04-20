@@ -9,4 +9,5 @@ public interface ActiveRepository extends JpaRepository<ActiveEntity, Integer> {
     boolean existsByUserEntity_IdAndTaskEntity_Id(Integer userId, Integer taskId);
     Optional<ActiveEntity> findByUserEntity_IdAndTaskEntity_Id(Integer userId, Integer taskId);
     List<ActiveEntity> findAllByTaskEntity_Id(Integer taskId);
+    void deleteByTaskEntity_Id(Integer taskId);
 }

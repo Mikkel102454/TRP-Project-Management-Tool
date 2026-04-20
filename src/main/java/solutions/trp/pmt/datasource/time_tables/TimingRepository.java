@@ -16,7 +16,7 @@ WHERE (:taskId IS NULL OR t.task_id = :taskId)
   ))
   AND t.user_id IN (:userIds)
 """, nativeQuery = true)
-    long sumTime(Integer taskId, Integer projectId, List<Integer> userIds);
+    int sumTime(Integer taskId, Integer projectId, List<Integer> userIds);
 
     @Query(value = """
 SELECT COALESCE(SUM(t.time), 0)
@@ -26,5 +26,7 @@ WHERE (:taskId IS NULL OR t.task_id = :taskId)
       SELECT id FROM task WHERE project_id = :projectId
   ))
 """, nativeQuery = true)
-    long sumTime(Integer taskId, Integer projectId);
+    int sumTime(Integer taskId, Integer projectId);
+
+    void deleteByTaskEntity_Id(Integer taskId);
 }

@@ -87,4 +87,8 @@ public class UserService {
     public UserEntity getCurrentUser(){
         return appUserDetailsService.getUserEntity();
     }
+
+    public List<UserEntity> getAllUsers() {
+        return userRepository.findAll();
+    }
 }

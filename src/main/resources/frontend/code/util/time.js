@@ -15,7 +15,7 @@ function timeShorter(time) {
         }
     }
 
-    return "0s";
+    return "0S";
 }
 
 function timeShorterLong(time) {
@@ -36,6 +36,26 @@ function timeShorterLong(time) {
     }
 
     return "0 seconds";
+}
+
+function timeShorterShort(time) {
+    const units = [
+        { label: 'y', value: 60 * 60 * 24 * 365 },
+        { label: 'm', value: 60 * 60 * 24 * 30 },
+        { label: 'd', value: 60 * 60 * 24 },
+        { label: 'h', value: 60 * 60 },
+        { label: 'm', value: 60 },
+        { label: 's', value: 1 }
+    ];
+
+    for (let unit of units) {
+        if (time >= unit.value) {
+            const result = Math.floor(time / unit.value);
+            return result + unit.label;
+        }
+    }
+
+    return "0s";
 }
 
 function timeLongerShort(input) {

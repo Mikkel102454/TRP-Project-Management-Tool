@@ -10,8 +10,9 @@ class Task{
     description
     actives
     scheduled
+    spent
 
-    constructor(id, title, projectId, isCompleted, taskOrder, deadline, estimatedTime, creator, description, actives, scheduled) {
+    constructor(id, title, projectId, isCompleted, taskOrder, deadline, estimatedTime, creator, description, actives, scheduled, spent) {
         this.id = id;
         this.title = title;
         this.projectId = projectId;
@@ -23,6 +24,7 @@ class Task{
         this.description = description;
         this.actives = actives;
         this.scheduled = scheduled;
+        this.spent = spent;
     }
 
     static fromJson(json){
@@ -41,7 +43,7 @@ class Task{
 
             const creator = User.fromJson(json.creator);
 
-            return new Task(json.id, json.title, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled)
+            return new Task(json.id, json.title, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled, json.spent)
         } catch (e){
             log(e, Levels.WARNING)
             return null;
@@ -58,6 +60,16 @@ class Task{
         const scheduled = renderAvatars(this.scheduled.map(user => user.initial))
         const actives = renderAvatars(this.actives.map(user => user.initial))
         const creator = renderAvatars(this.creator?.initial ? [this.creator.initial] : []);
+
+        const percent = this.estimatedTime > 0
+            ? Math.min(this.spent / this.estimatedTime, 1)
+            : 0;
+        let progressOffset = percent * 100;
+
+        if(progressOffset === 100) progressOffset = 0;
+        const progressColor = this.spent >= this.estimatedTime
+            ? "text-red-500"
+            : "text-blue-500";
         html = updateComponent(html, {
             "id": this.id,
             "title": this.title,
@@ -69,7 +81,9 @@ class Task{
             "creator": creator,
             "description": this.description,
             "actives": actives,
-            "scheduled": scheduled
+            "scheduled": scheduled,
+            "progressOffset": progressOffset,
+            "progressColor": progressColor
         })
 
         parent.innerHTML += html;
@@ -81,18 +95,21 @@ class Task{
         const scheduled = renderAvatars(this.scheduled.map(user => user.initial))
         const actives = renderAvatars(this.actives.map(user => user.initial))
         const creator = renderAvatars(this.creator?.initial ? [this.creator.initial] : []);
-        const isActive = this.actives.some(async user => user.id === await getUser().id);
+        const currentUser = await getUser();
+        const isActive = this.actives.some(user => user.id === currentUser.id);
 
-        let formatted = null;
-        if(this.deadline != null){
-            const date = new Date(this.deadline);
+        let deadlineValue = "";
 
-            formatted =
-                date.getDate() + "/" +
-                (date.getMonth() + 1) + "/" +
-                date.getFullYear() + " " +
-                String(date.getHours()).padStart(2, "0") + "." +
-                String(date.getMinutes()).padStart(2, "0");
+        if (this.deadline) {
+            const d = new Date(this.deadline);
+
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const day = String(d.getDate()).padStart(2, "0");
+            const hours = String(d.getHours()).padStart(2, "0");
+            const minutes = String(d.getMinutes()).padStart(2, "0");
+
+            deadlineValue = `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
         html = updateComponent(html, {
@@ -102,8 +119,8 @@ class Task{
             "isCompleted": this.isCompleted,
             "taskOrder": this.taskOrder,
             "priority": this.taskOrder < 3 ? "High" : "Normal",
-            "deadline": formatted !== null ? formatted : "No Deadline",
-            "estimatedTime": this.estimatedTime !== 0 ? timeShorterLong(this.estimatedTime) : "No Estimate",
+            "deadline": deadlineValue,
+            "estimatedTime": this.estimatedTime !== 0 ? timeShorterShort(this.estimatedTime) : "",
             "creator": creator,
             "description": this.description,
             "actives": actives,
