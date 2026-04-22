@@ -69,7 +69,6 @@ async function removeUserToProject(userId) {
 
 async function deleteProject(){
     await removeProject(project.id)
-    loadProject();
 }
 
 async function deleteTask(id){

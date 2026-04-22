@@ -6,7 +6,7 @@ async function getComponent(name){
     }
 
     try {
-        const response = await fetch(`${DOMAIN_ROOT}/components/` + name, {
+        const response = await fetch(`${DOMAIN_ROOT + CONTEXT_PATH}/components/` + name, {
             method: "GET",
         });
 

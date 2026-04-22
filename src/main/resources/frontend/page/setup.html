@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Accounts</title>
-    <link href="/style/style.css" rel="stylesheet">
+    <link th:href="@{/style/style.css}" rel="stylesheet">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
 <header class="bg-white shadow-sm">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a href="/" class="block rounded">
+        <a th:href="@{/}" class="block rounded">
             <h1 class="text-xl font-semibold text-gray-800">Accounts</h1>
         </a>
 
@@ -28,7 +28,7 @@
 
                 <!-- Logout -->
                 <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                        onclick="window.location.href = '/login';">
+                        th:onclick="|window.location.href='@{/logout}'|">
                     Logout
                 </button>
 
@@ -36,7 +36,7 @@
                 <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
 
                     <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                            onclick="window.location.href='/setup'">
+                            th:onclick="|window.location.href='@{/setup}'|">
                         Setup Account
                     </button>
 
@@ -140,16 +140,20 @@
     </div>
 </div>
 
-<script src="/code/util/logger.js"></script>
-<script src="/code/util/components.js"></script>
-<script src="/code/util/avatar.js"></script>
-<script src="/code/util/user.js"></script>
-<script src="/code/consts.js"></script>
+<script th:inline="javascript">
+    let CONTEXT_PATH = /*[[@{/}]]*/ '/';
+    CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+</script>
+<script th:src="@{/code/util/logger.js}"></script>
+<script th:src="@{/code/util/components.js}"></script>
+<script th:src="@{/code/util/avatar.js}"></script>
+<script th:src="@{/code/util/user.js}"></script>
+<script th:src="@{/code/consts.js}"></script>
 
-<script src="/code/network/UserNet.js"></script>
+<script th:src="@{/code/network/UserNet.js}"></script>
 
-<script src="/code/dto/User.js"></script>
-<script src="/code/util/header.js"></script>
+<script th:src="@{/code/dto/User.js}"></script>
+<script th:src="@{/code/util/header.js}"></script>
 
 <script>
 

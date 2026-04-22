@@ -32,8 +32,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/code/admin.js", "/style/admin.css").hasRole("ADMIN")
                         .requestMatchers("/login", "/api/public/**", "/style/**",
-                                "/resource/**", "/code/**", "/pages/download.html",
-                                "/download/**", "/notfound").permitAll()
+                                "/resource/**", "/code/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

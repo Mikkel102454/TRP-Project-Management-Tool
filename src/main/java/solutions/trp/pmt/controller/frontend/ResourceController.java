@@ -28,7 +28,7 @@ public class ResourceController {
 
     @GetMapping(value = "/code/**", produces = "text/javascript")
     public ResponseEntity<String> code(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        String uri = request.getServletPath();
         String file = uri.substring("/code/".length());
 
         if (!file.endsWith(".js")) {
@@ -40,7 +40,7 @@ public class ResourceController {
     }
     @GetMapping("/style/**")
     public ResponseEntity<String> style(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        String uri = request.getServletPath();
         String file = uri.substring("/style/".length());
 
         if (!file.endsWith(".css")) {

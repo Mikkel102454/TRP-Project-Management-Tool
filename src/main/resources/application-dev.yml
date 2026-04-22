@@ -4,7 +4,7 @@ logging:
     org:
       hibernate.SQL: error
       springframework:
-        security=DEBUG:
+        security: DEBUG
 
   file:
     path: logs
@@ -31,3 +31,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+server:
+  port: 8080
+  address: 0.0.0.0
+  servlet:
+    context-path: /pmt

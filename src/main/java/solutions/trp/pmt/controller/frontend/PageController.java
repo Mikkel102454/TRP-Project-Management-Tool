@@ -23,25 +23,19 @@ public class PageController {
         this.resourceLoader = resourceLoader;
     }
 
-//    @Cacheable("resources")
-//    @GetMapping("/{page}")
-//    public String rootPage(@PathVariable String page) {
-//        if (page.endsWith(".html")) page = page.substring(0, page.length() - 5);
-//
-//        String path = "classpath:/frontend/page/" + page + ".html";
-//        Resource resource = resourceLoader.getResource(path);
-//
-//        if (resource.exists()) {
-//            return "frontend/page/" + page;
-//        } else {
-//            return "handler/404";
-//        }
-//    }
+    @GetMapping("/login")
+    public String loginPage() {
+        return "frontend/page/login";
+    }
 
     @Cacheable("resources")
     @GetMapping(value = "/**")
     public String rootPage(HttpServletRequest request) {
-        String uri = request.getRequestURI();
+        String uri = request.getServletPath();
+        if (uri.startsWith("/")) {
+            uri = uri.substring(1);
+        }
+
         if (uri.endsWith(".html")) uri = uri.substring(0, uri.length() - 5);
 
 

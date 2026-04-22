@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Tasks</title>
-  <link href="/style/style.css" rel="stylesheet">
+  <link th:href="@{/style/style.css}" rel="stylesheet">
 
   <style>
     .dragging {
@@ -21,7 +21,7 @@
 <!-- Navbar -->
 <header class="bg-white shadow-sm">
   <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-    <a href="/" class="block rounded">
+    <a th:href="@{/}" class="block rounded">
       <h1 class="text-xl font-semibold text-gray-800">Tasks</h1>
     </a>
 
@@ -39,7 +39,7 @@
 
         <!-- Logout -->
         <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                onclick="window.location.href = '/login';">
+                th:onclick="|window.location.href='@{/logout}'|">
         Logout
         </button>
 
@@ -47,7 +47,7 @@
         <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
 
           <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                  onclick="window.location.href='/setup'">
+                  th:onclick="|window.location.href='@{/setup}'|">
             Setup Account
           </button>
 
@@ -71,12 +71,12 @@
       <div class="flex gap-2">
         <button
                 class="bg-red-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-600 transition shadow-sm"
-                onclick="(async () => {
-                  const confirmDelete = confirm('Are you sure you want to delete this project?');
-                  if (!confirmDelete) return;
-                  await deleteProject();
-                  window.location.replace('/');
-                })()">
+                th:attr="onclick=|(async () => {
+    const confirmDelete = confirm('Are you sure you want to delete this project?');
+    if (!confirmDelete) return;
+    await deleteProject();
+    window.location.replace('@{/}');
+  })()|">
           Delete
         </button>
 
@@ -102,6 +102,11 @@
 </div>
 
 <!-- JS -->
+<script th:inline="javascript">
+  let CONTEXT_PATH = /*[[@{/}]]*/ '/';
+  CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+</script>
+
 <script>
 window.addEventListener('click', function(e) {
   const modal = document.getElementById('taskModal');
@@ -317,21 +322,21 @@ function getDragAfterElement(container, y) {
   }
 </script>
 
-<script src="/code/util/logger.js"></script>
-<script src="/code/util/components.js"></script>
-<script src="/code/util/avatar.js"></script>
-<script src="/code/util/time.js"></script>
-<script src="/code/util/user.js"></script>
-<script src="/code/consts.js"></script>
+<script th:src="@{/code/util/logger.js}"></script>
+<script th:src="@{/code/util/components.js}"></script>
+<script th:src="@{/code/util/avatar.js}"></script>
+<script th:src="@{/code/util/time.js}"></script>
+<script th:src="@{/code/util/user.js}"></script>
+<script th:src="@{/code/consts.js}"></script>
 
-<script src="/code/dto/User.js"></script>
-<script src="/code/dto/Task.js"></script>
-<script src="/code/dto/Project.js"></script>
-<script src="/code/util/header.js"></script>
+<script th:src="@{/code/dto/User.js}"></script>
+<script th:src="@{/code/dto/Task.js}"></script>
+<script th:src="@{/code/dto/Project.js}"></script>
+<script th:src="@{/code/util/header.js}"></script>
 
-<script src="/code/network/ProjectNet.js"></script>
-<script src="/code/network/TaskNet.js"></script>
-<script src="/code/pages/task.js"></script>
+<script th:src="@{/code/network/ProjectNet.js}"></script>
+<script th:src="@{/code/network/TaskNet.js}"></script>
+<script th:src="@{/code/pages/task.js}"></script>
 
 </body>
 </html>

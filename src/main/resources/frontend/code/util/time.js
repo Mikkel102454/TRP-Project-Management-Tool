@@ -69,7 +69,10 @@ function timeLongerShort(input) {
     };
 
     const match = input.match(/^(\d+)(Y|MO|D|H|M|S)$/i);
-    if (!match) return 0;
+    if (!match){
+        log("Invalid time string", Levels.SEVERE);
+        return;
+    }
 
     const value = parseInt(match[1], 10);
     const unit = match[2].toUpperCase();
@@ -94,7 +97,10 @@ function timeLongerLong(input) {
     };
 
     const match = input.match(/^(\d+)\s*(\w+)$/i);
-    if (!match) return 0;
+    if (!match){
+        log("Invalid time string", Levels.SEVERE);
+        return;
+    }
 
     const value = parseInt(match[1], 10);
     const unit = match[2].toLowerCase();
