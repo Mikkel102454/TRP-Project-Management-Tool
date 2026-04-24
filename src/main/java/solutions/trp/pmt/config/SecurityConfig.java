@@ -1,5 +1,6 @@
 package solutions.trp.pmt.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import solutions.trp.pmt.service.AppUserDetailsService;
 import solutions.trp.pmt.util.PasswordEncoding;
 
@@ -21,16 +23,20 @@ import solutions.trp.pmt.util.PasswordEncoding;
 @EnableWebSecurity
 public class SecurityConfig {
     private final AppUserDetailsService userDetailsService;
+    private final ApiKeyFilter apiKeyFilter;
 
-    public SecurityConfig(AppUserDetailsService userDetailsService) {
+    public SecurityConfig(AppUserDetailsService userDetailsService, ApiKeyFilter apiKeyFilter) {
         this.userDetailsService = userDetailsService;
+        this.apiKeyFilter = apiKeyFilter;
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/code/admin.js", "/style/admin.css").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/pages/setup.html", "/pages/time.html", "/pages/timetable.html", "/code/admin.js", "/style/admin.css", "/api/time/summary").hasRole("ADMIN")
                         .requestMatchers("/login", "/api/public/**", "/style/**",
                                 "/resource/**", "/code/**").permitAll()
                         .anyRequest().authenticated()

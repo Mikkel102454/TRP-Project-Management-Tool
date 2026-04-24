@@ -1,14 +1,18 @@
 package solutions.trp.pmt.controller.api;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import solutions.trp.pmt.controller.api.execption.UnauthorizedException;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
+import solutions.trp.pmt.datasource.time_tables.TimingEntity;
+import solutions.trp.pmt.dto.TimeDto;
+import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.service.TimeService;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -21,18 +25,33 @@ public class TimeController {
         this.timeService = timeService;
     }
 
-//    GET /time-entries/summary?taskId=1
-//    GET /time-entries/summary?taskId=1&userIds=2,3
-//    GET /time-entries/summary?projectId=5
-//    GET /time-entries/summary?projectId=5&userIds=2,3
-//    GET /time-entries/summary?userIds=2,3
+    @GetMapping("/summary/full")
+    public ResponseEntity<ApiResponse<List<TimeDto>>> getAllTimeSummary() {
+        return ResponseEntity.ok(ApiResponse.ok(timeService.getAllTime().stream().map(TimingEntity::toDto).toList()));
+    }
+
     @GetMapping("/summary")
-    public ResponseEntity<ApiResponse<Long>> getTimeSummary(
-            @RequestParam(required = false) Integer taskId,
-            @RequestParam(required = false) Integer projectId,
-            @RequestParam(required = false) List<Integer> userIds
+    public ResponseEntity<ApiResponse<List<TimeDto>>> getAllTimeSummary(
+            @RequestParam Integer userId
     ) {
-        long totalTime = timeService.calculateTime(taskId, projectId, userIds);
-        return ResponseEntity.ok(ApiResponse.ok(totalTime));
+        return ResponseEntity.ok(ApiResponse.ok(timeService.getAllTimeByUserId(userId).stream().map(TimingEntity::toDto).toList()));
+    }
+
+    @DeleteMapping("/summary")
+    public ResponseEntity<ApiResponse<List<TimeDto>>> deleteTimeSummary(
+            @RequestParam Integer timeId
+    ) {
+        timeService.deleteTimeEntry(timeId);
+        return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @PatchMapping("/summary")
+    public ResponseEntity<ApiResponse<List<TimeDto>>> updateTimeSummary(
+            @RequestParam Integer timeId,
+            @RequestParam LocalDateTime startTime,
+            @RequestParam LocalDateTime endTime
+    ) {
+        timeService.updateTimeEntry(timeId, startTime, endTime);
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 }

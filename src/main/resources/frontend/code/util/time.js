@@ -59,6 +59,7 @@ function timeShorterShort(time) {
 }
 
 function timeLongerShort(input) {
+    if (!input || input.trim() === "") return 0;
     const units = {
         Y: 60 * 60 * 24 * 365,
         MO: 60 * 60 * 24 * 30,
@@ -81,6 +82,7 @@ function timeLongerShort(input) {
 }
 
 function timeLongerLong(input) {
+    if (!input || input.trim() === "") return 0;
     const units = {
         years: 60 * 60 * 24 * 365,
         year: 60 * 60 * 24 * 365,

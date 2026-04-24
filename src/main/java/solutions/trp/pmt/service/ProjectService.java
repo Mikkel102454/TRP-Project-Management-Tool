@@ -122,4 +122,8 @@ public class ProjectService {
     public List<UserEntity> getProjectLeaders(ProjectEntity project) {
         return leaderRepository.findAllByProjectEntity_Id(project.getId()).stream().map(LeaderEntity::getUserEntity).toList();
     }
+
+    public List<ProjectEntity> getAll() {
+        return repository.findAll();
+    }
 }

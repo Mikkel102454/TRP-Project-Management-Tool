@@ -159,7 +159,8 @@ public class TaskService {
         TimingEntity timeTable = new TimingEntity();
         timeTable.setTaskEntity(task);
         timeTable.setUserEntity(user);
-        timeTable.setTime(Duration.between(active.getStamp(), LocalDateTime.now()).getSeconds());
+        timeTable.setStartTime(Timestamp.valueOf(active.getStamp()));
+        timeTable.setEndTime(Timestamp.valueOf(LocalDateTime.now()));
 
         timingRepository.save(timeTable);
 
@@ -195,7 +196,8 @@ public class TaskService {
         TimingEntity timeTable = new TimingEntity();
         timeTable.setTaskEntity(task);
         timeTable.setUserEntity(user);
-        timeTable.setTime(Duration.between(active.getStamp(), LocalDateTime.now()).getSeconds());
+        timeTable.setStartTime(Timestamp.valueOf(active.getStamp()));
+        timeTable.setEndTime(Timestamp.valueOf(LocalDateTime.now()));
 
         timingRepository.save(timeTable);
 

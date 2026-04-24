@@ -2,18 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard</title>
+    <title>Time Registry</title>
     <link th:href="@{/style/style.css}" rel="stylesheet">
 </head>
 
 <body class="bg-gray-100 min-h-screen">
 
-<!-- NAVBAR -->
 <header class="bg-white shadow-sm">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
         <a th:href="@{/}" class="block rounded">
-            <h1 class="text-xl font-semibold text-gray-800">Projects</h1>
+            <h1 class="text-xl font-semibold text-gray-800">Time Registry</h1>
         </a>
 
         <div class="relative inline-block">
@@ -53,74 +51,74 @@
     </div>
 </header>
 
-<!-- CONTENT -->
-<main class="max-w-6xl mx-auto px-6 py-6">
+<main class="max-w-6xl mx-auto px-6 py-8">
 
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Projects</h2>
+    <div id="userList" class="flex flex-col gap-3"></div>
 
-        <button
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition shadow-sm" onclick="openCreateModal()">
-            + New Project
-        </button>
-    </div>
-
-    <!-- Placeholder -->
-    <div id="projects" class="flex flex-col gap-3">
-
-        <div class="bg-white p-4 rounded-xl shadow text-gray-500 text-sm">
-            Loading projects...
-        </div>
-
-    </div>
-
-    <!-- MODAL -->
-    <div id="popupHolder">
-
-    </div>
 </main>
 
-<!-- JS -->
 
 <script th:inline="javascript">
     let CONTEXT_PATH = /*[[@{/}]]*/ '/';
     CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
 </script>
-
-<script>
-    window.addEventListener('click', function(e) {
-        const modal = document.getElementById('projectModal');
-        if (e.target === modal) {
-            document.getElementById("projectModal").remove()
-        }
-    });
-
-</script>
-
-<script>
-    const headerIcon = document.getElementById("headerIcon");
-
-    const cachedInitial = localStorage.getItem("userInitial");
-    if (cachedInitial) {
-        headerIcon.innerText = cachedInitial;
-    }
-</script>
-
 <script th:src="@{/code/util/logger.js}"></script>
 <script th:src="@{/code/util/components.js}"></script>
 <script th:src="@{/code/util/avatar.js}"></script>
 <script th:src="@{/code/util/user.js}"></script>
-<script th:src="@{/code/util/string.js}"></script>
 <script th:src="@{/code/consts.js}"></script>
 
+<script th:src="@{/code/network/UserNet.js}"></script>
+
 <script th:src="@{/code/dto/User.js}"></script>
-<script th:src="@{/code/dto/Task.js}"></script>
-<script th:src="@{/code/dto/Project.js}"></script>
 <script th:src="@{/code/util/header.js}"></script>
 
-<script th:src="@{/code/network/ProjectNet.js}"></script>
-<script th:src="@{/code/network/TaskNet.js}"></script>
-<script th:src="@{/code/pages/index.js}"></script>
+<script>
+
+    let users = [];
+
+    function renderUsers() {
+        const container = document.getElementById("userList");
+        container.innerHTML = "";
+
+        users.forEach(user => {
+            const div = document.createElement("div");
+            div.className = "bg-white p-4 rounded-xl shadow flex justify-between items-center cursor-pointer hover:bg-gray-50";
+
+            div.innerHTML = `
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-200 rounded-full flex items-center justify-center font-semibold">
+                    ${user.initial || user.username[0].toUpperCase()}
+                </div>
+                <div>
+                    <p class="font-medium text-gray-800">${user.username}</p>
+                    <p class="text-sm text-gray-500">${user.isAdmin ? "Admin" : "User"}</p>
+                </div>
+            </div>
+        `;
+
+            div.onclick = () => window.location.href = `timetable?id=${user.id}`;
+
+            container.appendChild(div);
+        });
+    }
+
+    async function loadUsers() {
+        users = await getAllUsers();
+
+        renderUsers();
+    }
+
+    window.addEventListener('click', function(e) {
+        const modal = document.getElementById('userModal');
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+
+    loadUsers();
+
+</script>
 
 </body>
 </html>

@@ -72,7 +72,7 @@ class Task{
             : "text-blue-500";
         html = updateComponent(html, {
             "id": this.id,
-            "title": this.title,
+            "title": escapeHtmlAttr(this.title),
             "projectId": this.projectId,
             "isCompleted": this.isCompleted,
             "taskOrder": this.taskOrder,
@@ -114,7 +114,7 @@ class Task{
 
         html = updateComponent(html, {
             "id": this.id,
-            "title": this.title,
+            "title": escapeHtmlAttr(this.title),
             "projectId": this.projectId,
             "isCompleted": this.isCompleted,
             "taskOrder": this.taskOrder,

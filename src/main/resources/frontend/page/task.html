@@ -51,6 +51,10 @@
             Setup Account
           </button>
 
+          <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
+                  th:onclick="|window.location.href='@{/time}'|">
+            Time Registry
+          </button>
         </div>
 
       </div>
@@ -327,6 +331,7 @@ function getDragAfterElement(container, y) {
 <script th:src="@{/code/util/avatar.js}"></script>
 <script th:src="@{/code/util/time.js}"></script>
 <script th:src="@{/code/util/user.js}"></script>
+<script th:src="@{/code/util/string.js}"></script>
 <script th:src="@{/code/consts.js}"></script>
 
 <script th:src="@{/code/dto/User.js}"></script>

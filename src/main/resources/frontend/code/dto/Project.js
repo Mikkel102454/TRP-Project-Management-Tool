@@ -60,7 +60,7 @@ class Project{
         }
         html = updateComponent(html, {
             "id": this.id,
-            "title": this.title,
+            "title": escapeHtmlAttr(this.title),
             "projectOrder": this.projectOrder,
             "isWorkedOn": this.isWorkedOn,
             "scheduled": users,

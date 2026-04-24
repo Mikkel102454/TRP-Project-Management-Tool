@@ -1,12 +1,16 @@
 package solutions.trp.pmt.service;
 
 import org.springframework.stereotype.Service;
+import solutions.trp.pmt.controller.api.execption.NotFoundException;
 import solutions.trp.pmt.datasource.actives.ActiveEntity;
 import solutions.trp.pmt.datasource.actives.ActiveRepository;
+import solutions.trp.pmt.datasource.time_tables.TimingEntity;
 import solutions.trp.pmt.datasource.time_tables.TimingRepository;
 
+import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -20,6 +24,8 @@ public class TimeService {
     }
 
     public int calculateTime(Integer taskId, Integer projectId, List<Integer> userIds) {
+
+
         int spent = 0;
         for(ActiveEntity activeEntity : activeRepository.findAllByTaskEntity_Id(taskId)) {
             spent += (int) Duration.between(activeEntity.getStamp(), LocalDateTime.now()).getSeconds();
@@ -29,5 +35,25 @@ public class TimeService {
             return timingRepository.sumTime(taskId, projectId) + spent;
         }
         return timingRepository.sumTime(taskId, projectId, userIds) + spent;
+    }
+
+    public List<TimingEntity> getAllTime() {
+        return timingRepository.findAll();
+    }
+
+    public List<TimingEntity> getAllTimeByUserId(int userId) {
+        return timingRepository.findAllByUserEntity_Id(userId);
+    }
+
+    public void deleteTimeEntry(int id) {
+        timingRepository.deleteById(id);
+    }
+
+    public void updateTimeEntry(int id, LocalDateTime startTime, LocalDateTime endTime) {
+        TimingEntity timingEntity = timingRepository.findById(id).orElseThrow(() -> new NotFoundException("Could not find time entry"));
+        timingEntity.setStartTime(Timestamp.valueOf(startTime));
+        timingEntity.setEndTime(Timestamp.valueOf(endTime));
+
+        timingRepository.save(timingEntity);
     }
 }

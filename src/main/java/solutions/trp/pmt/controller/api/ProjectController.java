@@ -70,6 +70,39 @@ public class ProjectController {
                 .body(ApiResponse.ok(projectDto));
     }
 
+    @GetMapping("/details")
+    public ResponseEntity<ApiResponse<List<ProjectDto>>> getAllProjectDetails() {
+
+        List<ProjectEntity> projects = projectService.getAll();
+
+        List<ProjectDto> projectDtos = projects.stream().map(project -> {
+
+            List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
+
+            ProjectDto dto = project.toDto();
+
+            dto.setTasks(tasks);
+            dto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
+            dto.setLeader(
+                    projectService.getProjectLeaders(project)
+                            .stream()
+                            .map(UserEntity::toDto)
+                            .toList()
+            );
+            dto.setScheduled(
+                    projectService.getAllScheduledUsers(project)
+                            .stream()
+                            .map(UserEntity::toDto)
+                            .toList()
+            );
+
+            return dto;
+
+        }).toList();
+
+        return ResponseEntity.ok(ApiResponse.ok(projectDtos));
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> createProject(
             @Valid @RequestBody CreateProjectRequest request

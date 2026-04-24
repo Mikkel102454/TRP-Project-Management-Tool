@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface TimingRepository extends JpaRepository<TimingEntity, Integer> {
     @Query(value = """
-SELECT COALESCE(SUM(t.time), 0)
+SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, t.start_time, t.end_time)), 0)
 FROM timing t
 WHERE (:taskId IS NULL OR t.task_id = :taskId)
   AND (:projectId IS NULL OR t.task_id IN (
@@ -19,7 +19,7 @@ WHERE (:taskId IS NULL OR t.task_id = :taskId)
     int sumTime(Integer taskId, Integer projectId, List<Integer> userIds);
 
     @Query(value = """
-SELECT COALESCE(SUM(t.time), 0)
+SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, t.start_time, t.end_time)), 0)
 FROM timing t
 WHERE (:taskId IS NULL OR t.task_id = :taskId)
   AND (:projectId IS NULL OR t.task_id IN (
@@ -29,4 +29,6 @@ WHERE (:taskId IS NULL OR t.task_id = :taskId)
     int sumTime(Integer taskId, Integer projectId);
 
     void deleteByTaskEntity_Id(Integer taskId);
+
+    List<TimingEntity> findAllByUserEntity_Id(Integer userId);
 }

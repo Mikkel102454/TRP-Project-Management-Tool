@@ -3,6 +3,10 @@ package solutions.trp.pmt.datasource.time_tables;
 import jakarta.persistence.*;
 import solutions.trp.pmt.datasource.tasks.TaskEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
+import solutions.trp.pmt.dto.TimeDto;
+import solutions.trp.pmt.dto.UserDto;
+
+import java.sql.Timestamp;
 
 @Entity(name = "timing")
 public class TimingEntity {
@@ -18,8 +22,11 @@ public class TimingEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity userEntity;
 
-    @Column(unique = false, nullable = false, name = "time")
-    private long time;
+    @Column(name = "start_time")
+    private Timestamp startTime;
+
+    @Column(name = "end_time")
+    private Timestamp endTime;
 
     public int getId() {
         return id;
@@ -41,11 +48,30 @@ public class TimingEntity {
         this.userEntity = userEntity;
     }
 
-    public long getTime() {
-        return time;
+    public Timestamp getStartTime() {
+        return startTime;
     }
 
-    public void setTime(long time) {
-        this.time = time;
+    public void setStartTime(Timestamp startTime) {
+        this.startTime = startTime;
+    }
+
+    public Timestamp getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Timestamp endTime) {
+        this.endTime = endTime;
+    }
+
+    public TimeDto toDto() {
+        TimeDto dto = new TimeDto();
+        dto.setId(getId());
+        dto.setTaskId(taskEntity.getId());
+        dto.setUserId(userEntity.getId());
+        dto.setStartTime(startTime.toLocalDateTime());
+        dto.setEndTime(endTime.toLocalDateTime());
+
+        return dto;
     }
 }

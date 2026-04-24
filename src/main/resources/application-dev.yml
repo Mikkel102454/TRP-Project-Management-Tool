@@ -37,3 +37,6 @@ server:
   address: 0.0.0.0
   servlet:
     context-path: /pmt
+
+api:
+  key: "fe163b86dccc73b8d1ca69d0c43c1eb01a3636b872cf64161134c903f3552423"

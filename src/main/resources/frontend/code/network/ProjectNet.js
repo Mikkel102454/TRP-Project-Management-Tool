@@ -30,6 +30,22 @@ async function getProject(id){
     }
 }
 
+async function getAllProjects(){
+    try {
+        const response = await fetch(
+            `${API_ROOT}/project/details`
+        );
+
+        const data = await response.json();
+
+        if (!data.success) return null;
+
+        return data.data.map(project => Project.fromJson(project));
+    } catch (e) {
+        log(e, Levels.SEVERE)
+    }
+}
+
 async function createProject(title) {
     try {
         if(title === null || title === "") {

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "solutions.trp"
-version = "0.0.1-SNAPSHOT"
+version = ""
 description = "pmt"
 
 java {
