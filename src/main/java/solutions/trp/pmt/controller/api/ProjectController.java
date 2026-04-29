@@ -114,6 +114,17 @@ public class ProjectController {
                 .body(ApiResponse.ok());
     }
 
+    @PatchMapping
+    public ResponseEntity<ApiResponse<Void>> renameProject(
+            @Valid @RequestBody RenameProjectRequest request
+    ) {
+
+        projectService.renameProject(request.id(), request.title());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
+
     @DeleteMapping("/{projectId}")
     public ResponseEntity<ApiResponse<Void>> removeProject(
             @PathVariable int projectId

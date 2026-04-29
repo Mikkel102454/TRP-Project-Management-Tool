@@ -1,27 +1,28 @@
 package solutions.trp.pmt.dto;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class TimeDto {
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private OffsetDateTime startTime;
+    private OffsetDateTime endTime;
     int id;
     int taskId;
     int userId;
 
-    public LocalDateTime getStartTime() {
+    public OffsetDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
+    public void setStartTime(OffsetDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public LocalDateTime getEndTime() {
+    public OffsetDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
+    public void setEndTime(OffsetDateTime endTime) {
         this.endTime = endTime;
     }
 

@@ -17,3 +17,24 @@ async function openCreateModal(){
 }
 
 loadProjects();
+refreshPeriod();
+
+async function refreshPeriod() {
+    const params = new URLSearchParams(window.location.search);
+    let refreshValue = params.get("refresh");
+
+    if (refreshValue) {
+        sessionStorage.setItem("refresh", refreshValue);
+    } else {
+        refreshValue = sessionStorage.getItem("refresh");
+    }
+
+    const seconds = parseInt(refreshValue, 10);
+    if (isNaN(seconds) || seconds <= 0) return;
+
+    setInterval(() => {
+        try {
+            loadProjects();
+        } catch (e) {}
+    }, seconds * 1000);
+}

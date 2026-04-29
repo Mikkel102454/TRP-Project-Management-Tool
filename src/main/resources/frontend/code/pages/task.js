@@ -45,6 +45,17 @@ async function openCreateModal(){
     popupHolder.innerHTML = html;
 }
 
+async function openRenameModal(){
+    let html = await getComponent("projectRename")
+    html = updateComponent(html, {
+        "id": project.id,
+        "title": escapeHtmlAttr(project.title),
+    })
+
+    const popupHolder = document.getElementById("popupHolder");
+    popupHolder.innerHTML = html;
+}
+
 async function startCreateTask(title, estimate, deadline, description){
     await createTask(project.id, title, false, deadline, timeLongerShort(estimate), description)
 

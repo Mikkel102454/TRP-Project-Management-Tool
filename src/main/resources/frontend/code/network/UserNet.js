@@ -85,6 +85,28 @@ async function updateUser(id, username, password, isAdmin, isEnabled) {
     }
 }
 
+async function updatePassword(oldPassword, newPassword) {
+    try {
+        const response = await fetch(`${API_ROOT}/user/password`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                oldPassword: oldPassword,
+                newPassword: newPassword
+            })
+        });
+
+        const data = await response.json();
+        return data.success;
+
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}
+
 async function getAllUsers() {
     try {
         const response = await fetch(`${API_ROOT}/user`, {

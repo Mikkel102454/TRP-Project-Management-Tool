@@ -5,79 +5,94 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
     <link th:href="@{/style/style.css}" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
 </head>
 
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gradient-to-b from-gray-300 to-gray-200 min-h-screen font-mono text-sm">
 
-<!-- NAVBAR -->
-<header class="bg-white shadow-sm">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-        <a th:href="@{/}" class="block rounded">
-            <h1 class="text-xl font-semibold text-gray-800">Projects</h1>
+<!-- TOP BAR -->
+<header class="bg-gradient-to-b from-gray-200 to-gray-400 border-b border-gray-500 shadow-inner">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+
+        <a th:href="@{/}" class="text-gray-800 tracking-wider font-semibold">
+            PROJECT CONTROL
         </a>
 
-        <div class="relative inline-block">
+        <div class="flex items-center gap-4">
 
-            <!-- User icon -->
-            <div id="headerIcon"
-                 class="w-10 h-10 bg-blue-200 font-bold rounded-full flex items-center justify-center cursor-pointer"
-                 onclick="toggleUserMenu()">...
-            </div>
+            <button onclick="openCreateModal()"
+                    class="px-3 py-1 border border-gray-600
+                       bg-gradient-to-b from-gray-300 to-gray-500
+                       hover:from-gray-400 hover:to-gray-600
+                       text-gray-900 shadow">
+                + NEW
+            </button>
 
-            <!-- Dropdown -->
-            <div id="userDropdown"
-                 class="hidden absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
+            <div class="relative">
 
-                <!-- Logout -->
-                <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                        th:onclick="|window.location.href='@{/logout}'|">
-                    Logout
-                </button>
+                <!-- ICON -->
+                <div id="headerIcon"
+                     class="w-9 h-9 bg-gray-700 text-white select-none
+              flex items-center justify-center
+              border border-black cursor-pointer"
+                     onclick="toggleUserMenu()">
+                    ...
+                </div>
 
-                <!-- Admin only -->
-                <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                <!-- DROPDOWN -->
+                <div id="userDropdown"
+                     class="hidden absolute right-0 top-full mt-2 w-48
+              bg-gray-200 border border-gray-600 shadow-lg z-50">
 
-                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                            th:onclick="|window.location.href='@{/setup}'|">
-                        Setup Account
+                    <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                            th:onclick="|window.location.href='@{/logout}'|">
+                        Logout
                     </button>
 
-                    <button class="w-full text-left px-4 py-2 hover:bg-gray-100"
-                            th:onclick="|window.location.href='@{/time}'|">
-                        Time Registry
+                    <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                            onclick="openPasswordModal(); toggleUserMenu()">
+                        Change Password
                     </button>
+
+                    <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                        <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                                th:onclick="|window.location.href='@{/setup}'|">
+                            Setup
+                        </button>
+
+                        <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                                th:onclick="|window.location.href='@{/time}'|">
+                            Time Registry
+                        </button>
+                    </div>
+
                 </div>
 
             </div>
+
         </div>
     </div>
 </header>
 
 <!-- CONTENT -->
-<main class="max-w-6xl mx-auto px-6 py-6">
+<main class="max-w-6xl mx-auto px-6 py-4">
 
-    <div class="flex justify-between items-center">
-        <h2 class="text-2xl font-bold text-gray-800 mb-4">Projects</h2>
-
-        <button
-                class="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-600 transition shadow-sm" onclick="openCreateModal()">
-            + New Project
-        </button>
+    <!-- COLUMN LABELS (important for ATC feel) -->
+    <div class="grid grid-cols-12 text-gray-700 text-xs mb-2 px-2">
+        <div class="col-span-6">PROJECT</div>
+        <div class="col-span-3">SCHEDULE</div>
+        <div class="col-span-2">TASKS</div>
+        <div class="col-span-1 text-right">STATUS</div>
     </div>
 
-    <!-- Placeholder -->
-    <div id="projects" class="flex flex-col gap-3">
-
-        <div class="bg-white p-4 rounded-xl shadow text-gray-500 text-sm">
+    <!-- PROJECT LIST -->
+    <div id="projects" class="flex flex-col gap-2">
+        <div class="bg-gray-200 border border-gray-500 px-4 py-3">
             Loading projects...
         </div>
-
     </div>
 
-    <!-- MODAL -->
-    <div id="popupHolder">
-
-    </div>
+    <div id="popupHolder"></div>
 </main>
 
 <!-- JS -->
@@ -89,9 +104,8 @@
 
 <script>
     window.addEventListener('click', function(e) {
-        const modal = document.getElementById('projectModal');
-        if (e.target === modal) {
-            document.getElementById("projectModal").remove()
+        if (e.target.id === "projectModal" || e.target.id === "passwordModal") {
+            e.target.remove();
         }
     });
 
@@ -120,6 +134,7 @@
 
 <script th:src="@{/code/network/ProjectNet.js}"></script>
 <script th:src="@{/code/network/TaskNet.js}"></script>
+<script th:src="@{/code/network/UserNet.js}"></script>
 <script th:src="@{/code/pages/index.js}"></script>
 
 </body>

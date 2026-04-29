@@ -54,6 +54,19 @@ public class ProjectService {
         }
     }
 
+    public void renameProject(int id, String title) {
+        if(repository.existsByTitle(title)) {
+            throw new ConflictException("A project already exists with that name");
+        }
+        ProjectEntity project = repository.findById(id).orElseThrow(() -> new NotFoundException("Could not find project with id: " + id));
+        project.setTitle(title);
+        try {
+            repository.save(project);
+        } catch (Exception e) {
+            throw new ServiceException("Failed to rename project");
+        }
+    }
+
     public List<ProjectEntity> search(String title, int offset, int limit) {
         if (limit > 50) limit = 50;
         Pageable pageable = PageRequest.of(offset / limit, limit);

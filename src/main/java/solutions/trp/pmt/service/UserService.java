@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import solutions.trp.pmt.controller.api.execption.BadRequestException;
 import solutions.trp.pmt.controller.api.execption.ConflictException;
 import solutions.trp.pmt.controller.api.execption.NotFoundException;
+import solutions.trp.pmt.controller.api.execption.UnauthorizedException;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.util.PasswordEncoding;
@@ -90,5 +91,14 @@ public class UserService {
 
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
+    }
+
+    public void updatePassword(String oldPassword, String newPassword){
+        UserEntity user = getCurrentUser();
+        if(!PasswordEncoding.matches("bcrypt", oldPassword, user.getPassword())) {
+            throw new UnauthorizedException("Password is not correct");
+        }
+        user.setPassword(PasswordEncoding.encode("bcrypt", newPassword));
+        userRepository.save(user);
     }
 }

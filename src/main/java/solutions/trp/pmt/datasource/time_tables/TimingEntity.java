@@ -7,6 +7,7 @@ import solutions.trp.pmt.dto.TimeDto;
 import solutions.trp.pmt.dto.UserDto;
 
 import java.sql.Timestamp;
+import java.time.ZoneOffset;
 
 @Entity(name = "timing")
 public class TimingEntity {
@@ -69,8 +70,8 @@ public class TimingEntity {
         dto.setId(getId());
         dto.setTaskId(taskEntity.getId());
         dto.setUserId(userEntity.getId());
-        dto.setStartTime(startTime.toLocalDateTime());
-        dto.setEndTime(endTime.toLocalDateTime());
+        dto.setStartTime(startTime.toInstant().atOffset(ZoneOffset.UTC));
+        dto.setEndTime(endTime.toInstant().atOffset(ZoneOffset.UTC));
 
         return dto;
     }

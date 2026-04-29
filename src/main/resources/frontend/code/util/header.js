@@ -32,3 +32,10 @@ document.addEventListener("click", function (e) {
         menu.classList.add("hidden");
     }
 });
+
+async function openPasswordModal(){
+    let html = await getComponent("updatePassword")
+
+    const popupHolder = document.getElementById("popupHolder");
+    popupHolder.innerHTML = html;
+}

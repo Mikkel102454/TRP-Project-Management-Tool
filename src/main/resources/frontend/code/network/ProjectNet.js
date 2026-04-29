@@ -50,7 +50,7 @@ async function createProject(title) {
     try {
         if(title === null || title === "") {
             log("Title cannot be empty", Levels.SEVERE);
-            return;
+            return false;
         }
         const response = await fetch(`${API_ROOT}/project`, {
             method: "POST",
@@ -64,9 +64,35 @@ async function createProject(title) {
 
         const data = await response.json();
 
-        if (!data.success) return false;
+        return data.success;
 
-        return true;
+
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}
+
+async function renameProject(id, title) {
+    try {
+        if(title === null || title === "") {
+            log("Title cannot be empty", Levels.SEVERE);
+            return false;
+        }
+        const response = await fetch(`${API_ROOT}/project`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: title,
+                id: id
+            })
+        });
+
+        const data = await response.json();
+
+        return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);
         return false;

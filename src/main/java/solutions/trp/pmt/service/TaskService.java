@@ -24,6 +24,7 @@ import solutions.trp.pmt.util.PasswordEncoding;
 
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -141,7 +142,7 @@ public class TaskService {
         ActiveEntity active = new ActiveEntity();
         active.setTaskEntity(task);
         active.setUserEntity(user);
-        active.setStamp(LocalDateTime.now());
+        active.setStamp(Timestamp.from(Instant.now()));
 
         activeRepository.save(active);
     }
@@ -159,8 +160,8 @@ public class TaskService {
         TimingEntity timeTable = new TimingEntity();
         timeTable.setTaskEntity(task);
         timeTable.setUserEntity(user);
-        timeTable.setStartTime(Timestamp.valueOf(active.getStamp()));
-        timeTable.setEndTime(Timestamp.valueOf(LocalDateTime.now()));
+        timeTable.setStartTime(active.getStamp());
+        timeTable.setEndTime(Timestamp.from(Instant.now()));
 
         timingRepository.save(timeTable);
 
@@ -178,7 +179,7 @@ public class TaskService {
         ActiveEntity active = new ActiveEntity();
         active.setTaskEntity(task);
         active.setUserEntity(user);
-        active.setStamp(LocalDateTime.now());
+        active.setStamp(Timestamp.from(Instant.now()));
 
         activeRepository.save(active);
     }
@@ -196,8 +197,8 @@ public class TaskService {
         TimingEntity timeTable = new TimingEntity();
         timeTable.setTaskEntity(task);
         timeTable.setUserEntity(user);
-        timeTable.setStartTime(Timestamp.valueOf(active.getStamp()));
-        timeTable.setEndTime(Timestamp.valueOf(LocalDateTime.now()));
+        timeTable.setStartTime(active.getStamp());
+        timeTable.setEndTime(Timestamp.from(Instant.now()));
 
         timingRepository.save(timeTable);
 

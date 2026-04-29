@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -71,5 +72,19 @@ public class ResourceController {
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(handlerService.get500(e));
         }
+    }
+
+    @Cacheable("resources")
+    @GetMapping("/favicon.svg")
+    public ResponseEntity<Resource> favicon() {
+        Resource resource = resourceLoader.getResource("classpath:frontend/resource/favicon.svg");
+
+        if (!resource.exists()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.valueOf("image/svg+xml"))
+                .body(resource);
     }
 }

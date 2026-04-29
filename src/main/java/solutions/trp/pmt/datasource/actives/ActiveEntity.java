@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import solutions.trp.pmt.datasource.tasks.TaskEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Entity(name = "active")
@@ -21,7 +22,7 @@ public class ActiveEntity {
     private TaskEntity taskEntity;
 
     @Column(unique = false, nullable = false, name = "stamp")
-    private LocalDateTime stamp;
+    private Timestamp stamp;
 
     public int getId() {
         return id;
@@ -43,11 +44,11 @@ public class ActiveEntity {
         this.taskEntity = taskEntity;
     }
 
-    public LocalDateTime getStamp() {
+    public Timestamp getStamp() {
         return stamp;
     }
 
-    public void setStamp(LocalDateTime stamp) {
+    public void setStamp(Timestamp stamp) {
         this.stamp = stamp;
     }
 }

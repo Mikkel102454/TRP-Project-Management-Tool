@@ -1,14 +1,14 @@
 package solutions.trp.pmt.controller.api;
 
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.dto.UserDto;
+import solutions.trp.pmt.dto.request.ChangePasswordRequest;
+import solutions.trp.pmt.dto.request.RenameProjectRequest;
 import solutions.trp.pmt.service.UserService;
 
 import java.util.List;
@@ -26,6 +26,14 @@ public class UserController {
     public ResponseEntity<ApiResponse<UserDto>> getWhoAmAi() {
         UserDto user = userService.getCurrentUser().toDto();
         return ResponseEntity.ok(ApiResponse.ok(user));
+    }
+
+    @PatchMapping("/password")
+    public ResponseEntity<ApiResponse<Void>> updatePassword(
+            @Valid @RequestBody ChangePasswordRequest request
+    ) {
+        userService.updatePassword(request.oldPassword(), request.newPassword());
+        return ResponseEntity.ok(ApiResponse.ok());
     }
 
     @GetMapping

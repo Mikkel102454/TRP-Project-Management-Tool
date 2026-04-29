@@ -14,7 +14,7 @@
                 bg-gradient-to-b from-gray-300 to-gray-400">
 
       <span class="tracking-wider text-gray-800">
-        CREATE PROJECT
+        RENAME PROJECT
       </span>
 
       <button onclick="document.getElementById('projectModal').remove()"
@@ -36,6 +36,7 @@
         <input type="text"
                id="projectTitleInput"
                placeholder="ENTER PROJECT NAME"
+               value="{{title}}"
                class="px-2 py-1
                       border border-gray-500
                       bg-gray-100
@@ -64,12 +65,15 @@
     const input = document.getElementById('projectTitleInput');
     const modal = document.getElementById('projectModal');
 
-    await createProject(input.value);
-    await loadProjects();
-
+    if(await renameProject({{id}}, input.value)){
+      document.getElementById('title').innerText = input.value;
+      project.title = input.value;
+    } else {
+      alert('A project with this title already exist');
+    }
     modal.remove();
   })()">
-        CREATE
+        RENAME
       </button>
 
     </div>

@@ -13,6 +13,7 @@ import solutions.trp.pmt.service.TimeService;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 @RestController
@@ -48,8 +49,8 @@ public class TimeController {
     @PatchMapping("/summary")
     public ResponseEntity<ApiResponse<List<TimeDto>>> updateTimeSummary(
             @RequestParam Integer timeId,
-            @RequestParam LocalDateTime startTime,
-            @RequestParam LocalDateTime endTime
+            @RequestParam OffsetDateTime startTime,
+            @RequestParam OffsetDateTime endTime
     ) {
         timeService.updateTimeEntry(timeId, startTime, endTime);
         return ResponseEntity.ok(ApiResponse.ok());

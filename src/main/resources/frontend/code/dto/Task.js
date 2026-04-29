@@ -50,10 +50,11 @@ class Task{
         }
     }
 
-    async loadHtml(){
-        return "<span class=\"bg-blue-100 text-blue-700 px-2 py-0.5 rounded\">" + this.title + "</span>"
+    async loadHtml() {
+        return `<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded inline-block max-w-xs truncate">
+        ${this.title}
+    </span>`;
     }
-
     async loadPreview(parent){
         let html = await getComponent("task")
 
@@ -125,7 +126,7 @@ class Task{
             "description": this.description,
             "actives": actives,
             "scheduled": scheduled,
-            "isTimed": isActive ? "Clock out" : "Clock in",
+            "isTimed": isActive ? "CLOCK OUT" : "CLOCK IN",
             "isTimedAction": isActive ? `clockOut(${this.id})` : `clockIn(${this.id})`
         })
 

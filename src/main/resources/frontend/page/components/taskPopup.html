@@ -1,119 +1,158 @@
 <div id="taskModal"
-     class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+     class="fixed inset-0 bg-black/40 flex items-center justify-center font-mono text-sm">
 
-    <div class="bg-white w-full max-w-lg rounded-xl shadow-lg p-6 relative">
+    <!-- PANEL -->
+    <div class="relative w-full max-w-lg
+                border border-gray-600
+                bg-gradient-to-b from-gray-200 to-gray-300
+                shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
 
-        <button onclick="document.getElementById('taskModal').remove()"
-                class="absolute top-3 right-3 text-gray-500 hover:text-black">
-            ✕
-        </button>
+        <!-- HEADER -->
+        <div class="flex justify-between items-center
+                    px-4 py-2
+                    border-b border-gray-500
+                    bg-gradient-to-b from-gray-300 to-gray-400">
 
-        <h2 class="text-xl font-semibold mb-4">{{title}}</h2>
+            <span class="tracking-wider text-gray-800 truncate block">
+                {{title}}
+            </span>
 
-        <div class="space-y-4 text-sm text-gray-700">
+            <button onclick="document.getElementById('taskModal').remove()"
+                    class="px-2 border border-gray-600 bg-gray-300 hover:bg-gray-400">
+                ✕
+            </button>
+        </div>
 
-            <div class="flex justify-between">
-                <span>Priority</span>
-                <span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs">{{priority}}</span>
+        <!-- CONTENT -->
+        <div class="p-4 space-y-3 text-gray-800">
+
+            <!-- PRIORITY -->
+            <div class="grid grid-cols-4 items-center gap-3">
+                <span class="text-xs text-gray-700 tracking-wide">PRIORITY</span>
+                <span class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100 text-xs">
+                    {{priority}}
+                </span>
             </div>
 
-            <!-- Task Name -->
-            <div class="flex justify-between items-center gap-4">
-                <span>Title</span>
+            <!-- TITLE -->
+            <div class="grid grid-cols-4 items-center gap-3">
+                <span class="text-xs text-gray-700">TITLE</span>
                 <input type="text"
                        id="taskTitleInput"
-                       placeholder="Task name"
                        value="{{title}}"
-                       class="px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none text-right">
+                       class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none">
             </div>
 
-            <div class="flex items-center justify-between">
+            <!-- USERS -->
+            <div class="grid grid-cols-4 items-center gap-2 relative min-h-[32px]">
+                <span class="text-xs text-gray-700">USERS</span>
 
-                <!-- LEFT -->
-                <span>Scheduled Users</span>
+                <div class="col-span-3 flex items-center gap-2">
 
-                <!-- RIGHT -->
-                <div class="flex items-center gap-2 h-8">
-
-                    <!-- AVATARS -->
-                    <div class="selectedUsers flex items-center -space-x-2 h-8 leading-none align-middle">
+                    <div class="selectedUsers flex items-center -space-x-2">
                         {{scheduled}}
                     </div>
 
-                    <!-- BUTTON -->
-                    <button class="userToggle w-8 h-8 border rounded-full flex items-center justify-center hover:bg-gray-100 shrink-0 leading-none">
+                    <button class="userToggle px-2 border border-gray-600 bg-gray-200 hover:bg-gray-300">
                         +
                     </button>
 
                 </div>
 
+                <!-- Dropdown -->
+                <div class="userDropdown hidden absolute right-0 top-full mt-1 w-56
+                            bg-gray-200 border border-gray-600 shadow-lg p-2 z-50">
+
+                    <input type="text"
+                           placeholder="SEARCH"
+                           class="userSearch w-full px-2 py-1 border border-gray-500 bg-gray-100 mb-2 outline-none">
+
+                    <div class="userList max-h-40 overflow-y-auto text-xs"></div>
+                </div>
             </div>
 
-            <!-- Dropdown -->
-            <div class="userDropdown hidden absolute right-0 top-10 w-56 bg-white border rounded-lg shadow-lg p-2 z-50">
-
-                <input type="text"
-                       placeholder="Search users..."
-                       class="userSearch w-full px-2 py-1 border rounded mb-2 outline-none">
-
-                <div class="userList max-h-40 overflow-y-auto text-sm"></div>
-
-            </div>
-
-            <div class="flex justify-between items-center gap-4">
-                <span>Estimated time</span>
+            <!-- ESTIMATE -->
+            <div class="grid grid-cols-4 items-center gap-3">
+                <span class="text-xs text-gray-700">EST</span>
                 <input type="text"
                        id="taskEstimateInput"
-                       placeholder="No Estimate"
                        value="{{estimatedTime}}"
-                       class="px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none text-right">
+                       class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none">
             </div>
 
-            <div class="flex justify-between items-center gap-4">
-                <span>Deadline</span>
+            <!-- DEADLINE -->
+            <div class="grid grid-cols-4 items-center gap-3">
+                <span class="text-xs text-gray-700">DEADLINE</span>
                 <input type="datetime-local"
                        id="taskDeadlineInput"
                        value="{{deadline}}"
-                       class="px-2 py-1 border rounded focus:ring-2 focus:ring-blue-400 outline-none">
+                       class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none">
             </div>
 
-            <div class="flex justify-between items-center">
-                <span>Doing</span>
-                <div class="flex items-center gap-2">
+            <!-- ACTIVE USERS -->
+            <div class="grid grid-cols-4 items-center gap-3">
+                <span class="text-xs text-gray-700">ACTIVE</span>
+                <div class="col-span-3 flex gap-1">
                     {{actives}}
                 </div>
             </div>
 
-            <div>
-                <p class="mb-1">Description</p>
+            <!-- DESCRIPTION -->
+            <div class="grid grid-cols-4 gap-3">
+                <span class="text-xs text-gray-700 pt-1">DESC</span>
                 <textarea id="taskDescriptionInput"
-                          class="w-full bg-gray-100 p-3 rounded text-gray-600 outline-none"
+                          class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none resize-none"
                 >{{description}}</textarea>
             </div>
 
         </div>
 
-        <div class="mt-6 flex justify-between items-center">
+        <!-- FOOTER -->
+        <div class="flex justify-between items-center
+                    px-4 py-3
+                    border-t border-gray-500
+                    bg-gradient-to-t from-gray-300 to-gray-200">
 
-            <!-- LEFT: DELETE -->
+            <!-- DELETE -->
             <button
-                    onclick="const confirmDelete = confirm('Are you sure you want to delete this task?'); if (!confirmDelete) return; deleteTask({{id}}); document.getElementById('taskModal').remove();"
-                    class="text-red-500 hover:text-red-700 text-sm">
-                Delete
+                    onclick="const confirmDelete = confirm('Delete task?'); if (!confirmDelete) return; deleteTask({{id}}); document.getElementById('taskModal').remove();"
+                    class="px-3 py-1 border border-red-700
+                       bg-gradient-to-b from-red-500 to-red-700
+                       text-white hover:from-red-600 hover:to-red-800">
+                DELETE
             </button>
 
-            <!-- RIGHT: ACTIONS -->
+            <!-- ACTIONS -->
             <div class="flex gap-2">
-                <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
-                        onclick="(async () => { await {{isTimedAction}}; loadProject(); document.getElementById('taskModal').remove(); })()">
+
+                <button
+                        class="px-3 py-1 border border-gray-700
+                           bg-gradient-to-b from-gray-500 to-gray-700
+                           text-white hover:from-gray-600 hover:to-gray-800"
+                        onclick="(async () => {
+                        await {{isTimedAction}};
+                        loadProject();
+                        document.getElementById('taskModal').remove();
+                    })()">
                     {{isTimed}}
                 </button>
 
-                <button class="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
-                        onclick="(async () => { await startUpdateTask(document.getElementById('taskTitleInput').value, document.getElementById('taskEstimateInput').value,
-            document.getElementById('taskDeadlineInput').value, document.getElementById('taskDescriptionInput').value); document.getElementById('taskModal').remove(); })()">
-                    Save
+                <button
+                        class="px-3 py-1 border border-gray-700
+                           bg-gradient-to-b from-gray-500 to-gray-700
+                           text-white hover:from-gray-600 hover:to-gray-800"
+                        onclick="(async () => {
+                        await startUpdateTask(
+                            document.getElementById('taskTitleInput').value,
+                            document.getElementById('taskEstimateInput').value,
+                            document.getElementById('taskDeadlineInput').value,
+                            document.getElementById('taskDescriptionInput').value
+                        );
+                        document.getElementById('taskModal').remove();
+                    })()">
+                    SAVE
                 </button>
+
             </div>
 
         </div>

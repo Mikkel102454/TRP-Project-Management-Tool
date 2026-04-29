@@ -9,7 +9,9 @@ import solutions.trp.pmt.datasource.time_tables.TimingRepository;
 
 import java.sql.Timestamp;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -28,7 +30,10 @@ public class TimeService {
 
         int spent = 0;
         for(ActiveEntity activeEntity : activeRepository.findAllByTaskEntity_Id(taskId)) {
-            spent += (int) Duration.between(activeEntity.getStamp(), LocalDateTime.now()).getSeconds();
+            spent += (int) Duration.between(
+                    activeEntity.getStamp().toInstant(),
+                    Instant.now()
+            ).getSeconds();
         }
 
         if(userIds == null || userIds.isEmpty()) {
@@ -49,10 +54,10 @@ public class TimeService {
         timingRepository.deleteById(id);
     }
 
-    public void updateTimeEntry(int id, LocalDateTime startTime, LocalDateTime endTime) {
+    public void updateTimeEntry(int id, OffsetDateTime startTime, OffsetDateTime endTime) {
         TimingEntity timingEntity = timingRepository.findById(id).orElseThrow(() -> new NotFoundException("Could not find time entry"));
-        timingEntity.setStartTime(Timestamp.valueOf(startTime));
-        timingEntity.setEndTime(Timestamp.valueOf(endTime));
+        timingEntity.setStartTime(Timestamp.from(startTime.toInstant()));
+        timingEntity.setEndTime(Timestamp.from(endTime.toInstant()));
 
         timingRepository.save(timingEntity);
     }
