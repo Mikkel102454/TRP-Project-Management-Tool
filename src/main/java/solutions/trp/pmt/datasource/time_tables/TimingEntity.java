@@ -29,6 +29,9 @@ public class TimingEntity {
     @Column(name = "end_time")
     private Timestamp endTime;
 
+    @Column(unique = false, nullable = false, name = "attention")
+    private boolean attention;
+
     public int getId() {
         return id;
     }
@@ -65,6 +68,14 @@ public class TimingEntity {
         this.endTime = endTime;
     }
 
+    public boolean isAttention() {
+        return attention;
+    }
+
+    public void setAttention(boolean attention) {
+        this.attention = attention;
+    }
+
     public TimeDto toDto() {
         TimeDto dto = new TimeDto();
         dto.setId(getId());
@@ -72,6 +83,7 @@ public class TimingEntity {
         dto.setUserId(userEntity.getId());
         dto.setStartTime(startTime.toInstant().atOffset(ZoneOffset.UTC));
         dto.setEndTime(endTime.toInstant().atOffset(ZoneOffset.UTC));
+        dto.setAttention(attention);
 
         return dto;
     }

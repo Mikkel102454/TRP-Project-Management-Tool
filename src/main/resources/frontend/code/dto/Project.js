@@ -66,7 +66,7 @@ class Project{
             "scheduled": users,
             "leader": leaders,
             "tasks": tasks,
-            "isActive": this.isWorkedOn ? "" : "hidden"
+            "led": this.isWorkedOn ? renderLed('green') : renderLed('off')
         })
 
         parent.innerHTML += html;

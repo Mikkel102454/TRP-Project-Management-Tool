@@ -10,6 +10,7 @@ import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.dto.request.CreateUserRequest;
 import solutions.trp.pmt.dto.request.UpdateUserRequest;
 import solutions.trp.pmt.service.TaskService;
+import solutions.trp.pmt.service.TimeService;
 import solutions.trp.pmt.service.UserService;
 
 import java.util.List;
@@ -19,10 +20,12 @@ import java.util.List;
 public class AdminController {
     private final TaskService taskService;
     private final UserService userService;
+    private final TimeService timeService;
 
-    public AdminController(TaskService taskService, UserService userService) {
+    public AdminController(TaskService taskService, UserService userService, TimeService timeService) {
         this.taskService = taskService;
         this.userService = userService;
+        this.timeService = timeService;
     }
 
     @PostMapping("/task/time/start")
@@ -31,7 +34,7 @@ public class AdminController {
             @RequestParam() int userId
     ) {
 
-        taskService.startTimeUser(taskId, userId);
+        timeService.startTimeUser(taskId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
@@ -43,7 +46,7 @@ public class AdminController {
             @RequestParam() int userId
     ) {
 
-        taskService.stopTimeUser(taskId, userId);
+        timeService.stopTimeUser(taskId, userId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());

@@ -124,6 +124,7 @@ public class ProjectService {
         List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
 
         for (TaskDto task : tasks){
+            if(task.getStatus() == TaskEntity.TaskStatus.FINISHED) continue;
             List<UserEntity> taskUsers = taskService.getScheduled(task.getId());
             for(UserEntity user : taskUsers){
                 if(!scheduledUsers.contains(user)) scheduledUsers.add(user);

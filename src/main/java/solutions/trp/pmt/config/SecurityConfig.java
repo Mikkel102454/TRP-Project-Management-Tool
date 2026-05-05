@@ -3,6 +3,7 @@ package solutions.trp.pmt.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,7 +37,10 @@ public class SecurityConfig {
                 .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/pages/setup.html", "/pages/time.html", "/pages/timetable.html", "/code/admin.js", "/style/admin.css", "/api/time/summary").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/time/summary").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/time/summary").permitAll()
+                        .requestMatchers(HttpMethod.PATCH, "/api/time/summary").permitAll()
+                        .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/pages/setup.html", "/pages/time.html", "/code/admin.js", "/style/admin.css").hasRole("ADMIN")
                         .requestMatchers("/login", "/api/public/**", "/style/**",
                                 "/resource/**", "/code/**").permitAll()
                         .anyRequest().authenticated()

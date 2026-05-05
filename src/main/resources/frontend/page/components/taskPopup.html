@@ -71,6 +71,16 @@
                 </div>
             </div>
 
+            <!-- STATUS -->
+            <div class="grid grid-cols-4 items-center gap-3">
+                <span class="text-xs text-gray-700 tracking-wide">STATUS</span>
+
+                <select id="taskStatusInput"
+                        class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none text-xs">
+                    {{statusOption}}
+                </select>
+            </div>
+
             <!-- ESTIMATE -->
             <div class="grid grid-cols-4 items-center gap-3">
                 <span class="text-xs text-gray-700">EST</span>
@@ -146,7 +156,8 @@
                             document.getElementById('taskTitleInput').value,
                             document.getElementById('taskEstimateInput').value,
                             document.getElementById('taskDeadlineInput').value,
-                            document.getElementById('taskDescriptionInput').value
+                            document.getElementById('taskDescriptionInput').value,
+                            document.getElementById('taskStatusInput').value
                         );
                         document.getElementById('taskModal').remove();
                     })()">

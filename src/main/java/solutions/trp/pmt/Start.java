@@ -5,6 +5,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.service.UserService;
+
+import java.util.List;
 import java.util.TimeZone;
 
 @Component

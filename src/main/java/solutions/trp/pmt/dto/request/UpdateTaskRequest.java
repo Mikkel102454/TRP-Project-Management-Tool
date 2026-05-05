@@ -10,7 +10,8 @@ public record UpdateTaskRequest(
     Boolean isCompleted,
     LocalDateTime deadline,
     Integer estimatedTime,
-    String description
+    String description,
+    String status
 ){
 
 }

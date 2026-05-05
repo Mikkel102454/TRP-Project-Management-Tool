@@ -50,15 +50,22 @@
                         Change Password
                     </button>
 
+                    <div th:if="${!#authorization.expression('hasRole(''ADMIN'')')}">
+                        <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                                th:onclick="|window.location.href='@{/timetable(id=${#authentication.principal.id})}'|">
+                            Time Entries
+                        </button>
+                    </div>
+
                     <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                         <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
                                 th:onclick="|window.location.href='@{/setup}'|">
-                            Setup
+                            User Control
                         </button>
 
                         <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
                                 th:onclick="|window.location.href='@{/time}'|">
-                            Time Registry
+                            Time Control
                         </button>
                     </div>
 
@@ -169,6 +176,7 @@
     </div>
 </div>
 
+<script th:src="@{/code/util/led.js}"></script>
 <script th:inline="javascript">
     let CONTEXT_PATH = /*[[@{/}]]*/ '/';
     CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
@@ -298,19 +306,7 @@
 
         <!-- STATUS -->
         <div class="col-span-2 flex items-center">
-            <div class="relative w-6 h-6 ${user.isEnabled ? "" : "hidden"} ">
-                <!-- Outer glow -->
-                <div class="absolute inset-0 bg-green-500 rounded-full blur-md opacity-60 -m-2"></div>
-
-                <!-- LED body -->
-                <div class="absolute inset-0 bg-green-500 rounded-full border-2 border-green-700"></div>
-
-                <!-- Inner highlight (reflection) -->
-                <div class="absolute top-1 left-1 w-3 h-3 bg-green-200 rounded-full opacity-70 blur-sm"></div>
-
-                <!-- Center bright spot -->
-                <div class="absolute inset-1 bg-green-300 rounded-full opacity-40"></div>
-            </div>
+            ${user.isEnabled ? renderLed('green') : renderLed('off')}
         </div>
 
         <div class="col-span-1 text-right text-gray-600 text-xs">
@@ -342,5 +338,16 @@
 
 </script>
 
+<script>
+    async function checkTime(){
+        if((await getUser()).forcedClockedOut){
+            let html = await getComponent("timeRegistry")
+
+            const popupHolder = document.getElementById("popupHolder");
+            popupHolder.innerHTML = html;
+        }
+    }
+    checkTime()
+</script>
 </body>
 </html>

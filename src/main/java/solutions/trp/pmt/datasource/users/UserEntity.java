@@ -35,6 +35,9 @@ public class UserEntity implements UserDetails {
     @Column(unique = false, nullable = false, name = "is_admin")
     private boolean admin;
 
+    @Column(unique = false, nullable = false, name = "forced_clocked_out")
+    private boolean forcedClockedOut;
+
     public int getId() {
         return id;
     }
@@ -82,6 +85,14 @@ public class UserEntity implements UserDetails {
         this.admin = admin;
     }
 
+    public boolean isForcedClockedOut() {
+        return forcedClockedOut;
+    }
+
+    public void setForcedClockedOut(boolean forcedClockedOut) {
+        this.forcedClockedOut = forcedClockedOut;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         if (admin) {
@@ -98,6 +109,7 @@ public class UserEntity implements UserDetails {
         dto.setInitial(initial);
         dto.setAdmin(admin);
         dto.setEnabled(enabled);
+        dto.setForcedClockedOut(forcedClockedOut);
 
         return dto;
     }

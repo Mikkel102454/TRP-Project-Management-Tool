@@ -27,7 +27,7 @@ async function createTask(projectId, title, isCompleted, deadline, estimatedTime
         return false;
     }
 }
-async function updateTask(taskId, title, isCompleted, deadline, estimatedTime, description){
+async function updateTask(taskId, title, isCompleted, deadline, estimatedTime, description, status){
     try {
         const response = await fetch(`${API_ROOT}/task`, {
             method: "PATCH",
@@ -40,7 +40,8 @@ async function updateTask(taskId, title, isCompleted, deadline, estimatedTime, d
                 isCompleted: isCompleted,
                 deadline: deadline,
                 estimatedTime: estimatedTime,
-                description: description
+                description: description,
+                status: status
             })
         });
 

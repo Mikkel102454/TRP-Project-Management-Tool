@@ -1,0 +1,63 @@
+<div id="timeValidateModal"
+     class="fixed inset-0 bg-black/40 flex items-center justify-center font-mono text-sm">
+
+  <!-- PANEL -->
+  <div class="relative w-full max-w-md
+              border border-gray-600
+              bg-gradient-to-b from-gray-200 to-gray-300
+              shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+
+    <!-- HEADER -->
+    <div class="flex justify-between items-center
+                px-4 py-2
+                border-b border-gray-500
+                bg-gradient-to-b from-gray-300 to-gray-400">
+
+      <span class="tracking-wider text-gray-800">
+        TIME REGISTRY NOTICE
+      </span>
+
+      <button onclick="document.getElementById('timeValidateModal').remove()"
+              class="px-2 border border-gray-600
+                     bg-gray-300 hover:bg-gray-400">
+        ✕
+      </button>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="p-4 space-y-3 text-gray-800">
+
+      <p class="text-sm leading-relaxed">
+        You forgot to clock out.
+      </p>
+
+      <p class="text-xs text-gray-700 leading-relaxed">
+        Please go to your time registry and update your working hours to ensure your records are accurate.
+      </p>
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="flex justify-end gap-2
+                px-4 py-3
+                border-t border-gray-500
+                bg-gradient-to-t from-gray-300 to-gray-200">
+
+      <button onclick="document.getElementById('timeValidateModal').remove()"
+              class="px-3 py-1 border border-gray-600
+                     bg-gray-200 hover:bg-gray-300">
+        CLOSE
+      </button>
+
+      <button
+              class="px-3 py-1 border border-gray-700
+                     bg-gradient-to-b from-gray-500 to-gray-700
+                     text-white hover:from-gray-600 hover:to-gray-800"
+              th:onclick="|window.location.href='@{/timetable(id=${#authentication.principal.id})}'|">
+        GO TO TIME REGISTRY
+      </button>
+
+    </div>
+
+  </div>
+</div>

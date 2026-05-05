@@ -1,6 +1,7 @@
 class Task{
     id
     title
+    status
     projectId
     isCompleted
     taskOrder
@@ -12,9 +13,10 @@ class Task{
     scheduled
     spent
 
-    constructor(id, title, projectId, isCompleted, taskOrder, deadline, estimatedTime, creator, description, actives, scheduled, spent) {
+    constructor(id, title, status, projectId, isCompleted, taskOrder, deadline, estimatedTime, creator, description, actives, scheduled, spent) {
         this.id = id;
         this.title = title;
+        this.status = status
         this.projectId = projectId;
         this.isCompleted = isCompleted;
         this.taskOrder = taskOrder;
@@ -43,7 +45,7 @@ class Task{
 
             const creator = User.fromJson(json.creator);
 
-            return new Task(json.id, json.title, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled, json.spent)
+            return new Task(json.id, json.title, json.status, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled, json.spent)
         } catch (e){
             log(e, Levels.WARNING)
             return null;
@@ -84,7 +86,8 @@ class Task{
             "actives": actives,
             "scheduled": scheduled,
             "progressOffset": progressOffset,
-            "progressColor": progressColor
+            "progressColor": progressColor,
+            "banner-color": getColorFromStatus(this.status)
         })
 
         parent.innerHTML += html;
@@ -127,7 +130,8 @@ class Task{
             "actives": actives,
             "scheduled": scheduled,
             "isTimed": isActive ? "CLOCK OUT" : "CLOCK IN",
-            "isTimedAction": isActive ? `clockOut(${this.id})` : `clockIn(${this.id})`
+            "isTimedAction": isActive ? `clockOut(${this.id})` : `clockIn(${this.id})`,
+            "statusOption": getDropdownOptions(this.status)
         })
 
         parent.innerHTML += html;

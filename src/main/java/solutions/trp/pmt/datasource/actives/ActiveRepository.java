@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface ActiveRepository extends JpaRepository<ActiveEntity, Integer> {
     boolean existsByUserEntity_IdAndTaskEntity_Id(Integer userId, Integer taskId);
     Optional<ActiveEntity> findByUserEntity_IdAndTaskEntity_Id(Integer userId, Integer taskId);
+    Optional<ActiveEntity> findByUserEntity_Id(Integer userId);
     List<ActiveEntity> findAllByTaskEntity_Id(Integer taskId);
     void deleteByTaskEntity_Id(Integer taskId);
 }

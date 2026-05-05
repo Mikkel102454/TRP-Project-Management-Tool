@@ -1,16 +1,33 @@
-async function searchProjects(query){
+async function searchProjects(query, apiKey){
     try {
+        const headers = {};
+        if (apiKey) {
+            headers["X-API-Key"] = apiKey;
+        }
+
         const response = await fetch(
-            `${API_ROOT}/project?title=${encodeURIComponent(query)}`
+            `${API_ROOT}/project?title=${encodeURIComponent(query)}`,
+            {
+                headers: headers
+            }
         );
 
-        const data = await response.json();
+        if (!response.ok) {
+            return [];
+        }
+
+        let data;
+        try {
+            data = await response.json();
+        } catch (e) {
+            return [];
+        }
 
         if (!data.success) return [];
 
         return data.data.map(project => Project.fromJson(project));
     } catch (e) {
-        log(e, Levels.SEVERE)
+        return [];
     }
 }
 

@@ -62,8 +62,8 @@ async function startCreateTask(title, estimate, deadline, description){
     loadProject();
 }
 
-async function startUpdateTask(title, estimate, deadline, description){
-    await updateTask(openTask, title, false, deadline, timeLongerShort(estimate), description)
+async function startUpdateTask(title, estimate, deadline, description, status){
+    await updateTask(openTask, title, false, deadline, timeLongerShort(estimate), description, status)
 
     loadProject();
 }

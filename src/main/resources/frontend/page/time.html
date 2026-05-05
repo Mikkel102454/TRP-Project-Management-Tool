@@ -39,15 +39,22 @@
                         Change Password
                     </button>
 
+                    <div th:if="${!#authorization.expression('hasRole(''ADMIN'')')}">
+                        <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                                th:onclick="|window.location.href='@{/timetable(id=${#authentication.principal.id})}'|">
+                            Time Entries
+                        </button>
+                    </div>
+
                     <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                         <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
                                 th:onclick="|window.location.href='@{/setup}'|">
-                            Setup
+                            User Control
                         </button>
 
                         <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
                                 th:onclick="|window.location.href='@{/time}'|">
-                            Time Registry
+                            Time Control
                         </button>
                     </div>
 
@@ -143,5 +150,16 @@
 
 </script>
 
+<script>
+    async function checkTime(){
+        if((await getUser()).forcedClockedOut){
+            let html = await getComponent("timeRegistry")
+
+            const popupHolder = document.getElementById("popupHolder");
+            popupHolder.innerHTML = html;
+        }
+    }
+    checkTime()
+</script>
 </body>
 </html>

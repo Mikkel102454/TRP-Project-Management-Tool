@@ -21,12 +21,22 @@ import java.sql.Timestamp;
         }
 )
 public class TaskEntity {
+    public enum TaskStatus {
+        TODO,
+        AWAITING_CONFIRMATION,
+        FINISHED
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column(nullable = false, name = "title")
     private String title;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TaskStatus status;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "project_id", nullable = false)
@@ -62,6 +72,14 @@ public class TaskEntity {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
     }
 
     public ProjectEntity getProjectEntity() {
@@ -124,6 +142,7 @@ public class TaskEntity {
         TaskDto dto = new TaskDto();
         dto.setId(id);
         dto.setTitle(title);
+        dto.setStatus(status);
         dto.setProjectId(projectEntity.getId());
         dto.setCompleted(isCompleted);
         dto.setTaskOrder(taskOrder);

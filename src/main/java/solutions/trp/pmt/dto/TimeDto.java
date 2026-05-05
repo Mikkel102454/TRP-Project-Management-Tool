@@ -9,6 +9,7 @@ public class TimeDto {
     int id;
     int taskId;
     int userId;
+    boolean attention;
 
     public OffsetDateTime getStartTime() {
         return startTime;
@@ -48,5 +49,13 @@ public class TimeDto {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public boolean isAttention() {
+        return attention;
+    }
+
+    public void setAttention(boolean attention) {
+        this.attention = attention;
     }
 }

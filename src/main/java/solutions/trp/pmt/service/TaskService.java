@@ -70,6 +70,7 @@ public class TaskService {
 
         TaskEntity task = new TaskEntity();
         task.setTitle(title);
+        task.setStatus(TaskEntity.TaskStatus.TODO);
         task.setProjectEntity(project);
         task.setCreatorEntity(appUserDetailsService.getUserEntity());
         task.setCompleted(isCompleted);
@@ -85,7 +86,7 @@ public class TaskService {
         }
     }
 
-    public void updateTask(String title, int taskId, Boolean isCompleted, Timestamp deadline, Integer estimatedTime, String description){
+    public void updateTask(String title, int taskId, Boolean isCompleted, Timestamp deadline, Integer estimatedTime, String description, String status){
         TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
 
         if(title != null && !title.isBlank() && !Objects.equals(task.getTitle(), title)) {
@@ -106,6 +107,10 @@ public class TaskService {
 
         if(description != null && !description.isBlank() && !Objects.equals(task.getDescription(), description)) {
             task.setDescription(description);
+        }
+
+        if(status != null && !status.isBlank() && !Objects.equals(task.getStatus(), TaskEntity.TaskStatus.valueOf(status))) {
+            task.setStatus(TaskEntity.TaskStatus.valueOf(status));
         }
 
         repository.save(task);
@@ -129,80 +134,6 @@ public class TaskService {
         if(shift) {
             repository.shiftAfterDelete(projectId, deletedPriority);
         }
-    }
-
-    public void startTimeUser(int taskId) {
-        UserEntity user = appUserDetailsService.getUserEntity();
-        if(activeRepository.existsByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId)) {
-            throw new ConflictException("User is already timed on this task");
-        }
-
-        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
-        ActiveEntity active = new ActiveEntity();
-        active.setTaskEntity(task);
-        active.setUserEntity(user);
-        active.setStamp(Timestamp.from(Instant.now()));
-
-        activeRepository.save(active);
-    }
-
-    public void stopTimeUser(int taskId) {
-        UserEntity user = appUserDetailsService.getUserEntity();
-        if(!activeRepository.existsByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId)) {
-            throw new ConflictException("User is not timed on this task");
-        }
-
-        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
-        ActiveEntity active = activeRepository.findByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
-        TimingEntity timeTable = new TimingEntity();
-        timeTable.setTaskEntity(task);
-        timeTable.setUserEntity(user);
-        timeTable.setStartTime(active.getStamp());
-        timeTable.setEndTime(Timestamp.from(Instant.now()));
-
-        timingRepository.save(timeTable);
-
-        activeRepository.delete(active);
-    }
-
-    public void startTimeUser(int taskId, int userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        if(activeRepository.existsByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId)) {
-            throw new ConflictException("User is already timed on this task");
-        }
-
-        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
-        ActiveEntity active = new ActiveEntity();
-        active.setTaskEntity(task);
-        active.setUserEntity(user);
-        active.setStamp(Timestamp.from(Instant.now()));
-
-        activeRepository.save(active);
-    }
-
-    public void stopTimeUser(int taskId, int userId) {
-        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
-        if(!activeRepository.existsByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId)) {
-            throw new ConflictException("User is not timed on this task");
-        }
-
-        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
-        ActiveEntity active = activeRepository.findByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId).orElseThrow(() -> new NotFoundException("Task not found"));
-
-        TimingEntity timeTable = new TimingEntity();
-        timeTable.setTaskEntity(task);
-        timeTable.setUserEntity(user);
-        timeTable.setStartTime(active.getStamp());
-        timeTable.setEndTime(Timestamp.from(Instant.now()));
-
-        timingRepository.save(timeTable);
-
-        activeRepository.delete(active);
     }
 
     public List<UserEntity> getTaskActives(int taskId){

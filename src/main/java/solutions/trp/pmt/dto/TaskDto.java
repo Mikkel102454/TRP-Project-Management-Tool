@@ -2,6 +2,7 @@ package solutions.trp.pmt.dto;
 
 import jakarta.persistence.*;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
+import solutions.trp.pmt.datasource.tasks.TaskEntity;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -10,6 +11,7 @@ import java.util.List;
 public class TaskDto {
     private int id;
     private String title;
+    private TaskEntity.TaskStatus status;
     private int projectId;
     private Boolean isCompleted;
     private int taskOrder;
@@ -35,6 +37,14 @@ public class TaskDto {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public TaskEntity.TaskStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TaskEntity.TaskStatus status) {
+        this.status = status;
     }
 
     public int getProjectId() {

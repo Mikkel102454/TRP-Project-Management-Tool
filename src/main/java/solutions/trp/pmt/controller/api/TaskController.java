@@ -8,6 +8,7 @@ import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.dto.request.CreateTaskRequest;
 import solutions.trp.pmt.dto.request.UpdateTaskRequest;
 import solutions.trp.pmt.service.TaskService;
+import solutions.trp.pmt.service.TimeService;
 
 import java.sql.Timestamp;
 
@@ -15,9 +16,11 @@ import java.sql.Timestamp;
 @RequestMapping("/api/task")
 public class TaskController {
     private final TaskService taskService;
+    private final TimeService timeService;
 
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, TimeService timeService) {
         this.taskService = taskService;
+        this.timeService = timeService;
     }
 
     @PostMapping("/time/start")
@@ -25,7 +28,7 @@ public class TaskController {
             @RequestParam() int taskId
     ) {
 
-        taskService.startTimeUser(taskId);
+        timeService.startTimeUser(taskId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
@@ -36,7 +39,7 @@ public class TaskController {
             @RequestParam() int taskId
     ) {
 
-        taskService.stopTimeUser(taskId);
+        timeService.stopTimeUser(taskId);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
@@ -106,7 +109,8 @@ public class TaskController {
                 request.isCompleted(),
                 request.deadline() != null ? Timestamp.valueOf(request.deadline()) : null,
                 request.estimatedTime(),
-                request.description()
+                request.description(),
+                request.status()
         );
 
         return ResponseEntity.status(HttpStatus.OK)

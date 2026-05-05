@@ -8,7 +8,9 @@ import solutions.trp.pmt.controller.api.execption.UnauthorizedException;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.datasource.time_tables.TimingEntity;
 import solutions.trp.pmt.dto.TimeDto;
+import solutions.trp.pmt.dto.TimeValidationDto;
 import solutions.trp.pmt.dto.UserDto;
+import solutions.trp.pmt.service.AppUserDetailsService;
 import solutions.trp.pmt.service.TimeService;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -20,10 +22,12 @@ import java.util.List;
 @RequestMapping("/api/time")
 public class TimeController {
     private final TimeService timeService;
+    private final AppUserDetailsService appUserDetailsService;
 
     @Autowired
-    public TimeController(TimeService timeService) {
+    public TimeController(TimeService timeService, AppUserDetailsService appUserDetailsService) {
         this.timeService = timeService;
+        this.appUserDetailsService = appUserDetailsService;
     }
 
     @GetMapping("/summary/full")
@@ -54,5 +58,13 @@ public class TimeController {
     ) {
         timeService.updateTimeEntry(timeId, startTime, endTime);
         return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<TimeValidationDto>> getTime(
+            @RequestParam Integer userId
+    ) {
+        TimeValidationDto result = timeService.getValidatedTime(userId);
+        return ResponseEntity.ok(ApiResponse.ok(result));
     }
 }

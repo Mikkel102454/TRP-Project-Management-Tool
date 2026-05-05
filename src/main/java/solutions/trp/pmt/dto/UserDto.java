@@ -6,6 +6,7 @@ public class UserDto {
     private String initial;
     private boolean isAdmin;
     private boolean isEnabled;
+    private boolean forcedClockedOut;
     public int getId() {
         return id;
     }
@@ -44,5 +45,13 @@ public class UserDto {
 
     public void setEnabled(boolean enabled) {
         isEnabled = enabled;
+    }
+
+    public boolean isForcedClockedOut() {
+        return forcedClockedOut;
+    }
+
+    public void setForcedClockedOut(boolean forcedClockedOut) {
+        this.forcedClockedOut = forcedClockedOut;
     }
 }

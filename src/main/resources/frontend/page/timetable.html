@@ -12,7 +12,7 @@
 <header class="bg-gradient-to-b from-gray-200 to-gray-400 border-b border-gray-500 shadow-inner">
     <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
 
-        <a th:href="@{/time}" class="text-gray-800 tracking-wider font-semibold">
+        <a th:href="${#authorization.expression('hasRole(''ADMIN'')')} ? @{/time} : @{/}" class="text-gray-800 tracking-wider font-semibold">
             TIME ENTRIES
         </a>
 
@@ -35,6 +35,13 @@
                         onclick="openPasswordModal(); toggleUserMenu()">
                     Change Password
                 </button>
+
+                <div th:if="${!#authorization.expression('hasRole(''ADMIN'')')}">
+                    <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                            th:onclick="|window.location.href='@{/timetable(id=${#authentication.principal.id})}'|">
+                        Time Registry
+                    </button>
+                </div>
 
                 <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
                     <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
@@ -90,6 +97,10 @@
 <script th:src="@{/code/util/header.js}"></script>
 
 <script>
+    const isAdmin = [[${#authorization.expression('hasRole(''ADMIN'')')}]];
+</script>
+
+<script>
 
     let timeEntries = [];
     let projects = [];
@@ -121,14 +132,22 @@
             }
 
             const div = document.createElement("div");
-
             div.className = `
 grid grid-cols-12 items-center
 h-16 px-3
 gap-x-2
-bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300
+${entry?.attention ? "bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-300"  : "bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300"}
 border border-gray-500
 `;
+
+            const deleteButton = isAdmin ? `
+    <button class="px-2 py-1 border border-red-700
+                   bg-red-500 text-white text-xs
+                   hover:bg-red-600"
+        onclick="if(confirm('Delete?')) { removeTimeEntry(${entry.id}); this.closest('.grid').remove(); }">
+        DELETE
+    </button>
+` : '';
 
             div.innerHTML = `
 <!-- PROJECT -->
@@ -168,12 +187,7 @@ border border-gray-500
         UPDATE
     </button>
 
-    <button class="px-2 py-1 border border-red-700
-                   bg-red-500 text-white text-xs
-                   hover:bg-red-600"
-        onclick="if(confirm('Delete?')) { removeTimeEntry(${entry.id}); this.closest('.grid').remove(); }">
-        DELETE
-    </button>
+    ${deleteButton}
 </div>
 `;
 
@@ -186,6 +200,7 @@ border border-gray-500
         if(startTime != null) entry.startTime = startTime;
         if(endTime != null) entry.endTime = endTime;
         const row = input.closest('.grid');
+
         const updateBtn = row.querySelector('.update-button');
         if (updateBtn) {
             updateBtn.classList.remove('hidden');
@@ -196,6 +211,12 @@ border border-gray-500
         const entry = timeEntries.find(e => e.id === id);
         await updateTimeEntry(entry.id, new Date(entry.startTime).toISOString(), new Date(entry.endTime).toISOString());
         input.classList.add('hidden')
+        const row = input.closest('.grid');
+
+        if (row.classList.contains('from-yellow-100')) {
+            row.classList.remove('from-yellow-100', 'via-yellow-200', 'to-yellow-300');
+            row.classList.add('from-gray-100', 'via-gray-200', 'to-gray-300');
+        }
     }
 
     async function loadEntries() {
