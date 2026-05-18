@@ -87,7 +87,10 @@ class Task{
             "scheduled": scheduled,
             "progressOffset": progressOffset,
             "progressColor": progressColor,
-            "banner-color": getColorFromStatus(this.status)
+            "banner-color": getColorFromStatus(this.status),
+            "status": this.status,
+            "cursor-hover": this.status === "FINISHED" ? "" : "cursor-grab",
+            "draggable": this.status === "FINISHED" ? "false" : "true"
         })
 
         parent.innerHTML += html;
@@ -129,9 +132,11 @@ class Task{
             "description": this.description,
             "actives": actives,
             "scheduled": scheduled,
+            "status": this.status,
             "isTimed": isActive ? "CLOCK OUT" : "CLOCK IN",
             "isTimedAction": isActive ? `clockOut(${this.id})` : `clockIn(${this.id})`,
-            "statusOption": getDropdownOptions(this.status)
+            "statusOption": await getDropdownOptions(this.status),
+            "isAdmin": currentUser.isAdmin
         })
 
         parent.innerHTML += html;

@@ -8,7 +8,7 @@ async function loadProjects(apiKey) {
         projectHolder.innerHTML = "";
 
         for (let project of projects) {
-            if(project.archived) continue;
+            if(!project.archived) continue;
             await project.loadPreview(projectHolder);
         }
     } catch (err) { return []; }

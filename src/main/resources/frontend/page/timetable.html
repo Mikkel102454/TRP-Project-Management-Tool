@@ -245,6 +245,13 @@ border border-gray-500
     });
 
 </script>
+<script>
+    window.addEventListener('keydown', function(e) {
+        if (e.key !== "Escape") return;
+        document.getElementById("userModal")?.remove();
+        document.getElementById("passwordModal")?.remove();
+    });
 
+</script>
 </body>
 </html>

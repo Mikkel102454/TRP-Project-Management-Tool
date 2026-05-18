@@ -107,11 +107,16 @@ public class TimeService {
 
     public void startTimeUser(int taskId) {
         UserEntity user = appUserDetailsService.getUserEntity();
+
         if(activeRepository.existsByUserEntity_IdAndTaskEntity_Id(user.getId(), taskId)) {
             throw new ConflictException("User is already timed on this task");
         }
 
         TaskEntity task = taskRepository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
+
+        if(task.getStatus() == TaskEntity.TaskStatus.CLOSED){
+            throw new ConflictException("Task is already closed");
+        }
 
         ActiveEntity active = new ActiveEntity();
         active.setTaskEntity(task);

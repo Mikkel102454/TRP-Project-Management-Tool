@@ -28,6 +28,14 @@
                 + NEW
             </button>
 
+            <button th:onclick="|window.location.href='@{/archives}'|"
+                    class="px-3 py-1 border border-gray-600
+                       bg-gradient-to-b from-gray-300 to-gray-500
+                       hover:from-gray-400 hover:to-gray-600
+                       text-gray-900 shadow">
+                ARCHIVES
+            </button>
+
             <div class="relative">
 
                 <!-- ICON -->
@@ -117,7 +125,14 @@
     });
 
 </script>
+<script>
+    window.addEventListener('keydown', function(e) {
+        if (e.key !== "Escape") return;
+        document.getElementById("projectModal")?.remove();
+        document.getElementById("passwordModal")?.remove();
+    });
 
+</script>
 <script>
     const headerIcon = document.getElementById("headerIcon");
 

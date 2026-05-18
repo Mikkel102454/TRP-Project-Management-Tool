@@ -169,3 +169,31 @@ async function removeProjectLeader(id, userId){
         return false;
     }
 }
+async function archiveTask(id){
+    try {
+        const response = await fetch(`${API_ROOT}/project/${encodeURIComponent(id)}/archive`, {
+            method: "POST",
+        });
+
+        const data = await response.json();
+
+        return data.success;
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}
+async function unarchiveTask(id){
+    try {
+        const response = await fetch(`${API_ROOT}/project/${encodeURIComponent(id)}/archive`, {
+            method: "DELETE",
+        });
+
+        const data = await response.json();
+
+        return data.success;
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}

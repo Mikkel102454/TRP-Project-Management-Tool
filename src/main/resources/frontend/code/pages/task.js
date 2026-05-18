@@ -12,11 +12,43 @@ async function loadProject() {
     document.getElementById("title").textContent = project.title
 
     const taskHolder = document.getElementById("tasks");
+    const taskHolderFinished = document.getElementById("tasks-finished");
+    const taskHolderFinishedHeader = document.getElementById("tasks-finished-header");
+    let hasFinishedTasks = false;
+    const taskHolderClosed = document.getElementById("tasks-closed");
+    const taskHolderClosedHeader = document.getElementById("tasks-closed-header");
+    let hasClosedTasks = false;
     taskHolder.innerHTML = "";
+    taskHolderFinished.innerHTML = "";
+    taskHolderClosed.innerHTML = "";
 
     for (let task of project.task) {
-        await task.loadPreview(taskHolder);
+        let holder;
+
+        if (task.status === "FINISHED") {
+            holder = taskHolderFinished;
+            hasFinishedTasks = true;
+
+        } else if (task.status === "CLOSED") {
+            holder = taskHolderClosed;
+            hasClosedTasks = true;
+
+        } else {
+            holder = taskHolder;
+        }
+
+        await task.loadPreview(holder);
     }
+
+    taskHolderFinishedHeader.classList.toggle(
+        "hidden",
+        !hasFinishedTasks
+    );
+
+    taskHolderClosedHeader.classList.toggle(
+        "hidden",
+        !hasClosedTasks
+    );
 }
 
 async function openModal(id){
@@ -56,6 +88,14 @@ async function openRenameModal(){
     popupHolder.innerHTML = html;
 }
 
+async function archiveProject(){
+    if(project.archived) {
+        await unarchiveTask(project.id)
+    } else await archiveTask(project.id);
+
+    loadProject();
+}
+
 async function startCreateTask(title, estimate, deadline, description){
     await createTask(project.id, title, false, deadline, timeLongerShort(estimate), description)
 
@@ -86,4 +126,14 @@ async function deleteTask(id){
     await removeTask(id)
     loadProject();
 }
-loadProject();
+
+async function load(){
+    await loadProject();
+    document.getElementById("archive-btn").innerHTML = project.archived ? "UNARCHIVE" : "ARCHIVE";
+
+    if(project.archived){
+        document.getElementById("title-header").href += "archives";
+    }
+
+}
+load();

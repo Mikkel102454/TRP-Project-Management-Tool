@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import solutions.trp.pmt.controller.api.execption.ConflictException;
 import solutions.trp.pmt.controller.api.execption.NotFoundException;
 import solutions.trp.pmt.controller.api.execption.ServiceException;
+import solutions.trp.pmt.controller.api.execption.UnauthorizedException;
 import solutions.trp.pmt.datasource.actives.ActiveEntity;
 import solutions.trp.pmt.datasource.actives.ActiveRepository;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
@@ -110,6 +111,11 @@ public class TaskService {
         }
 
         if(status != null && !status.isBlank() && !Objects.equals(task.getStatus(), TaskEntity.TaskStatus.valueOf(status))) {
+            if(status.equalsIgnoreCase("CLOSED") || task.getStatus() == TaskEntity.TaskStatus.CLOSED) {
+                if(!appUserDetailsService.getUserEntity().isAdmin()) {
+                    throw new UnauthorizedException("You cannot close or open a task");
+                }
+            }
             task.setStatus(TaskEntity.TaskStatus.valueOf(status));
         }
 

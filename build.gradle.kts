@@ -35,7 +35,6 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-    runtimeOnly("org.mariadb.jdbc:mariadb-java-client")
     runtimeOnly("com.mysql:mysql-connector-j")
 
     implementation("org.json:json:20171018")

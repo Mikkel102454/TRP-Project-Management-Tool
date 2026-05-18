@@ -197,6 +197,8 @@
     let users = [];
 
     function openCreateModal() {
+        openModal();
+
         document.getElementById("modalTitle").innerText = "Create User";
         document.getElementById("userId").value = "";
         document.getElementById("usernameInput").value = "";
@@ -205,10 +207,11 @@
         document.getElementById("roleInput").value = "USER";
         //document.getElementById("deleteBtn").classList.add("hidden");
         document.getElementById("enabledInput").checked = true;
-        openModal();
     }
 
     function openEditModal(user) {
+        openModal();
+
         document.getElementById("modalTitle").innerText = "Edit User";
         document.getElementById("userId").value = user.id;
         document.getElementById("usernameInput").value = user.username;
@@ -217,7 +220,6 @@
         document.getElementById("roleInput").value = user.isAdmin ? "ADMIN" : "USER";
         //document.getElementById("deleteBtn").classList.remove("hidden");
         document.getElementById("enabledInput").checked = user.isEnabled;
-        openModal();
     }
 
     function openModal() {
@@ -337,7 +339,14 @@
     });
 
 </script>
+<script>
+    window.addEventListener('keydown', function(e) {
+        if (e.key !== "Escape") return;
+        document.getElementById("passwordModal")?.remove();
+        closeModal();
+    });
 
+</script>
 <script>
     async function checkTime(){
         if((await getUser()).forcedClockedOut){

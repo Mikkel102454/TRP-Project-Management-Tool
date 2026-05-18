@@ -15,6 +15,9 @@ public class ProjectEntity {
     @Column(unique = true, nullable = false, name = "project_order")
     private int projectOrder;
 
+    @Column(nullable = false, name = "archived")
+    private boolean archived;
+
     public int getId() {
         return id;
     }
@@ -35,11 +38,20 @@ public class ProjectEntity {
         this.projectOrder = projectOrder;
     }
 
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
+    }
+
     public ProjectDto toDto() {
         ProjectDto dto = new ProjectDto();
         dto.setId(id);
         dto.setTitle(title);
         dto.setProjectOrder(projectOrder);
+        dto.setArchived(archived);
 
         return dto;
     }

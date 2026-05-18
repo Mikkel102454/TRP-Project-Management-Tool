@@ -7,6 +7,7 @@ public class ProjectDto {
     private String title;
     private int projectOrder;
     private boolean isWorkedOn;
+    private boolean archived;
     List<UserDto> scheduled;
     List<UserDto> leader;
     List<TaskDto> tasks;
@@ -65,5 +66,13 @@ public class ProjectDto {
 
     public void setTasks(List<TaskDto> tasks) {
         this.tasks = tasks;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 }

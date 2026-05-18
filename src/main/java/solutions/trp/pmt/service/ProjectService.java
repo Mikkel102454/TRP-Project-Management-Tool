@@ -47,6 +47,7 @@ public class ProjectService {
         ProjectEntity project = new ProjectEntity();
         project.setTitle(title);
         project.setProjectOrder(repository.findMaxOrder() + 1);
+        project.setArchived(false);
         try {
             repository.save(project);
         } catch (Exception e) {
@@ -139,5 +140,19 @@ public class ProjectService {
 
     public List<ProjectEntity> getAll() {
         return repository.findAll();
+    }
+
+    public void archiveProject(int id){
+        ProjectEntity project = repository.findById(id).orElseThrow(() -> new NotFoundException("Could not find project with id: " + id));
+        project.setArchived(true);
+
+        repository.save(project);
+    }
+
+    public void unarchiveProject(int id){
+        ProjectEntity project = repository.findById(id).orElseThrow(() -> new NotFoundException("Could not find project with id: " + id));
+        project.setArchived(false);
+
+        repository.save(project);
     }
 }

@@ -23,7 +23,7 @@
 <header class="bg-gradient-to-b from-gray-200 to-gray-400 border-b border-gray-500 shadow-inner">
   <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
 
-    <a th:href="@{/}">
+    <a th:href="@{/}" id="title-header">
       <h1 class="tracking-wider text-gray-800 font-semibold">
         TASK CONTROL
       </h1>
@@ -103,6 +103,17 @@
     </h2>
 
     <div class="flex gap-2">
+      <button id="archive-btn"
+              class="px-3 py-1 border border-gray-700
+             bg-gradient-to-b from-yellow-500 to-yellow-700
+             text-white hover:from-yellow-600 hover:to-yellow-800"
+              th:attr="onclick=|(async () => {
+              await archiveProject();
+              window.location.replace('@{/}');
+              })()|">
+        ARCHIVE
+      </button>
+
       <button
               class="px-3 py-1 border border-gray-700
              bg-gradient-to-b from-blue-500 to-blue-700
@@ -137,6 +148,25 @@
   <!-- TASK LIST -->
   <div id="tasks" class="flex flex-col gap-1"></div>
 
+  <div class="flex items-center gap-4 my-6 text-gray-400" id="tasks-finished-header">
+    <div class="flex-1 h-px bg-gray-400"></div>
+
+    <h1 class="text-sm font-medium uppercase tracking-wide">
+      Finished
+    </h1>
+    <div class="flex-1 h-px bg-gray-400"></div>
+  </div>
+  <div id="tasks-finished" class="flex flex-col gap-1"></div>
+
+  <div class="flex items-center gap-4 my-6 text-gray-400" id="tasks-closed-header">
+    <div class="flex-1 h-px bg-gray-400"></div>
+
+    <h1 class="text-sm font-medium uppercase tracking-wide">
+      Closed
+    </h1>
+    <div class="flex-1 h-px bg-gray-400"></div>
+  </div>
+  <div id="tasks-closed" class="flex flex-col gap-1"></div>
 </main>
 
 <!-- MODAL -->
@@ -158,6 +188,9 @@ let placeholder = document.createElement('div');
 placeholder.className = "h-14 border border-gray-500 bg-gray-300 mx-0 my-1 opacity-60";
 
 list.addEventListener('dragstart', (e) => {
+  // Only continue if the parent element has id="tasks"
+  if (!e.target.closest('#tasks')) return;
+
   const item = e.target.closest('.task-item');
   if (!item) return;
 
@@ -361,7 +394,15 @@ function getDragAfterElement(container, y) {
   });
 
 </script>
+<script>
+  window.addEventListener('keydown', function(e) {
+    if (e.key !== "Escape") return;
+    document.getElementById("taskModal")?.remove();
+    document.getElementById("passwordModal")?.remove();
+    document.getElementById("projectModal")?.remove();
+  });
 
+</script>
 <script th:src="@{/code/util/led.js}"></script>
 <script th:src="@{/code/util/status.js}"></script>
 <script th:src="@{/code/util/logger.js}"></script>

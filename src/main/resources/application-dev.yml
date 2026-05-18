@@ -18,15 +18,16 @@ spring:
           cache-public: true
           max-age: 365d
   datasource:
-    password: TRPnimda10
+    password: admin
     url: jdbc:mysql://localhost:3306/pmt
-    username: pmt
+    username: admin
 
   jpa:
     hibernate:
-      ddl-auto: create-only
+      ddl-auto: update
 
     show-sql: false
+    database-platform: org.hibernate.dialect.MySQLDialect
 
     properties:
       hibernate:

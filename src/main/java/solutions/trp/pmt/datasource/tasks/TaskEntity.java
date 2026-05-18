@@ -24,7 +24,8 @@ public class TaskEntity {
     public enum TaskStatus {
         TODO,
         AWAITING_CONFIRMATION,
-        FINISHED
+        FINISHED,
+        CLOSED
     }
 
     @Id

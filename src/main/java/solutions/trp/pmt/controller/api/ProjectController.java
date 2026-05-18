@@ -159,4 +159,26 @@ public class ProjectController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
     }
+
+    @PostMapping("/{projectId}/archive")
+    public ResponseEntity<ApiResponse<Void>> archiveProject(
+            @PathVariable int projectId
+    ) {
+
+        projectService.archiveProject(projectId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
+
+    @DeleteMapping("/{projectId}/archive")
+    public ResponseEntity<ApiResponse<Void>> unarchiveProject(
+            @PathVariable int projectId
+    ) {
+
+        projectService.unarchiveProject(projectId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
 }
