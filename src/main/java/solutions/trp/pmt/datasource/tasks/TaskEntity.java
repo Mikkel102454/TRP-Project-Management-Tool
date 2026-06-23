@@ -3,12 +3,16 @@ package solutions.trp.pmt.datasource.tasks;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
+import solutions.trp.pmt.datasource.actives.ActiveEntity;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
+import solutions.trp.pmt.datasource.scheduled.ScheduledEntity;
+import solutions.trp.pmt.datasource.time_tables.TimingEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.dto.TaskDto;
 import solutions.trp.pmt.service.TimeService;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Entity(name = "task")
 @Table(
@@ -62,6 +66,18 @@ public class TaskEntity {
 
     @Column(nullable = false, name = "description")
     private String description;
+
+    @Column(nullable = false, name = "has_printed")
+    private boolean hasPrinted;
+
+    @OneToMany(mappedBy = "taskEntity")
+    private List<TimingEntity> timings;
+
+    @OneToMany(mappedBy = "taskEntity")
+    private List<ActiveEntity> actives;
+
+    @OneToMany(mappedBy = "taskEntity")
+    private List<ScheduledEntity> scheduled;
 
     public int getId() {
         return id;
@@ -139,6 +155,38 @@ public class TaskEntity {
         this.description = description;
     }
 
+    public boolean isHasPrinted() {
+        return hasPrinted;
+    }
+
+    public void setHasPrinted(boolean hasPrinted) {
+        this.hasPrinted = hasPrinted;
+    }
+
+    public List<TimingEntity> getTimings() {
+        return timings;
+    }
+
+    public void setTimings(List<TimingEntity> timings) {
+        this.timings = timings;
+    }
+
+    public List<ScheduledEntity> getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(List<ScheduledEntity> scheduled) {
+        this.scheduled = scheduled;
+    }
+
+    public List<ActiveEntity> getActives() {
+        return actives;
+    }
+
+    public void setActives(List<ActiveEntity> actives) {
+        this.actives = actives;
+    }
+
     public TaskDto toDto(TimeService timeService) {
         TaskDto dto = new TaskDto();
         dto.setId(id);
@@ -152,7 +200,15 @@ public class TaskEntity {
         dto.setCreator(creatorEntity.toDto());
         dto.setDescription(description);
         dto.setDeadline(deadline != null ? deadline.toLocalDateTime() : null);
-        dto.setSpent(timeService.calculateTime(id, projectEntity.getId(), null));
+        dto.setSpent(timeService.calculateTime(id, timings));
+        dto.setActives(
+                actives.stream()
+                        .map(ActiveEntity::getUserEntity)
+                        .distinct()
+                        .map(UserEntity::toDto)
+                        .toList()
+        );
+        dto.setScheduled(scheduled.stream().map(ScheduledEntity::getUserEntity).map(UserEntity::toDto).toList());
         return dto;
     }
 }

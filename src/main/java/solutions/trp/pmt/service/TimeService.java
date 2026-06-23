@@ -36,7 +36,7 @@ public class TimeService {
         this.userRepository = userRepository;
     }
 
-    public int calculateTime(Integer taskId, Integer projectId, List<Integer> userIds) {
+    public int calculateTime(int taskId, List<TimingEntity> timings) {
 
 
         int spent = 0;
@@ -47,10 +47,14 @@ public class TimeService {
             ).getSeconds();
         }
 
-        if(userIds == null || userIds.isEmpty()) {
-            return timingRepository.sumTime(taskId, projectId) + spent;
+        for(TimingEntity timingEntity : timings) {
+            spent += (int) Duration.between(
+                    timingEntity.getStartTime().toInstant(),
+                    timingEntity.getEndTime().toInstant()
+            ).getSeconds();
         }
-        return timingRepository.sumTime(taskId, projectId, userIds) + spent;
+
+        return spent;
     }
 
     public List<TimingEntity> getAllTime() {

@@ -13,6 +13,7 @@ import solutions.trp.pmt.dto.TaskDto;
 import solutions.trp.pmt.dto.request.*;
 import solutions.trp.pmt.service.ProjectService;
 import solutions.trp.pmt.service.TaskService;
+import solutions.trp.pmt.service.TimeService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,32 +23,24 @@ import java.util.List;
 public class ProjectController {
     private final TaskService taskService;
     private final ProjectService projectService;
+    private final TimeService timeService;
 
     @Autowired
-    public ProjectController(ProjectService projectService, TaskService taskService) {
+    public ProjectController(ProjectService projectService, TaskService taskService, TimeService timeService) {
         this.projectService = projectService;
         this.taskService = taskService;
+        this.timeService = timeService;
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProjectDto>>> getProjects(
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "20") int limit,
             @RequestParam(required = false) String title
     ) {
 
-        List<ProjectEntity> projects = projectService.search(title, offset, limit);
+        List<ProjectEntity> projects = projectService.search(title, offset);
 
-        List<ProjectDto> projectDtos = projects.stream().map(project -> {
-            ProjectDto dto = project.toDto();
-            dto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
-            dto.setScheduled(projectService.getAllScheduledUsers(project).stream().map(UserEntity::toDto).toList());
-            dto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
-            List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
-
-            dto.setTasks(tasks.subList(0, Math.min(2, tasks.size())));
-            return dto;
-        }).toList();
+        List<ProjectDto> projectDtos = projects.stream().map(project -> project.toDto(timeService)).toList();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(projectDtos));
@@ -57,14 +50,9 @@ public class ProjectController {
     public ResponseEntity<ApiResponse<ProjectDto>> getProject(
             @PathVariable int projectId
     ) {
-        List<TaskDto> tasks = taskService.getFromProjectId(projectId);
         ProjectEntity project = projectService.getFromId(projectId);
 
-        ProjectDto projectDto = project.toDto();
-        projectDto.setTasks(tasks);
-        projectDto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
-        projectDto.setLeader(projectService.getProjectLeaders(project).stream().map(UserEntity::toDto).toList());
-        projectDto.setScheduled(projectService.getAllScheduledUsers(project).stream().map(UserEntity::toDto).toList());
+        ProjectDto projectDto = project.toDto(timeService);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(projectDto));
@@ -79,22 +67,7 @@ public class ProjectController {
 
             List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
 
-            ProjectDto dto = project.toDto();
-
-            dto.setTasks(tasks);
-            dto.setIsWorkedOn(projectService.isProjectWorkedOn(project));
-            dto.setLeader(
-                    projectService.getProjectLeaders(project)
-                            .stream()
-                            .map(UserEntity::toDto)
-                            .toList()
-            );
-            dto.setScheduled(
-                    projectService.getAllScheduledUsers(project)
-                            .stream()
-                            .map(UserEntity::toDto)
-                            .toList()
-            );
+            ProjectDto dto = project.toDto(timeService);
 
             return dto;
 

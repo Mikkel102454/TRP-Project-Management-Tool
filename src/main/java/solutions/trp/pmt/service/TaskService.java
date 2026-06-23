@@ -23,12 +23,21 @@ import solutions.trp.pmt.dto.TaskDto;
 import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.util.PasswordEncoding;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -54,15 +63,12 @@ public class TaskService {
     }
 
     public List<TaskDto> getFromProjectId(int projectId) {
-        List<TaskDto> tasks = repository.findAllByProjectEntity_IdOrderByTaskOrder(projectId).stream().map(taskEntity -> taskEntity.toDto(timeService)).toList();
-
-        for (TaskDto task : tasks) {
-            List<UserDto> users = getTaskActives(task.getId()).stream().map(UserEntity::toDto).toList();
-            task.setActives(users);
-
-            task.setScheduled(getScheduled(task.getId()).stream().map(UserEntity::toDto).toList());
-        }
-        return tasks;
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new ServiceException(""))
+                .getTasks()
+                .stream()
+                .map(task -> task.toDto(timeService))
+                .toList();
     }
 
     public void createTask(String title, int projectId, boolean isCompleted, Timestamp deadline, int estimatedTime, String description) {
@@ -117,6 +123,45 @@ public class TaskService {
                 }
             }
             task.setStatus(TaskEntity.TaskStatus.valueOf(status));
+
+            if(task.getStatus() == TaskEntity.TaskStatus.FINISHED && !task.isHasPrinted()){
+                Map<String, String> params = Map.of(
+                        "title", task.getProjectEntity().getTitle(),
+                        "responsible", appUserDetailsService.getUserEntity().getUsername(),
+                        "date", LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                        "text", task.getTitle()
+                );
+
+                String body = params.entrySet().stream()
+                        .map(e -> URLEncoder.encode(e.getKey(), StandardCharsets.UTF_8)
+                                + "="
+                                + URLEncoder.encode(e.getValue(), StandardCharsets.UTF_8))
+                        .collect(Collectors.joining("&"));
+
+                HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(5)).build();
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create("http://achievement.trp.solutions/"))
+                        .header("Content-Type", "application/x-www-form-urlencoded")
+                        .header("Origin", "http://achievement.trp.solutions")
+                        .header("Referer", "http://achievement.trp.solutions/")
+                        .POST(HttpRequest.BodyPublishers.ofString(body))
+                        .build();
+
+                try {
+                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                    if (response.statusCode() != 200) {
+                        throw new ServiceException(
+                                "Print service returned status " + response.statusCode()
+                        );
+                    }
+
+                    task.setHasPrinted(true);
+                } catch (Exception e) {
+                    throw new ServiceException(e.getMessage());
+                }
+            }
         }
 
         repository.save(task);
@@ -130,10 +175,6 @@ public class TaskService {
 
         int projectId = task.getProjectEntity().getId();
         int deletedPriority = task.getTaskOrder();
-
-        timingRepository.deleteByTaskEntity_Id(taskId);
-        activeRepository.deleteByTaskEntity_Id(taskId);
-        scheduledRepository.deleteByTaskEntity_Id(taskId);
 
         repository.delete(task);
 

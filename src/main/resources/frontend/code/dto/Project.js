@@ -57,7 +57,10 @@ class Project{
         const users = renderAvatars(this.scheduled.map(user => user.initial))
         const leaders = renderAvatars(this.leader.map(user => user.initial))
         let tasks = "";
+        let i = 0;
         for (const task of this.task) {
+            i++;
+            if(i > 2) break;
             tasks += await task.loadHtml();
         }
         html = updateComponent(html, {

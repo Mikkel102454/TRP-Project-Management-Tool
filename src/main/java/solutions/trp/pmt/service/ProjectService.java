@@ -68,9 +68,8 @@ public class ProjectService {
         }
     }
 
-    public List<ProjectEntity> search(String title, int offset, int limit) {
-        if (limit > 50) limit = 50;
-        Pageable pageable = PageRequest.of(offset / limit, limit);
+    public List<ProjectEntity> search(String title, int offset) {
+        Pageable pageable = PageRequest.of(offset / 500, 500);
 
         Page<ProjectEntity> page = repository.findProjects(
                 title,
@@ -122,9 +121,8 @@ public class ProjectService {
 
     public List<UserEntity> getAllScheduledUsers(ProjectEntity project) {
         List<UserEntity> scheduledUsers = new ArrayList<>();
-        List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
 
-        for (TaskDto task : tasks){
+        for (TaskEntity task : project.getTasks()){
             if(task.getStatus() == TaskEntity.TaskStatus.FINISHED) continue;
             List<UserEntity> taskUsers = taskService.getScheduled(task.getId());
             for(UserEntity user : taskUsers){
@@ -135,7 +133,7 @@ public class ProjectService {
     }
 
     public List<UserEntity> getProjectLeaders(ProjectEntity project) {
-        return leaderRepository.findAllByProjectEntity_Id(project.getId()).stream().map(LeaderEntity::getUserEntity).toList();
+        return project.getLeaders().stream().map(LeaderEntity::getUserEntity).toList();
     }
 
     public List<ProjectEntity> getAll() {
