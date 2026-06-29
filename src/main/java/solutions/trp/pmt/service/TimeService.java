@@ -78,6 +78,10 @@ public class TimeService {
             throw new UnauthorizedException("Unauthorized attempt to get time table");
         }
 
+        if(timingEntity.getTaskEntity().getStatus() == TaskEntity.TaskStatus.CLOSED){
+            throw new UnauthorizedException("Unauthorized attempt to update time on closed task");
+        }
+
         timingEntity.setStartTime(Timestamp.from(startTime.toInstant()));
         timingEntity.setEndTime(Timestamp.from(endTime.toInstant()));
         timingEntity.setAttention(false);

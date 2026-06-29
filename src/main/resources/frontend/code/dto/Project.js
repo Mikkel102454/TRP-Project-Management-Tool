@@ -59,6 +59,7 @@ class Project{
         let tasks = "";
         let i = 0;
         for (const task of this.task) {
+            if(task.status !== "FINISHED" || task.status !== "CLOSED") continue;
             i++;
             if(i > 2) break;
             tasks += await task.loadHtml();
