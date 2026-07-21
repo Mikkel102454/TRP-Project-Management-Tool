@@ -2,6 +2,11 @@ let loadedProjects = [];
 let selectedUserId = "all";
 let showOwnAssignedOnly = false;
 let currentDashboardUser = null;
+let draggedProject = null;
+let isProjectDragging = false;
+
+const projectPlaceholder = document.createElement("div");
+projectPlaceholder.className = "h-16 border border-gray-500 bg-gray-300 mx-0 my-1 opacity-60";
 
 async function loadProjects(apiKey) {
     try {
@@ -38,6 +43,115 @@ async function renderProjects() {
     for (let project of projects) {
         await project.loadPreview(projectHolder);
     }
+
+    updateProjectDragState();
+}
+
+function canReorderProjects() {
+    return selectedUserId === "all" && !showOwnAssignedOnly;
+}
+
+function updateProjectDragState() {
+    const canReorder = canReorderProjects();
+
+    document.querySelectorAll(".project-item").forEach(item => {
+        item.draggable = canReorder;
+        item.classList.toggle("cursor-grab", canReorder);
+        item.classList.toggle("cursor-pointer", !canReorder);
+    });
+}
+
+function getProjectDragAfterElement(container, y) {
+    const elements = [...container.querySelectorAll(".project-item:not(.opacity-40)")];
+
+    return elements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+        } else {
+            return closest;
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+
+function initializeProjectDragAndDrop() {
+    const projectHolder = document.getElementById("projects");
+    if (!projectHolder) return;
+
+    projectHolder.addEventListener("dragstart", (e) => {
+        if (!canReorderProjects()) {
+            e.preventDefault();
+            return;
+        }
+
+        const item = e.target.closest(".project-item");
+        if (!item) return;
+
+        draggedProject = item;
+        isProjectDragging = true;
+
+        item.classList.add("opacity-40");
+        projectPlaceholder.style.height = item.offsetHeight + "px";
+
+        setTimeout(() => {
+            item.style.display = "none";
+        }, 0);
+    });
+
+    projectHolder.addEventListener("dragend", () => {
+        if (!draggedProject) return;
+
+        draggedProject.style.display = "";
+        draggedProject.classList.remove("opacity-40");
+
+        projectPlaceholder.remove();
+
+        setTimeout(() => {
+            isProjectDragging = false;
+        }, 0);
+
+        draggedProject = null;
+    });
+
+    projectHolder.addEventListener("dragover", (e) => {
+        if (!draggedProject || !canReorderProjects()) return;
+
+        e.preventDefault();
+
+        const afterElement = getProjectDragAfterElement(projectHolder, e.clientY);
+
+        if (afterElement == null) {
+            projectHolder.appendChild(projectPlaceholder);
+        } else {
+            projectHolder.insertBefore(projectPlaceholder, afterElement);
+        }
+    });
+
+    projectHolder.addEventListener("drop", async (e) => {
+        if (!draggedProject || !canReorderProjects()) return;
+
+        e.preventDefault();
+
+        if (projectPlaceholder.parentNode) {
+            projectPlaceholder.parentNode.insertBefore(draggedProject, projectPlaceholder);
+
+            const items = [...projectHolder.querySelectorAll(".project-item")];
+            const newIndex = items.indexOf(draggedProject) + 1;
+            const projectId = draggedProject.dataset.id;
+
+            await changeProjectPriority(projectId, newIndex);
+            await loadProjects(getStoredApiKey());
+        }
+    });
+
+    projectHolder.addEventListener("click", (e) => {
+        if (isProjectDragging) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+    }, true);
 }
 
 function hasAssignedTaskForUser(project, userId) {
@@ -73,6 +187,7 @@ async function populateUserFilter() {
 async function initializeDashboard() {
     currentDashboardUser = await getUser();
     await populateUserFilter();
+    initializeProjectDragAndDrop();
     await loadProjects(getStoredApiKey());
     refreshPeriod();
 }

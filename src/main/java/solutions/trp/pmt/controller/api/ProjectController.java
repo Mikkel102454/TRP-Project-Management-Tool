@@ -98,6 +98,18 @@ public class ProjectController {
                 .body(ApiResponse.ok());
     }
 
+    @PostMapping("/order")
+    public ResponseEntity<ApiResponse<Void>> changeProjectPriority(
+            @RequestParam int projectId,
+            @RequestParam int priority
+    ) {
+
+        projectService.changeProjectPriority(projectId, priority);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok());
+    }
+
     @DeleteMapping("/{projectId}")
     public ResponseEntity<ApiResponse<Void>> removeProject(
             @PathVariable int projectId

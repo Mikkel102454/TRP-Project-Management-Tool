@@ -197,3 +197,21 @@ async function unarchiveTask(id){
         return false;
     }
 }
+
+async function changeProjectPriority(id, priority){
+    try {
+        const response = await fetch(`${API_ROOT}/project/order?projectId=${encodeURIComponent(id)}&priority=${encodeURIComponent(priority)}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+        });
+
+        const data = await response.json();
+
+        return data.success;
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}

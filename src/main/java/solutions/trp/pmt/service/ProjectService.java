@@ -1,5 +1,6 @@
 package solutions.trp.pmt.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -137,7 +138,50 @@ public class ProjectService {
     }
 
     public List<ProjectEntity> getAll() {
-        return repository.findAll();
+        return repository.findAllByOrderByProjectOrder();
+    }
+
+    @Transactional
+    public void changeProjectPriority(int projectId, int newPriority) {
+        ProjectEntity projectToMove = repository.findById(projectId)
+                .orElseThrow(() -> new NotFoundException("Could not find project with id: " + projectId));
+
+        if (projectToMove.isArchived()) {
+            throw new ConflictException("Archived projects cannot be reordered from the dashboard");
+        }
+
+        List<ProjectEntity> activeProjects = new ArrayList<>(repository.findAllByArchivedOrderByProjectOrder(false));
+        List<ProjectEntity> archivedProjects = repository.findAllByArchivedOrderByProjectOrder(true);
+
+        if (newPriority < 1) newPriority = 1;
+        if (newPriority > activeProjects.size()) newPriority = activeProjects.size();
+
+        int oldIndex = activeProjects.indexOf(projectToMove);
+        if (oldIndex < 0) {
+            throw new NotFoundException("Could not find project with id: " + projectId);
+        }
+
+        int newIndex = newPriority - 1;
+        if (oldIndex == newIndex) return;
+
+        activeProjects.remove(oldIndex);
+        activeProjects.add(newIndex, projectToMove);
+
+        List<ProjectEntity> orderedProjects = new ArrayList<>();
+        orderedProjects.addAll(activeProjects);
+        orderedProjects.addAll(archivedProjects);
+
+        int temporaryOrder = Integer.MIN_VALUE;
+        for (ProjectEntity project : orderedProjects) {
+            project.setProjectOrder(temporaryOrder++);
+        }
+        repository.saveAllAndFlush(orderedProjects);
+
+        int order = 1;
+        for (ProjectEntity project : orderedProjects) {
+            project.setProjectOrder(order++);
+        }
+        repository.saveAll(orderedProjects);
     }
 
     public void archiveProject(int id){
