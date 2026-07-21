@@ -83,13 +83,18 @@ public class ProjectEntity {
         dto.setArchived(archived);
         dto.setScheduled(
                 tasks.stream()
+                        .filter(task ->
+                                task.getStatus() != TaskEntity.TaskStatus.CLOSED &&
+                                        task.getStatus() != TaskEntity.TaskStatus.FINISHED
+                        )
                         .map(TaskEntity::getScheduled)
                         .flatMap(List::stream)
                         .map(ScheduledEntity::getUserEntity)
                         .distinct()
                         .map(UserEntity::toDto)
                         .toList()
-        );        dto.setLeader(leaders.stream().map(LeaderEntity::getUserEntity).map(UserEntity::toDto).toList());
+        );
+        dto.setLeader(leaders.stream().map(LeaderEntity::getUserEntity).map(UserEntity::toDto).toList());
         dto.setTasks(tasks.stream().map(task -> task.toDto(timeService)).toList());
         dto.setIsWorkedOn(
                 tasks.stream()

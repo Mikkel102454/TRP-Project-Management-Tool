@@ -5,6 +5,223 @@
     <title>Time Registry</title>
     <link th:href="@{/style/style.css}" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <style>
+        .time-filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            padding-left: 0.75rem;
+            padding-right: 0.75rem;
+        }
+
+        .time-gap-panel {
+            margin-bottom: 1rem;
+            border: 1px solid #6b7280;
+            background: #f3f4f6;
+        }
+
+        .time-gap-header {
+            display: grid;
+            grid-template-columns: 1fr 7rem 8rem 7rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid #6b7280;
+            background: linear-gradient(to right, #e5e7eb, #d1d5db);
+            color: #374151;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .time-gap-graph {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            padding: 0.75rem;
+        }
+
+        .time-gap-example {
+            border: 1px solid #6b7280;
+            background: #f9fafb;
+            min-width: 0;
+        }
+
+        .time-gap-example-wide {
+            grid-column: 1 / -1;
+        }
+
+        .time-gap-example-title {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            border-bottom: 1px solid #9ca3af;
+            background: #e5e7eb;
+            color: #1f2937;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            padding: 0.45rem 0.6rem;
+        }
+
+        .time-gap-example-body {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            padding: 0.6rem;
+        }
+
+        .week-bar-row {
+            display: grid;
+            grid-template-columns: minmax(7rem, 10rem) minmax(8rem, 1fr) 4.5rem;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1f2937;
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+
+        .week-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .week-track {
+            height: 1.25rem;
+            border: 1px solid #6b7280;
+            background: #e5e7eb;
+        }
+
+        .week-bar {
+            height: 100%;
+            background: linear-gradient(to right, #3b82f6, #1d4ed8);
+        }
+
+        .week-value {
+            text-align: right;
+        }
+
+        .week-stacked-track {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 2px;
+            min-height: 1.25rem;
+        }
+
+        .week-stacked-day {
+            border: 1px solid #9ca3af;
+            background: #d1d5db;
+            min-width: 0;
+        }
+
+        .week-heatmap {
+            display: grid;
+            grid-template-columns: 4rem repeat(7, minmax(1.5rem, 1fr)) 4.5rem;
+            align-items: center;
+            gap: 0.25rem;
+            color: #1f2937;
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+
+        .week-heat-cell {
+            height: 1.5rem;
+            border: 1px solid #9ca3af;
+            background: #e5e7eb;
+        }
+
+        .week-rank-row {
+            display: grid;
+            grid-template-columns: 2rem minmax(7rem, 1fr) 4.5rem;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #d1d5db;
+            color: #1f2937;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            padding-bottom: 0.35rem;
+        }
+
+        .week-rank-number {
+            background: #374151;
+            color: white;
+            padding: 0.15rem 0;
+            text-align: center;
+        }
+
+        .week-timeline {
+            display: grid;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
+            gap: 0.35rem;
+        }
+
+        .week-timeline-day {
+            min-height: 4.5rem;
+            border: 1px solid #9ca3af;
+            background: #e5e7eb;
+            position: relative;
+        }
+
+        .week-timeline-fill {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, #3b82f6, #93c5fd);
+        }
+
+        .week-timeline-label {
+            position: relative;
+            z-index: 1;
+            padding: 0.25rem;
+            color: #1f2937;
+            font-size: 0.7rem;
+            line-height: 0.9rem;
+        }
+
+        .time-gap-empty {
+            grid-column: 1 / -1;
+            padding: 2rem 0.75rem;
+            text-align: center;
+            color: #4b5563;
+            font-size: 0.75rem;
+            line-height: 1rem;
+        }
+
+        @media (max-width: 760px) {
+            .time-gap-header {
+                grid-template-columns: 1fr;
+            }
+
+            .time-gap-graph {
+                grid-template-columns: 1fr;
+            }
+
+            .time-gap-header div {
+                text-align: left;
+            }
+
+            .time-gap-example-wide {
+                grid-column: auto;
+            }
+
+            .week-bar-row {
+                grid-template-columns: 1fr 4.5rem;
+            }
+
+            .week-label {
+                grid-column: 1 / -1;
+            }
+
+            .week-heatmap {
+                grid-template-columns: 3rem repeat(7, minmax(1rem, 1fr));
+            }
+
+            .week-heatmap .week-value {
+                grid-column: 1 / -1;
+                text-align: left;
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gradient-to-b from-gray-300 to-gray-200 min-h-screen font-mono text-sm">
@@ -63,6 +280,34 @@
 
 <main class="max-w-6xl mx-auto px-6 py-4">
 
+    <div class="time-filter-row">
+        <select id="projectFilter"
+                class="w-56 border border-gray-500 bg-gray-100 px-2 py-1 text-xs"
+                onchange="selectedProject = this.value; renderEntries()">
+            <option value="all">ALL PROJECTS</option>
+        </select>
+
+        <select id="gapMinimumFilter"
+                class="border border-gray-500 bg-gray-100 px-2 py-1 text-xs"
+                onchange="minimumGapMinutes = Number(this.value); renderEntries()">
+            <option value="0">ALL GAPS</option>
+            <option value="15">15+ MIN</option>
+            <option value="30" selected>30+ MIN</option>
+            <option value="60">1+ HOUR</option>
+            <option value="240">4+ HOURS</option>
+        </select>
+    </div>
+
+    <section class="time-gap-panel">
+        <div class="time-gap-header">
+            <div>WEEKLY TIME GAP EXAMPLES</div>
+            <div id="gapCount" class="text-right">0 WEEKS</div>
+            <div id="gapTotal" class="text-right">0H TOTAL</div>
+            <div id="gapMax" class="text-right">0H MAX</div>
+        </div>
+        <div id="gapGraph" class="time-gap-graph"></div>
+    </section>
+
     <div class="grid grid-cols-12 text-xs text-gray-700 mb-2 px-3">
         <div class="col-span-3">PROJECT</div>
         <div class="col-span-3">TASK</div>
@@ -104,6 +349,13 @@
 
     let timeEntries = [];
     let projects = [];
+    let selectedProject = "all";
+    let selectedUserId = null;
+    let minimumGapMinutes = 30;
+
+    const minuteMs = 60 * 1000;
+    const hourMs = 60 * minuteMs;
+    const dayMs = 24 * hourMs;
 
     function toDatetimeLocalValue(isoString) {
         const d = new Date(isoString);
@@ -118,7 +370,10 @@
         const container = document.getElementById("userList");
         container.innerHTML = "";
 
-        timeEntries.forEach(entry => {
+        const visibleEntries = getVisibleEntries();
+        renderGapGraph(visibleEntries);
+
+        visibleEntries.forEach(entry => {
             let foundTask = null;
             let foundProject = null;
 
@@ -144,7 +399,7 @@ border border-gray-500
     <button class="px-2 py-1 border border-red-700
                    bg-red-500 text-white text-xs
                    hover:bg-red-600"
-        onclick="if(confirm('Delete?')) { removeTimeEntry(${entry.id}); this.closest('.grid').remove(); }">
+        onclick="deleteEntry(${entry.id})">
         DELETE
     </button>
 ` : '';
@@ -193,12 +448,340 @@ border border-gray-500
 
             container.appendChild(div);
         });
+
+        if (visibleEntries.length === 0) {
+            container.innerHTML = `
+                <div class="border border-gray-500 bg-gray-100 px-3 py-6 text-center text-xs text-gray-600">
+                    NO TIME ENTRIES FOR THIS FILTER
+                </div>
+            `;
+        }
+    }
+
+    function getVisibleEntries() {
+        const openProjectIds = new Set(
+            projects
+                .filter(project => hasOpenTaskForUser(project, selectedUserId))
+                .map(project => project.id)
+        );
+
+        return timeEntries.filter(entry => {
+            if (selectedProject === "all") return true;
+
+            const project = findProjectForEntry(entry);
+            if (!project) return false;
+
+            if (selectedProject === "open") return openProjectIds.has(project.id);
+            return project.id === Number(selectedProject);
+        });
+    }
+
+    function renderGapGraph(entries) {
+        const graph = document.getElementById("gapGraph");
+        const count = document.getElementById("gapCount");
+        const total = document.getElementById("gapTotal");
+        const max = document.getElementById("gapMax");
+        const gaps = getTimeGaps(entries)
+            .filter(gap => gap.durationMs >= minimumGapMinutes * minuteMs);
+        const weeks = getWeeklyGapSummary(gaps);
+
+        graph.innerHTML = "";
+
+        const totalGapMs = gaps.reduce((sum, gap) => sum + gap.durationMs, 0);
+        const maxWeekMs = Math.max(0, ...weeks.map(week => week.totalMs));
+
+        count.textContent = `${weeks.length} ${weeks.length === 1 ? "WEEK" : "WEEKS"}`;
+        total.textContent = `${formatDuration(totalGapMs)} TOTAL`;
+        max.textContent = `${formatDuration(maxWeekMs)} MAX WEEK`;
+
+        if (entries.length < 2) {
+            graph.innerHTML = `
+                <div class="time-gap-empty">
+                    NEED AT LEAST TWO TIME ENTRIES TO SHOW GAPS
+                </div>
+            `;
+            return;
+        }
+
+        if (gaps.length === 0) {
+            graph.innerHTML = `
+                <div class="time-gap-empty">
+                    NO GAPS MATCH THIS FILTER
+                </div>
+            `;
+            return;
+        }
+
+        graph.appendChild(createExampleCard("1", "TOTAL GAP BARS", renderWeeklyBars(weeks, maxWeekMs)));
+        graph.appendChild(createExampleCard("2", "DAY STACKED WEEKS", renderStackedWeeks(weeks)));
+        graph.appendChild(createExampleCard("3", "WEEK HEATMAP", renderWeeklyHeatmap(weeks)));
+        graph.appendChild(createExampleCard("4", "LARGEST GAP RANKING", renderLargestGapRanking(weeks)));
+        graph.appendChild(createExampleCard("5", "DAILY TIMELINE BLOCKS", renderDailyTimeline(weeks), true));
+    }
+
+    function getTimeGaps(entries) {
+        const sortedEntries = entries
+            .filter(entry => entry.startTime && entry.endTime)
+            .slice()
+            .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
+
+        const gaps = [];
+        for (let i = 0; i < sortedEntries.length - 1; i++) {
+            const currentEnd = new Date(sortedEntries[i].endTime);
+            const nextStart = new Date(sortedEntries[i + 1].startTime);
+            const durationMs = nextStart - currentEnd;
+
+            if (durationMs <= 0) continue;
+
+            gaps.push({
+                start: currentEnd,
+                end: nextStart,
+                durationMs
+            });
+        }
+
+        return gaps.sort((a, b) => b.durationMs - a.durationMs);
+    }
+
+    function getWeeklyGapSummary(gaps) {
+        const weeksByKey = new Map();
+
+        gaps
+            .slice()
+            .sort((a, b) => a.start - b.start)
+            .forEach(gap => {
+                const weekStart = getWeekStart(gap.start);
+                const key = weekStart.toISOString().slice(0, 10);
+
+                if (!weeksByKey.has(key)) {
+                    weeksByKey.set(key, {
+                        key,
+                        start: weekStart,
+                        end: new Date(weekStart.getTime() + 6 * dayMs),
+                        totalMs: 0,
+                        largestGapMs: 0,
+                        gapCount: 0,
+                        days: Array.from({length: 7}, () => ({totalMs: 0, gapCount: 0}))
+                    });
+                }
+
+                const week = weeksByKey.get(key);
+                const day = getWeekdayIndex(gap.start);
+                week.totalMs += gap.durationMs;
+                week.largestGapMs = Math.max(week.largestGapMs, gap.durationMs);
+                week.gapCount++;
+                week.days[day].totalMs += gap.durationMs;
+                week.days[day].gapCount++;
+            });
+
+        return [...weeksByKey.values()].sort((a, b) => b.start - a.start);
+    }
+
+    function createExampleCard(number, title, content, wide = false) {
+        const card = document.createElement("div");
+        card.className = `time-gap-example${wide ? " time-gap-example-wide" : ""}`;
+        card.innerHTML = `
+            <div class="time-gap-example-title">
+                <span>${number}. ${title}</span>
+                <span>PICK ${number}</span>
+            </div>
+            <div class="time-gap-example-body">${content}</div>
+        `;
+        return card;
+    }
+
+    function renderWeeklyBars(weeks, maxWeekMs) {
+        return weeks.map(week => {
+            const width = getPercent(week.totalMs, maxWeekMs, 6);
+            return `
+                <div class="week-bar-row">
+                    <div class="week-label">${formatWeekRange(week)}</div>
+                    <div class="week-track">
+                        <div class="week-bar" style="width: ${width}%"></div>
+                    </div>
+                    <div class="week-value">${formatDuration(week.totalMs)}</div>
+                </div>
+            `;
+        }).join("");
+    }
+
+    function renderStackedWeeks(weeks) {
+        const maxDayMs = Math.max(0, ...weeks.flatMap(week => week.days.map(day => day.totalMs)));
+
+        return weeks.map(week => `
+            <div class="week-bar-row">
+                <div class="week-label">${formatWeekRange(week)}</div>
+                <div class="week-stacked-track">
+                    ${week.days.map(day => {
+                        const opacity = getOpacity(day.totalMs, maxDayMs);
+                        return `<div class="week-stacked-day" title="${formatDuration(day.totalMs)}" style="background: rgba(59, 130, 246, ${opacity})"></div>`;
+                    }).join("")}
+                </div>
+                <div class="week-value">${week.gapCount}G</div>
+            </div>
+        `).join("");
+    }
+
+    function renderWeeklyHeatmap(weeks) {
+        const maxDayMs = Math.max(0, ...weeks.flatMap(week => week.days.map(day => day.totalMs)));
+        const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
+
+        return `
+            <div class="week-heatmap">
+                <div></div>
+                ${dayLabels.map(label => `<div class="week-value">${label}</div>`).join("")}
+                <div></div>
+            </div>
+            ${weeks.map(week => `
+                <div class="week-heatmap">
+                    <div class="week-label">${formatShortDate(week.start)}</div>
+                    ${week.days.map(day => {
+                        const opacity = getOpacity(day.totalMs, maxDayMs);
+                        return `<div class="week-heat-cell" title="${formatDuration(day.totalMs)}" style="background: rgba(29, 78, 216, ${opacity})"></div>`;
+                    }).join("")}
+                    <div class="week-value">${formatDuration(week.totalMs)}</div>
+                </div>
+            `).join("")}
+        `;
+    }
+
+    function renderLargestGapRanking(weeks) {
+        return weeks
+            .slice()
+            .sort((a, b) => b.largestGapMs - a.largestGapMs)
+            .map((week, index) => `
+                <div class="week-rank-row">
+                    <div class="week-rank-number">${index + 1}</div>
+                    <div class="week-label">${formatWeekRange(week)}</div>
+                    <div class="week-value">${formatDuration(week.largestGapMs)}</div>
+                </div>
+            `).join("");
+    }
+
+    function renderDailyTimeline(weeks) {
+        const maxDayMs = Math.max(0, ...weeks.flatMap(week => week.days.map(day => day.totalMs)));
+        const labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+
+        return weeks.map(week => `
+            <div class="week-label">${formatWeekRange(week)} / ${formatDuration(week.totalMs)}</div>
+            <div class="week-timeline">
+                ${week.days.map((day, index) => {
+                    const height = getPercent(day.totalMs, maxDayMs, 0);
+                    return `
+                        <div class="week-timeline-day">
+                            <div class="week-timeline-fill" style="height: ${height}%"></div>
+                            <div class="week-timeline-label">${labels[index]}<br>${formatDuration(day.totalMs)}</div>
+                        </div>
+                    `;
+                }).join("")}
+            </div>
+        `).join("");
+    }
+
+    function getPercent(value, maxValue, minimum) {
+        if (value <= 0 || maxValue <= 0) return 0;
+        return Math.max(minimum, Math.round((value / maxValue) * 100));
+    }
+
+    function getOpacity(value, maxValue) {
+        if (value <= 0 || maxValue <= 0) return 0.12;
+        return Math.max(0.25, Math.min(0.95, value / maxValue));
+    }
+
+    function getWeekStart(date) {
+        const weekStart = new Date(date);
+        weekStart.setHours(0, 0, 0, 0);
+        const day = weekStart.getDay() || 7;
+        weekStart.setDate(weekStart.getDate() - day + 1);
+        return weekStart;
+    }
+
+    function getWeekdayIndex(date) {
+        return (date.getDay() + 6) % 7;
+    }
+
+    function formatDuration(ms) {
+        if (ms <= 0) return "0H";
+
+        const days = Math.floor(ms / dayMs);
+        const hours = Math.floor((ms % dayMs) / hourMs);
+        const minutes = Math.floor((ms % hourMs) / minuteMs);
+
+        if (days > 0) return `${days}D ${hours}H`;
+        if (hours > 0) return `${hours}H ${minutes}M`;
+        return `${minutes}M`;
+    }
+
+    function formatDateTime(date) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(date.getDate())}/${pad(date.getMonth() + 1)} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function formatShortDate(date) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
+    }
+
+    function formatWeekRange(week) {
+        return `${formatShortDate(week.start)} - ${formatShortDate(week.end)}`;
+    }
+
+    function findProjectForEntry(entry) {
+        return projects.find(project => project.task?.some(task => task.id === entry.taskId));
+    }
+
+    function hasOpenTaskForUser(project, userId) {
+        return project.task?.some(task =>
+            task.status !== "CLOSED" &&
+            [...(task.scheduled || []), ...(task.actives || [])].some(user => user.id === userId)
+        );
+    }
+
+    function populateProjectFilter() {
+        const select = document.getElementById("projectFilter");
+        const previousValue = selectedProject;
+        const projectIdsWithEntries = new Set(
+            timeEntries.map(entry => findProjectForEntry(entry)?.id).filter(id => id != null)
+        );
+        const entryProjects = projects
+            .filter(project => projectIdsWithEntries.has(project.id))
+            .sort((a, b) => a.title.localeCompare(b.title));
+
+        select.innerHTML = "";
+
+        const allOption = document.createElement("option");
+        allOption.value = "all";
+        allOption.textContent = "ALL PROJECTS";
+        select.appendChild(allOption);
+
+        if (entryProjects.some(project => hasOpenTaskForUser(project, selectedUserId))) {
+            const openOption = document.createElement("option");
+            openOption.value = "open";
+            openOption.textContent = "ALL OPEN PROJECTS";
+            select.appendChild(openOption);
+        }
+
+        entryProjects.forEach(project => {
+            const option = document.createElement("option");
+            option.value = String(project.id);
+            option.textContent = project.title +
+                (hasOpenTaskForUser(project, selectedUserId) ? " (OPEN TASK)" : "");
+            select.appendChild(option);
+        });
+
+        if ([...select.options].some(option => option.value === previousValue)) {
+            select.value = previousValue;
+        } else {
+            selectedProject = "all";
+            select.value = selectedProject;
+        }
     }
 
     async function updateEntry(id, startTime, endTime, input) {
         const entry = timeEntries.find(e => e.id === id);
         if(startTime != null) entry.startTime = startTime;
         if(endTime != null) entry.endTime = endTime;
+        renderGapGraph(getVisibleEntries());
         const row = input.closest('.grid');
 
         const updateBtn = row.querySelector('.update-button');
@@ -209,7 +792,10 @@ border border-gray-500
 
     async function update(id, input) {
         const entry = timeEntries.find(e => e.id === id);
-        await updateTimeEntry(entry.id, new Date(entry.startTime).toISOString(), new Date(entry.endTime).toISOString());
+        const updated = await updateTimeEntry(entry.id, new Date(entry.startTime).toISOString(), new Date(entry.endTime).toISOString());
+        if (!updated) return;
+
+        entry.attention = false;
         input.classList.add('hidden')
         const row = input.closest('.grid');
 
@@ -217,6 +803,19 @@ border border-gray-500
             row.classList.remove('from-yellow-100', 'via-yellow-200', 'to-yellow-300');
             row.classList.add('from-gray-100', 'via-gray-200', 'to-gray-300');
         }
+
+        renderEntries();
+    }
+
+    async function deleteEntry(id) {
+        if (!confirm('Delete?')) return;
+
+        const deleted = await removeTimeEntry(id);
+        if (!deleted) return;
+
+        timeEntries = timeEntries.filter(entry => entry.id !== id);
+        populateProjectFilter();
+        renderEntries();
     }
 
     async function loadEntries() {
@@ -225,11 +824,13 @@ border border-gray-500
         if (!params.has('id')) {
             return
         }
-        const userId = params.get('id');
+        selectedUserId = Number(params.get('id'));
 
-        timeEntries = await getTimeEntries(userId);
+        timeEntries = await getTimeEntries(selectedUserId) || [];
+        timeEntries.sort((a, b) => b.id - a.id);
         projects = await getAllProjects();
 
+        populateProjectFilter();
         renderEntries();
     }
 
