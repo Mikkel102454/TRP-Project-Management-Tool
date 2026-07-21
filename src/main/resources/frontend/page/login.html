@@ -54,9 +54,11 @@
         <!-- FOOTER -->
         <div class="flex justify-between items-center pt-2">
 
-            <span class="text-xs text-gray-600">
-
-            </span>
+            <button type="button"
+                    onclick="toggleResetForm()"
+                    class="text-xs text-gray-600 hover:text-gray-900">
+                FORGOT PASSWORD?
+            </button>
 
             <button type="submit"
                     class="px-3 py-1 border border-gray-700
@@ -67,7 +69,57 @@
         </div>
 
     </form>
+
+    <div id="resetForm" class="hidden border-t border-gray-500 p-4 space-y-3 text-gray-800">
+        <div id="resetStatus" class="hidden border border-gray-500 bg-gray-100 px-2 py-1 text-xs"></div>
+
+        <div class="grid grid-cols-3 items-center gap-3">
+            <span class="text-xs text-gray-700">EMAIL</span>
+            <input id="resetEmail"
+                   type="email"
+                   class="col-span-2 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none">
+        </div>
+
+        <div class="flex justify-end">
+            <button type="button"
+                    onclick="requestReset()"
+                    class="px-3 py-1 border border-gray-700
+                           bg-gradient-to-b from-gray-500 to-gray-700
+                           text-white hover:from-gray-600 hover:to-gray-800">
+                SEND RESET
+            </button>
+        </div>
+    </div>
 </div>
 
+<script th:inline="javascript">
+    let CONTEXT_PATH = /*[[@{/}]]*/ '/';
+    CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+    const API_ROOT = window.location.origin + CONTEXT_PATH + "/api";
+
+    function toggleResetForm() {
+        document.getElementById("resetForm").classList.toggle("hidden");
+    }
+
+    async function requestReset() {
+        const status = document.getElementById("resetStatus");
+        status.classList.remove("hidden");
+        status.innerText = "If that email exists, a reset link has been sent.";
+
+        try {
+            await fetch(`${API_ROOT}/public/password-reset/request`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    email: document.getElementById("resetEmail").value
+                })
+            });
+        } catch (e) {
+            status.innerText = "If that email exists, a reset link has been sent.";
+        }
+    }
+</script>
 </body>
 </html>

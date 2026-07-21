@@ -5,6 +5,7 @@ public record UpdateUserRequest(
         String username,
         String initial,
         String password,
+        String email,
         Boolean isAdmin,
         Boolean isEnabled
 ){

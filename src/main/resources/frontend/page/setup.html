@@ -136,6 +136,13 @@
             </div>
 
             <div class="grid grid-cols-3 items-center gap-3">
+                <span class="text-xs text-gray-700">EMAIL</span>
+                <input id="emailInput"
+                       type="email"
+                       class="col-span-2 px-2 py-1 border border-gray-500 bg-gray-100 focus:bg-white outline-none">
+            </div>
+
+            <div class="grid grid-cols-3 items-center gap-3">
                 <span class="text-xs text-gray-700">ROLE</span>
                 <select id="roleInput"
                         class="col-span-2 px-2 py-1 border border-gray-500 bg-gray-100 outline-none">
@@ -203,6 +210,7 @@
         document.getElementById("userId").value = "";
         document.getElementById("usernameInput").value = "";
         document.getElementById("passwordInput").value = "";
+        document.getElementById("emailInput").value = "";
         document.getElementById("passwordInput").placeholder = "At least 3 characters or more";
         document.getElementById("roleInput").value = "USER";
         //document.getElementById("deleteBtn").classList.add("hidden");
@@ -216,6 +224,7 @@
         document.getElementById("userId").value = user.id;
         document.getElementById("usernameInput").value = user.username;
         document.getElementById("passwordInput").value = "";
+        document.getElementById("emailInput").value = user.email || "";
         document.getElementById("passwordInput").placeholder = "Leave empty to keep current";
         document.getElementById("roleInput").value = user.isAdmin ? "ADMIN" : "USER";
         //document.getElementById("deleteBtn").classList.remove("hidden");
@@ -238,18 +247,19 @@
         const id = document.getElementById("userId").value;
         const username = document.getElementById("usernameInput").value;
         const password = document.getElementById("passwordInput").value;
+        const email = document.getElementById("emailInput").value;
         const role = document.getElementById("roleInput").value;
         const isEnabled = document.getElementById("enabledInput").checked;
 
         if (id) {
             console.log("update user", id);
 
-            await updateUser(id, username, password, role === "ADMIN", isEnabled)
+            await updateUser(id, username, password, email, role === "ADMIN", isEnabled)
 
         } else {
             console.log("create user");
 
-            await createUser(username, password, role === "ADMIN", isEnabled)
+            await createUser(username, password, email, role === "ADMIN", isEnabled)
         }
 
         closeModal();
@@ -297,8 +307,13 @@
             <div class="w-8 h-8 border border-gray-600 bg-gray-400 flex items-center justify-center text-xs font-bold">
                 ${user.initial || user.username[0].toUpperCase()}
             </div>
-            <div class="truncate text-gray-900 tracking-wide">
-                ${user.username}
+            <div class="min-w-0">
+                <div class="truncate text-gray-900 tracking-wide">
+                    ${user.username}
+                </div>
+                <div class="truncate text-[11px] text-gray-600">
+                    ${user.email || ""}
+                </div>
             </div>
         </div>
 

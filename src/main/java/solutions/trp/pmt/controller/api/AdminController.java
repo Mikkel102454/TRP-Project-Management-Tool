@@ -61,6 +61,7 @@ public class AdminController {
                 request.username(),
                 request.initial(),
                 request.password(),
+                request.email(),
                 request.isAdmin() != null ? request.isAdmin() : false,
                 request.isEnabled() != null ? request.isEnabled() : true
         );
@@ -79,6 +80,7 @@ public class AdminController {
                 request.username(),
                 request.initial(),
                 request.password(),
+                request.email(),
                 request.isAdmin(),
                 request.isEnabled()
         );

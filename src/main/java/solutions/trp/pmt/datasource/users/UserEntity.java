@@ -29,6 +29,9 @@ public class UserEntity implements UserDetails {
     @Column(unique = false, nullable = false, name = "password")
     private String password;
 
+    @Column(unique = true, nullable = true, name = "email")
+    private String email;
+
     @Column(unique = false, nullable = false, name = "is_enabled")
     private boolean enabled;
 
@@ -66,6 +69,14 @@ public class UserEntity implements UserDetails {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override
@@ -107,6 +118,7 @@ public class UserEntity implements UserDetails {
         dto.setId(id);
         dto.setUsername(username);
         dto.setInitial(initial);
+        dto.setEmail(email);
         dto.setAdmin(admin);
         dto.setEnabled(enabled);
         dto.setForcedClockedOut(forcedClockedOut);

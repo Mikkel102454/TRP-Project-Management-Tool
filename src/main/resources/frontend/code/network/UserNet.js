@@ -1,4 +1,4 @@
-async function createUser(username, password, isAdmin, isEnabled) {
+async function createUser(username, password, email, isAdmin, isEnabled) {
     try {
         if(username === null || username === "") {
             log("Username cannot be empty", Levels.SEVERE);
@@ -17,6 +17,7 @@ async function createUser(username, password, isAdmin, isEnabled) {
 
         if (username != null) body.username = username;
         if (password != null) body.password = password;
+        if (email != null) body.email = email;
         if (isAdmin != null) body.isAdmin = isAdmin;
         if (isEnabled != null) body.isEnabled = isEnabled;
 
@@ -42,7 +43,7 @@ async function createUser(username, password, isAdmin, isEnabled) {
     }
 }
 
-async function updateUser(id, username, password, isAdmin, isEnabled) {
+async function updateUser(id, username, password, email, isAdmin, isEnabled) {
     try {
         if(username != null && username.length !== 0 && username === "") {
             log("Username cannot be empty", Levels.SEVERE);
@@ -61,6 +62,7 @@ async function updateUser(id, username, password, isAdmin, isEnabled) {
         if (id != null) body.userId = id;
         if (username != null) body.username = username;
         if (password != null) body.password = password;
+        if (email != null) body.email = email;
         if (isAdmin != null) body.isAdmin = isAdmin;
         if (isEnabled != null) body.isEnabled = isEnabled;
 
@@ -94,6 +96,49 @@ async function updatePassword(oldPassword, newPassword) {
             },
             body: JSON.stringify({
                 oldPassword: oldPassword,
+                newPassword: newPassword
+            })
+        });
+
+        const data = await response.json();
+        return data.success;
+
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}
+
+async function requestPasswordReset(email) {
+    try {
+        const response = await fetch(`${API_ROOT}/public/password-reset/request`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email
+            })
+        });
+
+        const data = await response.json();
+        return data.success;
+
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return false;
+    }
+}
+
+async function confirmPasswordReset(token, newPassword) {
+    try {
+        const response = await fetch(`${API_ROOT}/public/password-reset/confirm`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                token: token,
                 newPassword: newPassword
             })
         });

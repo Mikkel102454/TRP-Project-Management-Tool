@@ -6,6 +6,7 @@ public record CreateUserRequest(
         @NotBlank String username,
         @NotBlank String password,
         @NotBlank String initial,
+        String email,
         Boolean isAdmin,
         Boolean isEnabled
 ){

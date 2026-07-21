@@ -4,6 +4,7 @@ public class UserDto {
     private int id;
     private String username;
     private String initial;
+    private String email;
     private boolean isAdmin;
     private boolean isEnabled;
     private boolean forcedClockedOut;
@@ -29,6 +30,14 @@ public class UserDto {
 
     public void setInitial(String initial) {
         this.initial = initial;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public boolean isAdmin() {

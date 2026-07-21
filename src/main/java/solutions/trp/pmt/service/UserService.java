@@ -1,13 +1,6 @@
 package solutions.trp.pmt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.session.SessionInformation;
-import org.springframework.security.core.session.SessionRegistry;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import solutions.trp.pmt.controller.api.execption.BadRequestException;
 import solutions.trp.pmt.controller.api.execption.ConflictException;
@@ -17,10 +10,8 @@ import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.util.PasswordEncoding;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class UserService {
@@ -42,14 +33,19 @@ public class UserService {
      * @return exit code
      *
      */
-    public int addUser(String username, String initial, String password, boolean admin, boolean enabled) {
+    public int addUser(String username, String initial, String password, String email, boolean admin, boolean enabled) {
         if (userRepository.existsByUsername(username)) throw new ConflictException("Username already in use");
         if (password.length() < 3) throw new BadRequestException("Password must be at least 3 characters");
         if (username.length() < 3) throw new BadRequestException("Username must be at least 3 characters");
+        String normalizedEmail = normalizeEmail(email);
+        if(normalizedEmail != null && userRepository.findByEmail(normalizedEmail).isPresent()) {
+            throw new ConflictException("Email already in use");
+        }
 
         UserEntity user = new UserEntity();
         user.setUsername(username);
         user.setInitial(initial);
+        user.setEmail(normalizedEmail);
         user.setPassword(PasswordEncoding.encode("bcrypt", password));
         user.setAdmin(admin);
         user.setEnabled(enabled);
@@ -59,7 +55,7 @@ public class UserService {
         return 0;
     }
 
-    public void updateUser(int userId, String username, String initial, String password, Boolean admin, Boolean enabled) {
+    public void updateUser(int userId, String username, String initial, String password, String email, Boolean admin, Boolean enabled) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
         if(username != null && !username.isBlank() && !Objects.equals(user.getUsername(), username)) {
@@ -72,6 +68,18 @@ public class UserService {
 
         if(password != null && !password.isBlank()) {
             user.setPassword(PasswordEncoding.encode("bcrypt", password));
+        }
+
+        if(email != null) {
+            String normalizedEmail = normalizeEmail(email);
+            if(normalizedEmail != null) {
+                userRepository.findByEmail(normalizedEmail)
+                        .filter(existingUser -> existingUser.getId() != user.getId())
+                        .ifPresent(existingUser -> {
+                            throw new ConflictException("Email already in use");
+                        });
+            }
+            user.setEmail(normalizedEmail);
         }
 
         if(admin != null) {
@@ -100,5 +108,20 @@ public class UserService {
         }
         user.setPassword(PasswordEncoding.encode("bcrypt", newPassword));
         userRepository.save(user);
+    }
+
+    public void updatePassword(UserEntity user, String newPassword) {
+        if(newPassword == null || newPassword.length() < 3) {
+            throw new BadRequestException("Password must be at least 3 characters");
+        }
+        user.setPassword(PasswordEncoding.encode("bcrypt", newPassword));
+        userRepository.save(user);
+    }
+
+    private String normalizeEmail(String email) {
+        if(email == null || email.isBlank()) {
+            return null;
+        }
+        return email.trim().toLowerCase();
     }
 }

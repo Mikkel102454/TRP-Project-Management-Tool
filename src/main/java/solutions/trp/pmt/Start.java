@@ -25,7 +25,7 @@ public class Start implements CommandLineRunner {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 
         if(!userRepository.existsByAdminTrue()){
-            userService.addUser("admin", "ad", "admin", true, true);
+            userService.addUser("admin", "ad", "admin", null, true, true);
         }
     }
 }

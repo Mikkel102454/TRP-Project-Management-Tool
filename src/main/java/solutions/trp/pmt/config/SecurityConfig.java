@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/time/summary").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/time/summary").permitAll()
                         .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/pages/setup.html", "/pages/time.html", "/code/admin.js", "/style/admin.css").hasRole("ADMIN")
-                        .requestMatchers("/login", "/api/public/**", "/style/**",
+                        .requestMatchers("/login", "/reset-password", "/api/public/**", "/style/**",
                                 "/resource/**", "/code/**").permitAll()
                         .anyRequest().authenticated()
                 )
