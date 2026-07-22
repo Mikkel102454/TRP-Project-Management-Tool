@@ -2,6 +2,11 @@ let UserDto = null;
 let AllUsers = null
 async function getUser(){
     if(UserDto == null){
+        if (window.__BOOTSTRAP__?.currentUser) {
+            UserDto = User.fromJson(window.__BOOTSTRAP__.currentUser);
+            return UserDto;
+        }
+
         try {
             const response = await fetch(`${API_ROOT}/user/whoami`, {
                 method: "GET",

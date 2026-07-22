@@ -5,6 +5,11 @@ async function getComponent(name) {
         return loadedComponents.get(name);
     }
 
+    if (window.__COMPONENT_TEMPLATES__?.[name]) {
+        loadedComponents.set(name, window.__COMPONENT_TEMPLATES__[name]);
+        return window.__COMPONENT_TEMPLATES__[name];
+    }
+
     try {
         const response = await fetch(
             `${DOMAIN_ROOT + CONTEXT_PATH}/components/${name}`,

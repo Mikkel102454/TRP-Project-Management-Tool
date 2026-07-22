@@ -1,6 +1,5 @@
 package solutions.trp.pmt.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -12,9 +11,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.core.session.SessionRegistry;
 import org.springframework.security.core.session.SessionRegistryImpl;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import solutions.trp.pmt.service.AppUserDetailsService;
@@ -41,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/time/summary").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/time/summary").permitAll()
                         .requestMatchers("/api/admin/**", "/admin/**", "/pages/admin.html", "/pages/setup.html", "/pages/time.html", "/code/admin.js", "/style/admin.css").hasRole("ADMIN")
-                        .requestMatchers("/login", "/reset-password", "/api/public/**", "/style/**",
+                        .requestMatchers("/login", "/reset-password", "/api/public/**", "/assets/**", "/style/**",
                                 "/resource/**", "/code/**").permitAll()
                         .anyRequest().authenticated()
                 )

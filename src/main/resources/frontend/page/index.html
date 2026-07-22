@@ -141,61 +141,11 @@
 <script th:inline="javascript">
     let CONTEXT_PATH = /*[[@{/}]]*/ '/';
     CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+    window.__BOOTSTRAP__ = {
+        currentUser: JSON.parse(/*[[${currentUserJson}]]*/ 'null')
+    };
 </script>
 
-<script>
-    window.addEventListener('click', function(e) {
-        if (e.target.id === "projectModal" || e.target.id === "passwordModal") {
-            e.target.remove();
-        }
-    });
-
-</script>
-<script>
-    window.addEventListener('keydown', function(e) {
-        if (e.key !== "Escape") return;
-        document.getElementById("projectModal")?.remove();
-        document.getElementById("passwordModal")?.remove();
-    });
-
-</script>
-<script>
-    const headerIcon = document.getElementById("headerIcon");
-
-    const cachedInitial = localStorage.getItem("userInitial");
-    if (cachedInitial) {
-        headerIcon.innerText = cachedInitial;
-    }
-</script>
-
-<script th:src="@{/code/util/led.js}"></script>
-<script th:src="@{/code/util/logger.js}"></script>
-<script th:src="@{/code/util/components.js}"></script>
-<script th:src="@{/code/util/avatar.js}"></script>
-<script th:src="@{/code/util/user.js}"></script>
-<script th:src="@{/code/util/string.js}"></script>
-<script th:src="@{/code/consts.js}"></script>
-
-<script th:src="@{/code/dto/User.js}"></script>
-<script th:src="@{/code/dto/Task.js}"></script>
-<script th:src="@{/code/dto/Project.js}"></script>
-<script th:src="@{/code/util/header.js}"></script>
-
-<script th:src="@{/code/network/ProjectNet.js}"></script>
-<script th:src="@{/code/network/TaskNet.js}"></script>
-<script th:src="@{/code/network/UserNet.js}"></script>
-<script th:src="@{/code/pages/index.js}"></script>
-
-<script>
-    async function checkTime(){
-        if((await getUser()).forcedClockedOut){
-            let html = await getComponent("timeRegistry")
-
-            const popupHolder = document.getElementById("popupHolder");
-            popupHolder.innerHTML = html;
-        }
-    }
-    checkTime()
-</script>
+<script th:if="${scriptBundle != null}" th:src="${scriptBundle}"></script>
 </body>
 </html>

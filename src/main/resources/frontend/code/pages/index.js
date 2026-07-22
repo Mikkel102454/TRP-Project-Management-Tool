@@ -20,6 +20,24 @@ async function loadProjects(apiKey) {
 
 }
 
+async function loadDashboardBootstrap() {
+    try {
+        const response = await fetch(`${API_ROOT}/dashboard`);
+        const data = await response.json();
+
+        if (!data.success) return false;
+
+        UserDto = User.fromJson(data.data.currentUser);
+        AllUsers = data.data.users.map(user => User.fromJson(user)).filter(user => user !== null);
+        loadedProjects = data.data.projects.map(project => Project.fromJson(project)).filter(project => project !== null);
+
+        return true;
+    } catch (e) {
+        log(e, Levels.WARNING);
+        return false;
+    }
+}
+
 async function renderProjects() {
     const projectHolder = document.getElementById("projects");
     projectHolder.innerHTML = "";
@@ -185,10 +203,21 @@ async function populateUserFilter() {
 }
 
 async function initializeDashboard() {
+    const apiKey = getStoredApiKey();
+
+    if (!apiKey && await loadDashboardBootstrap()) {
+        currentDashboardUser = UserDto;
+        await populateUserFilter();
+        initializeProjectDragAndDrop();
+        await renderProjects();
+        refreshPeriod();
+        return;
+    }
+
     currentDashboardUser = await getUser();
     await populateUserFilter();
     initializeProjectDragAndDrop();
-    await loadProjects(getStoredApiKey());
+    await loadProjects(apiKey);
     refreshPeriod();
 }
 
@@ -200,6 +229,8 @@ async function openCreateModal(){
 }
 
 initializeDashboard();
+initModalDismiss(["projectModal", "passwordModal"]);
+initForcedClockoutCheck();
 
 function getStoredApiKey() {
     const params = new URLSearchParams(window.location.search);

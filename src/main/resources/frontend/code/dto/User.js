@@ -19,7 +19,15 @@ class User{
 
     static fromJson(json){
         try {
-            return new User(json.id, json.username, json.initial, json.email, json.admin, json.enabled, json.forcedClockedOut)
+            return new User(
+                json.id,
+                json.username,
+                json.initial,
+                json.email,
+                json.admin ?? json.isAdmin,
+                json.enabled ?? json.isEnabled,
+                json.forcedClockedOut
+            )
         } catch (e){
             log(e, Levels.WARNING)
             return null;
