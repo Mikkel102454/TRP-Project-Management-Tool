@@ -61,9 +61,13 @@ public class ApiKeyFilter extends OncePerRequestFilter {
         }
 
         String apiKey = request.getHeader(HEADER_NAME);
-        System.out.println(apiKey);
 
-        if (apiKey != null && apiKey.equals(expectedKey)) {
+        if (apiKey == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (apiKey.equals(expectedKey)) {
 
             UsernamePasswordAuthenticationToken auth2 =
                     UsernamePasswordAuthenticationToken.authenticated(
