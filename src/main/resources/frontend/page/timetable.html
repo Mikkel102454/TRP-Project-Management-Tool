@@ -34,134 +34,49 @@
         }
 
         .time-gap-graph {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 0.75rem;
             padding: 0.75rem;
         }
 
-        .time-gap-example {
-            border: 1px solid #6b7280;
-            background: #f9fafb;
-            min-width: 0;
-        }
-
-        .time-gap-example-wide {
-            grid-column: 1 / -1;
-        }
-
-        .time-gap-example-title {
+        .weekly-gap-summary {
             display: flex;
             justify-content: space-between;
+            flex-wrap: wrap;
             gap: 0.75rem;
-            border-bottom: 1px solid #9ca3af;
             background: #e5e7eb;
+            border: 1px solid #9ca3af;
             color: #1f2937;
             font-size: 0.75rem;
             line-height: 1rem;
-            padding: 0.45rem 0.6rem;
+            padding: 0.5rem 0.75rem;
         }
 
-        .time-gap-example-body {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 0.6rem;
-        }
-
-        .week-bar-row {
+        .weekly-day-grid {
             display: grid;
-            grid-template-columns: minmax(7rem, 10rem) minmax(8rem, 1fr) 4.5rem;
-            align-items: center;
+            grid-template-columns: repeat(7, minmax(0, 1fr));
             gap: 0.5rem;
-            color: #1f2937;
-            font-size: 0.75rem;
-            line-height: 1rem;
         }
 
-        .week-label {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .week-track {
-            height: 1.25rem;
+        .weekly-day-button {
+            min-height: 8rem;
             border: 1px solid #6b7280;
             background: #e5e7eb;
-        }
-
-        .week-bar {
-            height: 100%;
-            background: linear-gradient(to right, #3b82f6, #1d4ed8);
-        }
-
-        .week-value {
-            text-align: right;
-        }
-
-        .week-stacked-track {
-            display: grid;
-            grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 2px;
-            min-height: 1.25rem;
-        }
-
-        .week-stacked-day {
-            border: 1px solid #9ca3af;
-            background: #d1d5db;
-            min-width: 0;
-        }
-
-        .week-heatmap {
-            display: grid;
-            grid-template-columns: 4rem repeat(7, minmax(1.5rem, 1fr)) 4.5rem;
-            align-items: center;
-            gap: 0.25rem;
             color: #1f2937;
-            font-size: 0.75rem;
-            line-height: 1rem;
-        }
-
-        .week-heat-cell {
-            height: 1.5rem;
-            border: 1px solid #9ca3af;
-            background: #e5e7eb;
-        }
-
-        .week-rank-row {
-            display: grid;
-            grid-template-columns: 2rem minmax(7rem, 1fr) 4.5rem;
-            align-items: center;
-            gap: 0.5rem;
-            border-bottom: 1px solid #d1d5db;
-            color: #1f2937;
-            font-size: 0.75rem;
-            line-height: 1rem;
-            padding-bottom: 0.35rem;
-        }
-
-        .week-rank-number {
-            background: #374151;
-            color: white;
-            padding: 0.15rem 0;
-            text-align: center;
-        }
-
-        .week-timeline {
-            display: grid;
-            grid-template-columns: repeat(7, minmax(0, 1fr));
-            gap: 0.35rem;
-        }
-
-        .week-timeline-day {
-            min-height: 4.5rem;
-            border: 1px solid #9ca3af;
-            background: #e5e7eb;
             position: relative;
+            text-align: left;
+            padding: 0.45rem;
+            overflow: hidden;
         }
 
-        .week-timeline-fill {
+        .weekly-day-button:hover,
+        .weekly-day-button.weekly-day-selected {
+            background: #dbeafe;
+            border-color: #1d4ed8;
+        }
+
+        .weekly-day-fill {
             position: absolute;
             left: 0;
             right: 0;
@@ -169,13 +84,79 @@
             background: linear-gradient(to top, #3b82f6, #93c5fd);
         }
 
-        .week-timeline-label {
+        .weekly-day-content {
             position: relative;
             z-index: 1;
-            padding: 0.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .weekly-day-name {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .weekly-day-total {
+            font-size: 0.85rem;
+            color: #111827;
+        }
+
+        .weekly-day-count {
+            color: #374151;
+        }
+
+        .weekly-gap-detail {
+            border: 1px solid #6b7280;
+            background: #f9fafb;
+        }
+
+        .weekly-gap-detail-header {
+            display: grid;
+            grid-template-columns: 1fr 7rem 6rem;
+            gap: 0.5rem;
+            border-bottom: 1px solid #9ca3af;
+            background: #e5e7eb;
+            color: #374151;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .weekly-gap-row {
+            display: grid;
+            grid-template-columns: 1fr 7rem 6rem;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #d1d5db;
             color: #1f2937;
-            font-size: 0.7rem;
-            line-height: 0.9rem;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        .weekly-gap-row:last-child {
+            border-bottom: 0;
+        }
+
+        .weekly-gap-range {
+            color: #111827;
+        }
+
+        .weekly-gap-muted {
+            color: #4b5563;
+        }
+
+        .weekly-gap-right {
+            text-align: right;
+        }
+
+        .weekly-gap-empty-detail {
+            padding: 1rem 0.75rem;
+            color: #4b5563;
+            font-size: 0.75rem;
+            line-height: 1rem;
+            text-align: center;
         }
 
         .time-gap-empty {
@@ -200,24 +181,20 @@
                 text-align: left;
             }
 
-            .time-gap-example-wide {
-                grid-column: auto;
+            .weekly-day-grid {
+                grid-template-columns: 1fr;
             }
 
-            .week-bar-row {
-                grid-template-columns: 1fr 4.5rem;
+            .weekly-day-button {
+                min-height: 5.75rem;
             }
 
-            .week-label {
-                grid-column: 1 / -1;
+            .weekly-gap-detail-header,
+            .weekly-gap-row {
+                grid-template-columns: 1fr;
             }
 
-            .week-heatmap {
-                grid-template-columns: 3rem repeat(7, minmax(1rem, 1fr));
-            }
-
-            .week-heatmap .week-value {
-                grid-column: 1 / -1;
+            .weekly-gap-right {
                 text-align: left;
             }
         }
@@ -287,23 +264,18 @@
             <option value="all">ALL PROJECTS</option>
         </select>
 
-        <select id="gapMinimumFilter"
+        <select id="weekFilter"
                 class="border border-gray-500 bg-gray-100 px-2 py-1 text-xs"
-                onchange="minimumGapMinutes = Number(this.value); renderEntries()">
-            <option value="0">ALL GAPS</option>
-            <option value="15">15+ MIN</option>
-            <option value="30" selected>30+ MIN</option>
-            <option value="60">1+ HOUR</option>
-            <option value="240">4+ HOURS</option>
+                onchange="selectedWeekStartKey = this.value; selectedGapDayIndex = null; renderEntries()">
         </select>
     </div>
 
     <section class="time-gap-panel">
         <div class="time-gap-header">
-            <div>WEEKLY TIME GAP EXAMPLES</div>
-            <div id="gapCount" class="text-right">0 WEEKS</div>
+            <div id="gapWeekTitle">WEEKLY TIME GAP GRAPH</div>
+            <div id="gapCount" class="text-right">0 GAPS</div>
             <div id="gapTotal" class="text-right">0H TOTAL</div>
-            <div id="gapMax" class="text-right">0H MAX</div>
+            <div id="gapMax" class="text-right">0H MAX GAP</div>
         </div>
         <div id="gapGraph" class="time-gap-graph"></div>
     </section>

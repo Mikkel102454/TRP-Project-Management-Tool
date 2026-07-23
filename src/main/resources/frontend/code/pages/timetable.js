@@ -4,7 +4,9 @@ let timeEntries = [];
 let projects = [];
 let selectedProject = "all";
 let selectedUserId = null;
-let minimumGapMinutes = 30;
+const minimumGapMinutes = 15;
+let selectedWeekStartKey = getDateKey(getWeekStart(new Date()));
+let selectedGapDayIndex = null;
 
 const minuteMs = 60 * 1000;
 const hourMs = 60 * minuteMs;
@@ -125,45 +127,26 @@ function getVisibleEntries() {
 
 function renderGapGraph(entries) {
     const graph = document.getElementById("gapGraph");
+    const title = document.getElementById("gapWeekTitle");
     const count = document.getElementById("gapCount");
     const total = document.getElementById("gapTotal");
     const max = document.getElementById("gapMax");
     const gaps = getTimeGaps(entries)
         .filter(gap => gap.durationMs >= minimumGapMinutes * minuteMs);
     const weeks = getWeeklyGapSummary(gaps);
+    const selectedPeriod = getSelectedWeek(weeks);
 
     graph.innerHTML = "";
+    populateWeekFilter(weeks);
 
-    const totalGapMs = gaps.reduce((sum, gap) => sum + gap.durationMs, 0);
-    const maxWeekMs = Math.max(0, ...weeks.map(week => week.totalMs));
+    title.textContent = `WEEKLY TIME GAP GRAPH / ${formatWeekLabel(selectedPeriod)}`;
+    count.textContent = `${selectedPeriod.gapCount} ${selectedPeriod.gapCount === 1 ? "GAP" : "GAPS"}`;
+    total.textContent = `${formatDuration(selectedPeriod.totalMs)} TOTAL`;
+    max.textContent = `${formatDuration(selectedPeriod.largestGapMs)} MAX GAP`;
 
-    count.textContent = `${weeks.length} ${weeks.length === 1 ? "WEEK" : "WEEKS"}`;
-    total.textContent = `${formatDuration(totalGapMs)} TOTAL`;
-    max.textContent = `${formatDuration(maxWeekMs)} MAX WEEK`;
-
-    if (entries.length < 2) {
-        graph.innerHTML = `
-                <div class="time-gap-empty">
-                    NEED AT LEAST TWO TIME ENTRIES TO SHOW GAPS
-                </div>
-            `;
-        return;
-    }
-
-    if (gaps.length === 0) {
-        graph.innerHTML = `
-                <div class="time-gap-empty">
-                    NO GAPS MATCH THIS FILTER
-                </div>
-            `;
-        return;
-    }
-
-    graph.appendChild(createExampleCard("1", "TOTAL GAP BARS", renderWeeklyBars(weeks, maxWeekMs)));
-    graph.appendChild(createExampleCard("2", "DAY STACKED WEEKS", renderStackedWeeks(weeks)));
-    graph.appendChild(createExampleCard("3", "WEEK HEATMAP", renderWeeklyHeatmap(weeks)));
-    graph.appendChild(createExampleCard("4", "LARGEST GAP RANKING", renderLargestGapRanking(weeks)));
-    graph.appendChild(createExampleCard("5", "DAILY TIMELINE BLOCKS", renderDailyTimeline(weeks), true));
+    graph.appendChild(createWeeklySummary(selectedPeriod));
+    graph.appendChild(createWeeklyDayGrid(selectedPeriod));
+    graph.appendChild(createGapDetail(selectedPeriod));
 }
 
 function getTimeGaps(entries) {
@@ -181,6 +164,7 @@ function getTimeGaps(entries) {
         if (durationMs <= 0) continue;
 
         gaps.push({
+            id: `${sortedEntries[i].id}-${sortedEntries[i + 1].id}`,
             start: currentEnd,
             end: nextStart,
             durationMs
@@ -197,132 +181,193 @@ function getWeeklyGapSummary(gaps) {
         .slice()
         .sort((a, b) => a.start - b.start)
         .forEach(gap => {
-            const weekStart = getWeekStart(gap.start);
-            const key = weekStart.toISOString().slice(0, 10);
+            getGapDaySegments(gap).forEach(segment => {
+                const weekStart = getWeekStart(segment.start);
+                const key = getDateKey(weekStart);
 
-            if (!weeksByKey.has(key)) {
-                weeksByKey.set(key, {
-                    key,
-                    start: weekStart,
-                    end: new Date(weekStart.getTime() + 6 * dayMs),
-                    totalMs: 0,
-                    largestGapMs: 0,
-                    gapCount: 0,
-                    days: Array.from({length: 7}, () => ({totalMs: 0, gapCount: 0}))
-                });
-            }
+                if (!weeksByKey.has(key)) {
+                    weeksByKey.set(key, createEmptyWeek(weekStart));
+                }
 
-            const week = weeksByKey.get(key);
-            const day = getWeekdayIndex(gap.start);
-            week.totalMs += gap.durationMs;
-            week.largestGapMs = Math.max(week.largestGapMs, gap.durationMs);
-            week.gapCount++;
-            week.days[day].totalMs += gap.durationMs;
-            week.days[day].gapCount++;
+                addGapSegmentToPeriod(weeksByKey.get(key), gap, segment);
+            });
         });
 
     return [...weeksByKey.values()].sort((a, b) => b.start - a.start);
 }
 
-function createExampleCard(number, title, content, wide = false) {
-    const card = document.createElement("div");
-    card.className = `time-gap-example${wide ? " time-gap-example-wide" : ""}`;
-    card.innerHTML = `
-            <div class="time-gap-example-title">
-                <span>${number}. ${title}</span>
-                <span>PICK ${number}</span>
+function getSelectedWeek(weeks) {
+    const selectedWeek = weeks.find(week => week.key === selectedWeekStartKey);
+    if (selectedWeek) return selectedWeek;
+
+    const start = parseDateKey(selectedWeekStartKey);
+    return createEmptyWeek(start);
+}
+
+function createEmptyWeek(start) {
+    return {
+        key: getDateKey(start),
+        start,
+        end: new Date(start.getTime() + 6 * dayMs),
+        totalMs: 0,
+        largestGapMs: 0,
+        gapCount: 0,
+        gapIds: new Set(),
+        days: Array.from({length: 7}, () => ({totalMs: 0, gapCount: 0, gapIds: new Set(), gaps: []}))
+    };
+}
+
+function addGapSegmentToPeriod(period, gap, segment) {
+    const day = getWeekdayIndex(segment.start);
+
+    period.totalMs += segment.durationMs;
+    period.largestGapMs = Math.max(period.largestGapMs, gap.durationMs);
+
+    if (!period.gapIds.has(gap.id)) {
+        period.gapIds.add(gap.id);
+        period.gapCount++;
+    }
+
+    period.days[day].totalMs += segment.durationMs;
+    period.days[day].gaps.push(segment);
+
+    if (!period.days[day].gapIds.has(gap.id)) {
+        period.days[day].gapIds.add(gap.id);
+        period.days[day].gapCount++;
+    }
+}
+
+function getGapDaySegments(gap) {
+    const segments = [];
+    let segmentStart = new Date(gap.start);
+    const gapEnd = new Date(gap.end);
+
+    while (segmentStart < gapEnd) {
+        const nextDayStart = new Date(segmentStart);
+        nextDayStart.setHours(24, 0, 0, 0);
+
+        const segmentEnd = nextDayStart < gapEnd ? nextDayStart : gapEnd;
+        segments.push({
+            id: gap.id,
+            start: new Date(segmentStart),
+            end: new Date(segmentEnd),
+            originalStart: gap.start,
+            originalEnd: gap.end,
+            durationMs: segmentEnd - segmentStart
+        });
+
+        segmentStart = segmentEnd;
+    }
+
+    return segments;
+}
+
+function populateWeekFilter(weeks) {
+    const select = document.getElementById("weekFilter");
+    if (!select) return;
+
+    const weekOptions = new Map();
+    weekOptions.set(selectedWeekStartKey, createEmptyWeek(parseDateKey(selectedWeekStartKey)));
+    weeks.forEach(week => weekOptions.set(week.key, week));
+
+    const sortedWeeks = [...weekOptions.values()].sort((a, b) => b.start - a.start);
+    select.innerHTML = "";
+
+    sortedWeeks.forEach(week => {
+        const option = document.createElement("option");
+        option.value = week.key;
+        option.textContent = `${formatWeekLabel(week)} (${formatDuration(week.totalMs)})`;
+        select.appendChild(option);
+    });
+
+    select.value = selectedWeekStartKey;
+}
+
+function createWeeklySummary(week) {
+    const summary = document.createElement("div");
+    summary.className = "weekly-gap-summary";
+    summary.innerHTML = `
+        <span>${formatWeekLabel(week)}</span>
+        <span>${formatWeekRange(week)}</span>
+        <span>${week.gapCount} ${week.gapCount === 1 ? "GAP" : "GAPS"}</span>
+        <span>${formatDuration(week.totalMs)} TOTAL GAP TIME</span>
+        <span>${formatDuration(week.largestGapMs)} LARGEST GAP</span>
+    `;
+    return summary;
+}
+
+function createWeeklyDayGrid(week) {
+    if (selectedGapDayIndex == null) {
+        selectedGapDayIndex = getDefaultDayIndex(week);
+    }
+
+    const maxDayMs = Math.max(0, ...week.days.map(day => day.totalMs));
+    const labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
+    const grid = document.createElement("div");
+    grid.className = "weekly-day-grid";
+
+    week.days.forEach((day, index) => {
+        const date = new Date(week.start.getTime() + index * dayMs);
+        const height = getPercent(day.totalMs, maxDayMs, 0);
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = `weekly-day-button${index === selectedGapDayIndex ? " weekly-day-selected" : ""}`;
+        button.onclick = () => selectGapDay(index);
+        button.innerHTML = `
+            <div class="weekly-day-fill" style="height: ${height}%"></div>
+            <div class="weekly-day-content">
+                <span class="weekly-day-name">${labels[index]} ${formatShortDate(date)}</span>
+                <span class="weekly-day-total">${formatDuration(day.totalMs)}</span>
+                <span class="weekly-day-count">${day.gapCount} ${day.gapCount === 1 ? "GAP" : "GAPS"}</span>
             </div>
-            <div class="time-gap-example-body">${content}</div>
         `;
-    return card;
+        grid.appendChild(button);
+    });
+
+    return grid;
 }
 
-function renderWeeklyBars(weeks, maxWeekMs) {
-    return weeks.map(week => {
-        const width = getPercent(week.totalMs, maxWeekMs, 6);
-        return `
-                <div class="week-bar-row">
-                    <div class="week-label">${formatWeekRange(week)}</div>
-                    <div class="week-track">
-                        <div class="week-bar" style="width: ${width}%"></div>
-                    </div>
-                    <div class="week-value">${formatDuration(week.totalMs)}</div>
-                </div>
-            `;
-    }).join("");
-}
+function createGapDetail(week) {
+    const selectedDay = week.days[selectedGapDayIndex] || week.days[0];
+    const selectedDate = new Date(week.start.getTime() + selectedGapDayIndex * dayMs);
+    const detailTitle = `${formatDayName(selectedDate)} ${formatShortDate(selectedDate)}`;
+    const detail = document.createElement("div");
+    detail.className = "weekly-gap-detail";
 
-function renderStackedWeeks(weeks) {
-    const maxDayMs = Math.max(0, ...weeks.flatMap(week => week.days.map(day => day.totalMs)));
-
-    return weeks.map(week => `
-            <div class="week-bar-row">
-                <div class="week-label">${formatWeekRange(week)}</div>
-                <div class="week-stacked-track">
-                    ${week.days.map(day => {
-                        const opacity = getOpacity(day.totalMs, maxDayMs);
-                        return `<div class="week-stacked-day" title="${formatDuration(day.totalMs)}" style="background: rgba(59, 130, 246, ${opacity})"></div>`;
-                    }).join("")}
-                </div>
-                <div class="week-value">${week.gapCount}G</div>
-            </div>
-        `).join("");
-}
-
-function renderWeeklyHeatmap(weeks) {
-    const maxDayMs = Math.max(0, ...weeks.flatMap(week => week.days.map(day => day.totalMs)));
-    const dayLabels = ["M", "T", "W", "T", "F", "S", "S"];
-
-    return `
-            <div class="week-heatmap">
-                <div></div>
-                ${dayLabels.map(label => `<div class="week-value">${label}</div>`).join("")}
-                <div></div>
-            </div>
-            ${weeks.map(week => `
-                <div class="week-heatmap">
-                    <div class="week-label">${formatShortDate(week.start)}</div>
-                    ${week.days.map(day => {
-                        const opacity = getOpacity(day.totalMs, maxDayMs);
-                        return `<div class="week-heat-cell" title="${formatDuration(day.totalMs)}" style="background: rgba(29, 78, 216, ${opacity})"></div>`;
-                    }).join("")}
-                    <div class="week-value">${formatDuration(week.totalMs)}</div>
+    detail.innerHTML = `
+        <div class="weekly-gap-detail-header">
+            <div>${detailTitle}</div>
+            <div class="weekly-gap-right">TIME GAP</div>
+            <div class="weekly-gap-right">DURATION</div>
+        </div>
+        ${selectedDay.gaps.length === 0
+        ? `<div class="weekly-gap-empty-detail">NO GAPS FOR THIS DAY</div>`
+        : selectedDay.gaps
+            .slice()
+            .sort((a, b) => a.start - b.start)
+            .map(gap => `
+                <div class="weekly-gap-row">
+                    <div class="weekly-gap-range">${formatGapRange(gap)}</div>
+                    <div class="weekly-gap-right weekly-gap-muted">${formatTime(gap.start)} - ${formatTime(gap.end)}</div>
+                    <div class="weekly-gap-right">${formatDuration(gap.durationMs)}</div>
                 </div>
             `).join("")}
-        `;
+    `;
+
+    return detail;
 }
 
-function renderLargestGapRanking(weeks) {
-    return weeks
-        .slice()
-        .sort((a, b) => b.largestGapMs - a.largestGapMs)
-        .map((week, index) => `
-                <div class="week-rank-row">
-                    <div class="week-rank-number">${index + 1}</div>
-                    <div class="week-label">${formatWeekRange(week)}</div>
-                    <div class="week-value">${formatDuration(week.largestGapMs)}</div>
-                </div>
-            `).join("");
+function getDefaultDayIndex(week) {
+    const today = new Date();
+    if (getDateKey(getWeekStart(today)) === week.key) return getWeekdayIndex(today);
+
+    const firstGapDay = week.days.findIndex(day => day.gapCount > 0);
+    return firstGapDay >= 0 ? firstGapDay : 0;
 }
 
-function renderDailyTimeline(weeks) {
-    const maxDayMs = Math.max(0, ...weeks.flatMap(week => week.days.map(day => day.totalMs)));
-    const labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
-
-    return weeks.map(week => `
-            <div class="week-label">${formatWeekRange(week)} / ${formatDuration(week.totalMs)}</div>
-            <div class="week-timeline">
-                ${week.days.map((day, index) => {
-                    const height = getPercent(day.totalMs, maxDayMs, 0);
-                    return `
-                        <div class="week-timeline-day">
-                            <div class="week-timeline-fill" style="height: ${height}%"></div>
-                            <div class="week-timeline-label">${labels[index]}<br>${formatDuration(day.totalMs)}</div>
-                        </div>
-                    `;
-                }).join("")}
-            </div>
-        `).join("");
+function selectGapDay(index) {
+    selectedGapDayIndex = index;
+    renderGapGraph(getVisibleEntries());
 }
 
 function getPercent(value, maxValue, minimum) {
@@ -347,6 +392,16 @@ function getWeekdayIndex(date) {
     return (date.getDay() + 6) % 7;
 }
 
+function getDateKey(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function parseDateKey(key) {
+    const [year, month, day] = key.split("-").map(Number);
+    return new Date(year, month - 1, day);
+}
+
 function formatDuration(ms) {
     if (ms <= 0) return "0H";
 
@@ -364,8 +419,42 @@ function formatShortDate(date) {
     return `${pad(date.getDate())}/${pad(date.getMonth() + 1)}`;
 }
 
+function formatTime(date) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function formatDayName(date) {
+    return ["SUNDAY", "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY"][date.getDay()];
+}
+
+function formatGapRange(gap, alwaysShowDate = false) {
+    const sameDay = getDateKey(gap.start) === getDateKey(gap.end);
+    if (sameDay && alwaysShowDate) return `${formatShortDate(gap.start)} ${formatTime(gap.start)} - ${formatTime(gap.end)}`;
+    if (sameDay) return `${formatTime(gap.start)} - ${formatTime(gap.end)}`;
+    return `${formatShortDate(gap.start)} ${formatTime(gap.start)} - ${formatShortDate(gap.end)} ${formatTime(gap.end)}`;
+}
+
 function formatWeekRange(week) {
     return `${formatShortDate(week.start)} - ${formatShortDate(week.end)}`;
+}
+
+function formatWeekLabel(week) {
+    const isoWeek = getIsoWeek(week.start);
+    return `WEEK ${isoWeek.week}, ${isoWeek.year}`;
+}
+
+function getIsoWeek(date) {
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+    target.setDate(target.getDate() + 3 - ((target.getDay() + 6) % 7));
+
+    const weekYear = target.getFullYear();
+    const firstThursday = new Date(weekYear, 0, 4);
+    firstThursday.setDate(firstThursday.getDate() + 3 - ((firstThursday.getDay() + 6) % 7));
+
+    const week = 1 + Math.round((target - firstThursday) / (7 * dayMs));
+    return {week, year: weekYear};
 }
 
 function findProjectForEntry(entry) {
