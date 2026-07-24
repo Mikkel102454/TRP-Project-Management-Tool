@@ -22,5 +22,8 @@ async function initForcedClockoutCheck() {
     const popupHolder = document.getElementById("popupHolder");
     if (popupHolder) {
         popupHolder.innerHTML = html;
+        document.getElementById("timeRegistryButton")?.addEventListener("click", () => {
+            window.location.href = `timetable?id=${user.id}`;
+        });
     }
 }
