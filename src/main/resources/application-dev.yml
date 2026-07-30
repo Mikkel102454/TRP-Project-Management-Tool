@@ -11,16 +11,16 @@ logging:
 
 spring:
   mail:
-    host: localhost
-    port: 1025
+    host: smtp.trp.solutions
+    port: 587
     username:
     password:
     properties:
       mail:
         smtp:
           auth: false
-          starttls:
-            enable: false
+          ssl:
+            trust: smtp.trp.solutions
 
   web:
     resources:

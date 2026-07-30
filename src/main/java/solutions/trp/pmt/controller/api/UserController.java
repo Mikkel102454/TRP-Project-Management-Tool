@@ -8,7 +8,7 @@ import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.dto.request.ChangePasswordRequest;
-import solutions.trp.pmt.dto.request.RenameProjectRequest;
+import solutions.trp.pmt.dto.request.UpdateEmailRequest;
 import solutions.trp.pmt.service.UserService;
 
 import java.util.List;
@@ -34,6 +34,14 @@ public class UserController {
     ) {
         userService.updatePassword(request.oldPassword(), request.newPassword());
         return ResponseEntity.ok(ApiResponse.ok());
+    }
+
+    @PatchMapping("/email")
+    public ResponseEntity<ApiResponse<UserDto>> updateEmail(
+            @RequestBody UpdateEmailRequest request
+    ) {
+        UserDto user = userService.updateCurrentUserEmail(request.email()).toDto();
+        return ResponseEntity.ok(ApiResponse.ok(user));
     }
 
     @GetMapping

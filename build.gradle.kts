@@ -15,6 +15,7 @@ java {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -40,6 +41,10 @@ dependencies {
 
     implementation("org.json:json:20171018")
     implementation("commons-io:commons-io:2.15.1")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+    implementation("solutions.trp:json-paper:1.0.0-SNAPSHOT")
 }
 
 tasks.withType<Test> {

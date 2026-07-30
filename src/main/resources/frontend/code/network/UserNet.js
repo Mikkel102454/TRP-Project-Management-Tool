@@ -88,6 +88,11 @@ async function updateUser(id, username, password, email, isAdmin, isEnabled) {
 }
 
 async function updatePassword(oldPassword, newPassword) {
+    const data = await changeCurrentPassword(oldPassword, newPassword);
+    return data?.success === true;
+}
+
+async function changeCurrentPassword(oldPassword, newPassword) {
     try {
         const response = await fetch(`${API_ROOT}/user/password`, {
             method: "PATCH",
@@ -100,12 +105,41 @@ async function updatePassword(oldPassword, newPassword) {
             })
         });
 
-        const data = await response.json();
-        return data.success;
+        return await response.json();
 
     } catch (e) {
         log(e, Levels.SEVERE);
-        return false;
+        return {
+            success: false,
+            error: {
+                message: "Could not update password"
+            }
+        };
+    }
+}
+
+async function updateCurrentUserEmail(email) {
+    try {
+        const response = await fetch(`${API_ROOT}/user/email`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: email
+            })
+        });
+
+        return await response.json();
+
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return {
+            success: false,
+            error: {
+                message: "Could not update email"
+            }
+        };
     }
 }
 

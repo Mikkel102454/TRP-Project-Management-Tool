@@ -311,6 +311,6 @@ function initUserPicker(modal, allUsers, preselectedUsers = []) {
 }
 
 initTaskDragAndDrop();
-initModalDismiss(["taskModal", "passwordModal", "projectModal"]);
+initModalDismiss(["taskModal", "projectModal"]);
 initForcedClockoutCheck();
 load();

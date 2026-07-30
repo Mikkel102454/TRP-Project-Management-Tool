@@ -4,7 +4,7 @@ let timeEntries = [];
 let projects = [];
 let selectedProject = "all";
 let selectedUserId = null;
-const minimumGapMinutes = 15;
+const minimumGapMinutes = 3;
 let selectedWeekStartKey = getDateKey(getWeekStart(new Date()));
 let selectedGapDayIndex = null;
 
@@ -25,7 +25,7 @@ function renderEntries() {
     container.innerHTML = "";
 
     const visibleEntries = getVisibleEntries();
-    renderGapGraph(visibleEntries);
+    renderGapGraph(timeEntries);
 
     visibleEntries.forEach(entry => {
         let foundTask = null;
@@ -131,69 +131,122 @@ function renderGapGraph(entries) {
     const count = document.getElementById("gapCount");
     const total = document.getElementById("gapTotal");
     const max = document.getElementById("gapMax");
-    const gaps = getTimeGaps(entries)
-        .filter(gap => gap.durationMs >= minimumGapMinutes * minuteMs);
-    const weeks = getWeeklyGapSummary(gaps);
+    const weeks = getWeeklyWorkSummary(entries);
     const selectedPeriod = getSelectedWeek(weeks);
 
     graph.innerHTML = "";
-    populateWeekFilter(weeks);
+    populateWeekFilter();
 
     title.textContent = `WEEKLY TIME GAP GRAPH / ${formatWeekLabel(selectedPeriod)}`;
     count.textContent = `${selectedPeriod.gapCount} ${selectedPeriod.gapCount === 1 ? "GAP" : "GAPS"}`;
-    total.textContent = `${formatDuration(selectedPeriod.totalMs)} TOTAL`;
-    max.textContent = `${formatDuration(selectedPeriod.largestGapMs)} MAX GAP`;
+    total.textContent = `${formatDuration(selectedPeriod.gapMs)} TOTAL GAP TIME`;
+    max.textContent = `${formatDuration(selectedPeriod.workedMs)} WORKED`;
 
-    graph.appendChild(createWeeklySummary(selectedPeriod));
     graph.appendChild(createWeeklyDayGrid(selectedPeriod));
     graph.appendChild(createGapDetail(selectedPeriod));
 }
 
-function getTimeGaps(entries) {
-    const sortedEntries = entries
-        .filter(entry => entry.startTime && entry.endTime)
-        .slice()
-        .sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
-
-    const gaps = [];
-    for (let i = 0; i < sortedEntries.length - 1; i++) {
-        const currentEnd = new Date(sortedEntries[i].endTime);
-        const nextStart = new Date(sortedEntries[i + 1].startTime);
-        const durationMs = nextStart - currentEnd;
-
-        if (durationMs <= 0) continue;
-
-        gaps.push({
-            id: `${sortedEntries[i].id}-${sortedEntries[i + 1].id}`,
-            start: currentEnd,
-            end: nextStart,
-            durationMs
-        });
-    }
-
-    return gaps.sort((a, b) => b.durationMs - a.durationMs);
-}
-
-function getWeeklyGapSummary(gaps) {
+function getWeeklyWorkSummary(entries) {
     const weeksByKey = new Map();
+    const segmentsByDay = new Map();
 
-    gaps
-        .slice()
-        .sort((a, b) => a.start - b.start)
-        .forEach(gap => {
-            getGapDaySegments(gap).forEach(segment => {
-                const weekStart = getWeekStart(segment.start);
-                const key = getDateKey(weekStart);
-
-                if (!weeksByKey.has(key)) {
-                    weeksByKey.set(key, createEmptyWeek(weekStart));
-                }
-
-                addGapSegmentToPeriod(weeksByKey.get(key), gap, segment);
-            });
+    entries.forEach(entry => {
+        splitEntryByLocalDay(entry).forEach(segment => {
+            const key = getDateKey(segment.start);
+            if (!segmentsByDay.has(key)) segmentsByDay.set(key, []);
+            segmentsByDay.get(key).push(segment);
         });
+    });
+
+    segmentsByDay.forEach(segments => {
+        const merged = mergeWorkIntervals(segments);
+        if (merged.length === 0) return;
+
+        const date = merged[0].start;
+        const weekStart = getWeekStart(date);
+        const weekKey = getDateKey(weekStart);
+        if (!weeksByKey.has(weekKey)) weeksByKey.set(weekKey, createEmptyWeek(weekStart));
+
+        const week = weeksByKey.get(weekKey);
+        const day = week.days[getWeekdayIndex(date)];
+        day.workedMs = merged.reduce((sum, interval) => sum + (interval.end - interval.start), 0);
+        week.workedMs += day.workedMs;
+
+        for (let i = 0; i < merged.length - 1; i++) {
+            const durationMs = merged[i + 1].start - merged[i].end;
+            if (durationMs < minimumGapMinutes * minuteMs) continue;
+
+            const gap = {
+                id: `${getDateKey(date)}-${i}`,
+                start: new Date(merged[i].end),
+                end: new Date(merged[i + 1].start),
+                durationMs,
+                before: getEntryLabel(merged[i].endEntry),
+                after: getEntryLabel(merged[i + 1].startEntry)
+            };
+            day.gaps.push(gap);
+            day.gapMs += durationMs;
+            day.gapCount++;
+            week.gapMs += durationMs;
+            week.gapCount++;
+            week.largestGapMs = Math.max(week.largestGapMs, durationMs);
+        }
+    });
 
     return [...weeksByKey.values()].sort((a, b) => b.start - a.start);
+}
+
+function splitEntryByLocalDay(entry) {
+    if (!entry?.startTime || !entry?.endTime) return [];
+
+    const start = new Date(entry.startTime);
+    const end = new Date(entry.endTime);
+    if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) return [];
+
+    const segments = [];
+    let cursor = new Date(start);
+    while (cursor < end) {
+        const nextMidnight = new Date(cursor);
+        nextMidnight.setHours(0, 0, 0, 0);
+        nextMidnight.setDate(nextMidnight.getDate() + 1);
+        const segmentEnd = nextMidnight < end ? nextMidnight : end;
+        segments.push({start: new Date(cursor), end: new Date(segmentEnd), entry});
+        cursor = segmentEnd;
+    }
+    return segments;
+}
+
+function mergeWorkIntervals(segments) {
+    const sorted = segments.slice().sort((a, b) => a.start - b.start || b.end - a.end);
+    const merged = [];
+
+    sorted.forEach(segment => {
+        const previous = merged[merged.length - 1];
+        if (!previous || segment.start > previous.end) {
+            merged.push({
+                start: new Date(segment.start),
+                end: new Date(segment.end),
+                startEntry: segment.entry,
+                endEntry: segment.entry
+            });
+            return;
+        }
+
+        if (segment.end > previous.end) {
+            previous.end = new Date(segment.end);
+            previous.endEntry = segment.entry;
+        }
+    });
+    return merged;
+}
+
+function getEntryLabel(entry) {
+    const project = findProjectForEntry(entry);
+    const task = project?.task?.find(candidate => candidate.id === entry?.taskId);
+    return {
+        project: project?.title || "UNKNOWN PROJECT",
+        task: task?.title || "UNKNOWN TASK"
+    };
 }
 
 function getSelectedWeek(weeks) {
@@ -205,95 +258,33 @@ function getSelectedWeek(weeks) {
 }
 
 function createEmptyWeek(start) {
+    const end = new Date(start);
+    end.setDate(end.getDate() + 6);
     return {
         key: getDateKey(start),
         start,
-        end: new Date(start.getTime() + 6 * dayMs),
-        totalMs: 0,
+        end,
+        workedMs: 0,
+        gapMs: 0,
         largestGapMs: 0,
         gapCount: 0,
-        gapIds: new Set(),
-        days: Array.from({length: 7}, () => ({totalMs: 0, gapCount: 0, gapIds: new Set(), gaps: []}))
+        days: Array.from({length: 7}, () => ({workedMs: 0, gapMs: 0, gapCount: 0, gaps: []}))
     };
 }
 
-function addGapSegmentToPeriod(period, gap, segment) {
-    const day = getWeekdayIndex(segment.start);
-
-    period.totalMs += segment.durationMs;
-    period.largestGapMs = Math.max(period.largestGapMs, gap.durationMs);
-
-    if (!period.gapIds.has(gap.id)) {
-        period.gapIds.add(gap.id);
-        period.gapCount++;
-    }
-
-    period.days[day].totalMs += segment.durationMs;
-    period.days[day].gaps.push(segment);
-
-    if (!period.days[day].gapIds.has(gap.id)) {
-        period.days[day].gapIds.add(gap.id);
-        period.days[day].gapCount++;
-    }
+function populateWeekFilter() {
+    const input = document.getElementById("weekFilter");
+    if (!input) return;
+    input.value = getIsoWeekInputValue(parseDateKey(selectedWeekStartKey));
 }
 
-function getGapDaySegments(gap) {
-    const segments = [];
-    let segmentStart = new Date(gap.start);
-    const gapEnd = new Date(gap.end);
+function selectWeek(value) {
+    const weekStart = getWeekStartFromIsoValue(value);
+    if (!weekStart) return;
 
-    while (segmentStart < gapEnd) {
-        const nextDayStart = new Date(segmentStart);
-        nextDayStart.setHours(24, 0, 0, 0);
-
-        const segmentEnd = nextDayStart < gapEnd ? nextDayStart : gapEnd;
-        segments.push({
-            id: gap.id,
-            start: new Date(segmentStart),
-            end: new Date(segmentEnd),
-            originalStart: gap.start,
-            originalEnd: gap.end,
-            durationMs: segmentEnd - segmentStart
-        });
-
-        segmentStart = segmentEnd;
-    }
-
-    return segments;
-}
-
-function populateWeekFilter(weeks) {
-    const select = document.getElementById("weekFilter");
-    if (!select) return;
-
-    const weekOptions = new Map();
-    weekOptions.set(selectedWeekStartKey, createEmptyWeek(parseDateKey(selectedWeekStartKey)));
-    weeks.forEach(week => weekOptions.set(week.key, week));
-
-    const sortedWeeks = [...weekOptions.values()].sort((a, b) => b.start - a.start);
-    select.innerHTML = "";
-
-    sortedWeeks.forEach(week => {
-        const option = document.createElement("option");
-        option.value = week.key;
-        option.textContent = `${formatWeekLabel(week)} (${formatDuration(week.totalMs)})`;
-        select.appendChild(option);
-    });
-
-    select.value = selectedWeekStartKey;
-}
-
-function createWeeklySummary(week) {
-    const summary = document.createElement("div");
-    summary.className = "weekly-gap-summary";
-    summary.innerHTML = `
-        <span>${formatWeekLabel(week)}</span>
-        <span>${formatWeekRange(week)}</span>
-        <span>${week.gapCount} ${week.gapCount === 1 ? "GAP" : "GAPS"}</span>
-        <span>${formatDuration(week.totalMs)} TOTAL GAP TIME</span>
-        <span>${formatDuration(week.largestGapMs)} LARGEST GAP</span>
-    `;
-    return summary;
+    selectedWeekStartKey = getDateKey(weekStart);
+    selectedGapDayIndex = null;
+    renderEntries();
 }
 
 function createWeeklyDayGrid(week) {
@@ -301,24 +292,21 @@ function createWeeklyDayGrid(week) {
         selectedGapDayIndex = getDefaultDayIndex(week);
     }
 
-    const maxDayMs = Math.max(0, ...week.days.map(day => day.totalMs));
     const labels = ["MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
     const grid = document.createElement("div");
     grid.className = "weekly-day-grid";
 
     week.days.forEach((day, index) => {
-        const date = new Date(week.start.getTime() + index * dayMs);
-        const height = getPercent(day.totalMs, maxDayMs, 0);
+        const date = addLocalDays(week.start, index);
         const button = document.createElement("button");
         button.type = "button";
         button.className = `weekly-day-button${index === selectedGapDayIndex ? " weekly-day-selected" : ""}`;
         button.onclick = () => selectGapDay(index);
         button.innerHTML = `
-            <div class="weekly-day-fill" style="height: ${height}%"></div>
             <div class="weekly-day-content">
                 <span class="weekly-day-name">${labels[index]} ${formatShortDate(date)}</span>
-                <span class="weekly-day-total">${formatDuration(day.totalMs)}</span>
-                <span class="weekly-day-count">${day.gapCount} ${day.gapCount === 1 ? "GAP" : "GAPS"}</span>
+                <span class="weekly-day-total">${formatDuration(day.workedMs)} WORKED</span>
+                <span class="weekly-day-count">${formatDuration(day.gapMs)} GAPS / ${day.gapCount}</span>
             </div>
         `;
         grid.appendChild(button);
@@ -329,15 +317,19 @@ function createWeeklyDayGrid(week) {
 
 function createGapDetail(week) {
     const selectedDay = week.days[selectedGapDayIndex] || week.days[0];
-    const selectedDate = new Date(week.start.getTime() + selectedGapDayIndex * dayMs);
+    const selectedDate = addLocalDays(week.start, selectedGapDayIndex);
     const detailTitle = `${formatDayName(selectedDate)} ${formatShortDate(selectedDate)}`;
     const detail = document.createElement("div");
     detail.className = "weekly-gap-detail";
 
     detail.innerHTML = `
+        <div class="weekly-gap-detail-summary">
+            ${detailTitle} / ${formatDuration(selectedDay.workedMs)} WORKED / ${formatDuration(selectedDay.gapMs)} GAPS
+        </div>
         <div class="weekly-gap-detail-header">
-            <div>${detailTitle}</div>
-            <div class="weekly-gap-right">TIME GAP</div>
+            <div>PRECEDING PROJECT / TASK</div>
+            <div>FOLLOWING PROJECT / TASK</div>
+            <div class="weekly-gap-right">GAP TIME</div>
             <div class="weekly-gap-right">DURATION</div>
         </div>
         ${selectedDay.gaps.length === 0
@@ -347,7 +339,8 @@ function createGapDetail(week) {
             .sort((a, b) => a.start - b.start)
             .map(gap => `
                 <div class="weekly-gap-row">
-                    <div class="weekly-gap-range">${formatGapRange(gap)}</div>
+                    <div>${escapeHtml(gap.before.project)} / ${escapeHtml(gap.before.task)}</div>
+                    <div>${escapeHtml(gap.after.project)} / ${escapeHtml(gap.after.task)}</div>
                     <div class="weekly-gap-right weekly-gap-muted">${formatTime(gap.start)} - ${formatTime(gap.end)}</div>
                     <div class="weekly-gap-right">${formatDuration(gap.durationMs)}</div>
                 </div>
@@ -367,12 +360,22 @@ function getDefaultDayIndex(week) {
 
 function selectGapDay(index) {
     selectedGapDayIndex = index;
-    renderGapGraph(getVisibleEntries());
+    renderGapGraph(timeEntries);
 }
 
-function getPercent(value, maxValue, minimum) {
-    if (value <= 0 || maxValue <= 0) return 0;
-    return Math.max(minimum, Math.round((value / maxValue) * 100));
+function addLocalDays(date, days) {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
+}
+
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 }
 
 function getOpacity(value, maxValue) {
@@ -453,8 +456,27 @@ function getIsoWeek(date) {
     const firstThursday = new Date(weekYear, 0, 4);
     firstThursday.setDate(firstThursday.getDate() + 3 - ((firstThursday.getDay() + 6) % 7));
 
-    const week = 1 + Math.round((target - firstThursday) / (7 * dayMs));
+    const targetUtc = Date.UTC(target.getFullYear(), target.getMonth(), target.getDate());
+    const firstUtc = Date.UTC(firstThursday.getFullYear(), firstThursday.getMonth(), firstThursday.getDate());
+    const week = 1 + Math.round((targetUtc - firstUtc) / (7 * dayMs));
     return {week, year: weekYear};
+}
+
+function getIsoWeekInputValue(date) {
+    const isoWeek = getIsoWeek(date);
+    return `${isoWeek.year}-W${String(isoWeek.week).padStart(2, "0")}`;
+}
+
+function getWeekStartFromIsoValue(value) {
+    const match = /^(\d{4})-W(\d{2})$/.exec(value);
+    if (!match) return null;
+
+    const year = Number(match[1]);
+    const week = Number(match[2]);
+    const januaryFourth = new Date(year, 0, 4);
+    const firstMonday = getWeekStart(januaryFourth);
+    firstMonday.setDate(firstMonday.getDate() + (week - 1) * 7);
+    return firstMonday;
 }
 
 function findProjectForEntry(entry) {
@@ -512,7 +534,7 @@ async function updateEntry(id, startTime, endTime, input) {
     const entry = timeEntries.find(e => e.id === id);
     if (startTime != null) entry.startTime = startTime;
     if (endTime != null) entry.endTime = endTime;
-    renderGapGraph(getVisibleEntries());
+    renderGapGraph(timeEntries);
 
     const row = input.closest(".grid");
     const updateBtn = row.querySelector(".update-button");
@@ -562,5 +584,5 @@ async function loadEntries() {
     renderEntries();
 }
 
-initModalDismiss(["userModal", "passwordModal"]);
+initModalDismiss(["userModal"]);
 loadEntries();

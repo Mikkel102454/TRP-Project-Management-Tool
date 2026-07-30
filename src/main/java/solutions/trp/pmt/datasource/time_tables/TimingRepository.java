@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public interface TimingRepository extends JpaRepository<TimingEntity, Integer> {
@@ -26,9 +27,14 @@ WHERE (:taskId IS NULL OR t.task_id = :taskId)
       SELECT id FROM task WHERE project_id = :projectId
   ))
 """, nativeQuery = true)
-    int sumTime(Integer taskId, Integer projectId);
+    long sumTime(Integer taskId, Integer projectId);
 
     void deleteByTaskEntity_Id(Integer taskId);
 
     List<TimingEntity> findAllByUserEntity_Id(Integer userId);
+
+    List<TimingEntity> findAllByEndTimeAfterAndStartTimeBefore(
+            Timestamp periodStart,
+            Timestamp periodEnd
+    );
 }

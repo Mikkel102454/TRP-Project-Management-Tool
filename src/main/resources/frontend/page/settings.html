@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Settings</title>
+    <link th:href="@{/style/style.css}" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+</head>
+
+<body class="bg-gradient-to-b from-gray-300 to-gray-200 min-h-screen font-mono text-sm">
+
+<header class="bg-gradient-to-b from-gray-200 to-gray-400 border-b border-gray-500 shadow-inner">
+    <div class="max-w-6xl mx-auto px-6 py-3 flex justify-between items-center">
+        <a th:href="@{/}" class="text-gray-800 tracking-wider font-semibold">
+            SETTINGS
+        </a>
+
+        <div class="relative">
+            <div id="headerIcon"
+                 class="w-9 h-9 bg-gray-700 text-white select-none
+                 flex items-center justify-center border border-black cursor-pointer"
+                 onclick="toggleUserMenu()">...
+            </div>
+
+            <div id="userDropdown"
+                 class="hidden absolute right-0 top-full mt-2 w-48
+                 bg-gray-200 border border-gray-600 shadow-lg z-50">
+                <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                        th:onclick="|window.location.href='@{/logout}'|">
+                    Logout
+                </button>
+
+                <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                        th:onclick="|window.location.href='@{/settings}'|">
+                    Settings
+                </button>
+
+                <div th:if="${!#authorization.expression('hasRole(''ADMIN'')')}">
+                    <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                            th:onclick="|window.location.href='@{/timetable(id=${#authentication.principal.id})}'|">
+                        Time Entries
+                    </button>
+                </div>
+
+                <div th:if="${#authorization.expression('hasRole(''ADMIN'')')}">
+                    <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                            th:onclick="|window.location.href='@{/setup}'|">
+                        User Control
+                    </button>
+
+                    <button class="w-full text-left px-3 py-2 hover:bg-gray-300"
+                            th:onclick="|window.location.href='@{/time}'|">
+                        Time Control
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-6 py-4">
+    <div class="w-full flex gap-4" style="align-items: flex-start;">
+        <section class="flex-1 border border-gray-600 bg-gradient-to-b from-gray-200 to-gray-300 shadow">
+            <div class="px-4 py-2 border-b border-gray-500 bg-gradient-to-b from-gray-300 to-gray-400">
+                <span class="tracking-wider text-gray-800">ACCOUNT EMAIL</span>
+            </div>
+
+            <form class="p-4 space-y-4" onsubmit="saveEmail(event)">
+                <div class="flex flex-col gap-1">
+                    <label for="emailInput" class="text-xs tracking-wide text-gray-700">EMAIL</label>
+                    <input id="emailInput"
+                           type="email"
+                           placeholder="LEAVE EMPTY TO REMOVE"
+                           class="px-2 py-1 border border-gray-500 bg-gray-100 focus:outline-none focus:bg-white">
+                    <span class="text-xs text-gray-600">
+                        Used for password recovery. Saving an empty field removes it.
+                    </span>
+                </div>
+
+                <div id="emailStatus" class="text-xs" role="status" aria-live="polite"></div>
+
+                <div class="flex justify-end">
+                    <button id="emailSaveButton"
+                            type="submit"
+                            class="px-3 py-1 border border-gray-700
+                            bg-gradient-to-b from-gray-500 to-gray-700
+                            text-white hover:from-gray-600 hover:to-gray-800">
+                        SAVE EMAIL
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <section class="flex-1 border border-gray-600 bg-gradient-to-b from-gray-200 to-gray-300 shadow">
+            <div class="px-4 py-2 border-b border-gray-500 bg-gradient-to-b from-gray-300 to-gray-400">
+                <span class="tracking-wider text-gray-800">CHANGE PASSWORD</span>
+            </div>
+
+            <form class="p-4 space-y-4" onsubmit="savePassword(event)">
+                <div class="flex flex-col gap-1">
+                    <label for="oldPasswordInput" class="text-xs tracking-wide text-gray-700">
+                        CURRENT PASSWORD
+                    </label>
+                    <input id="oldPasswordInput"
+                           type="password"
+                           autocomplete="current-password"
+                           class="px-2 py-1 border border-gray-500 bg-gray-100 focus:outline-none focus:bg-white">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label for="newPasswordInput" class="text-xs tracking-wide text-gray-700">
+                        NEW PASSWORD
+                    </label>
+                    <input id="newPasswordInput"
+                           type="password"
+                           minlength="3"
+                           autocomplete="new-password"
+                           class="px-2 py-1 border border-gray-500 bg-gray-100 focus:outline-none focus:bg-white">
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label for="confirmPasswordInput" class="text-xs tracking-wide text-gray-700">
+                        CONFIRM NEW PASSWORD
+                    </label>
+                    <input id="confirmPasswordInput"
+                           type="password"
+                           minlength="3"
+                           autocomplete="new-password"
+                           class="px-2 py-1 border border-gray-500 bg-gray-100 focus:outline-none focus:bg-white">
+                </div>
+
+                <div id="passwordStatus" class="text-xs" role="status" aria-live="polite"></div>
+
+                <div class="flex justify-end">
+                    <button id="passwordSaveButton"
+                            type="submit"
+                            class="px-3 py-1 border border-gray-700
+                            bg-gradient-to-b from-gray-500 to-gray-700
+                            text-white hover:from-gray-600 hover:to-gray-800">
+                        CHANGE PASSWORD
+                    </button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div id="popupHolder"></div>
+</main>
+
+<script th:inline="javascript">
+    let CONTEXT_PATH = /*[[@{/}]]*/ '/';
+    CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+    window.__BOOTSTRAP__ = {
+        currentUser: JSON.parse(/*[[${currentUserJson}]]*/ 'null')
+    };
+</script>
+<script th:if="${scriptBundle != null}" th:src="${scriptBundle}"></script>
+</body>
+</html>

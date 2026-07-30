@@ -23,7 +23,7 @@ async function openCreateModal(){
 }
 
 loadProjects();
-initModalDismiss(["projectModal", "passwordModal"]);
+initModalDismiss(["projectModal"]);
 initForcedClockoutCheck();
 refreshPeriod();
 

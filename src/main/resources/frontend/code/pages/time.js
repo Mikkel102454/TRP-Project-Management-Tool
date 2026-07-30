@@ -41,6 +41,6 @@ async function loadUsers() {
     renderUsers();
 }
 
-initModalDismiss(["userModal", "passwordModal"]);
+initModalDismiss(["userModal"]);
 initForcedClockoutCheck();
 loadUsers();

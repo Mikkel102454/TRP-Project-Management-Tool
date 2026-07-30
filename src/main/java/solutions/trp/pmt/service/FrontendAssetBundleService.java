@@ -62,6 +62,10 @@ public class FrontendAssetBundleService {
                     "network/UserNet.js", "network/ProjectNet.js", "network/TimeNet.js", "dto/User.js",
                     "dto/Project.js", "dto/Task.js", "dto/Time.js", "util/header.js", "util/page.js",
                     "pages/timetable.js"
+            ),
+            "settings", List.of(
+                    "util/logger.js", "util/components.js", "util/user.js", "consts.js", "dto/User.js",
+                    "network/UserNet.js", "util/header.js", "util/page.js", "pages/settings.js"
             )
     );
 

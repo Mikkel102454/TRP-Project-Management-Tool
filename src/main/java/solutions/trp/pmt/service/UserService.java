@@ -12,9 +12,12 @@ import solutions.trp.pmt.util.PasswordEncoding;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Service
 public class UserService {
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+
     private final UserRepository userRepository;
     private final AppUserDetailsService appUserDetailsService;
 
@@ -101,10 +104,29 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public UserEntity updateCurrentUserEmail(String email) {
+        UserEntity user = getCurrentUser();
+        String normalizedEmail = normalizeEmail(email);
+
+        if(normalizedEmail != null) {
+            userRepository.findByEmail(normalizedEmail)
+                    .filter(existingUser -> existingUser.getId() != user.getId())
+                    .ifPresent(existingUser -> {
+                        throw new ConflictException("Email already in use");
+                    });
+        }
+
+        user.setEmail(normalizedEmail);
+        return userRepository.save(user);
+    }
+
     public void updatePassword(String oldPassword, String newPassword){
         UserEntity user = getCurrentUser();
         if(!PasswordEncoding.matches("bcrypt", oldPassword, user.getPassword())) {
             throw new UnauthorizedException("Password is not correct");
+        }
+        if(newPassword == null || newPassword.length() < 3) {
+            throw new BadRequestException("Password must be at least 3 characters");
         }
         user.setPassword(PasswordEncoding.encode("bcrypt", newPassword));
         userRepository.save(user);
@@ -122,6 +144,10 @@ public class UserService {
         if(email == null || email.isBlank()) {
             return null;
         }
-        return email.trim().toLowerCase();
+        String normalizedEmail = email.trim().toLowerCase();
+        if(!EMAIL_PATTERN.matcher(normalizedEmail).matches()) {
+            throw new BadRequestException("Email is not valid");
+        }
+        return normalizedEmail;
     }
 }

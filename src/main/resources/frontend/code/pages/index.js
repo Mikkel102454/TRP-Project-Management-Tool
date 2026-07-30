@@ -229,7 +229,7 @@ async function openCreateModal(){
 }
 
 initializeDashboard();
-initModalDismiss(["projectModal", "passwordModal"]);
+initModalDismiss(["projectModal"]);
 initForcedClockoutCheck();
 
 function getStoredApiKey() {
