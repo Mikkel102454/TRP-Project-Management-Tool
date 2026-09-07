@@ -32,13 +32,16 @@ public class DashboardController {
     public ResponseEntity<ApiResponse<DashboardDto>> getDashboard() {
         DashboardDto dashboard = new DashboardDto();
 
-        UserDto currentUser = userService.getCurrentUser().toDto();
+        UserEntity currentUserEntity = userService.getCurrentUser();
+        UserDto currentUser = currentUserEntity.toDto();
         List<UserDto> users = userService.getAllUsers().stream().map(UserEntity::toDto).toList();
         List<ProjectDto> projects = projectService.search("", 0).stream()
-                .map(project -> project.toDto(timeService))
+                .filter(project -> projectService.isVisibleToUser(project, currentUserEntity.getId()))
+                .map(projectService::toDto)
                 .toList();
 
         dashboard.setCurrentUser(currentUser);
+        dashboard.setPmConnected(projectService.hasConnectedPmUser(currentUserEntity.getId()));
         dashboard.setUsers(users);
         dashboard.setProjects(projects);
 

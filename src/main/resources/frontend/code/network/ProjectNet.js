@@ -63,7 +63,7 @@ async function getAllProjects(){
     }
 }
 
-async function createProject(title) {
+async function createProject(title, pmRelease = null) {
     try {
         if(title === null || title === "") {
             log("Title cannot be empty", Levels.SEVERE);
@@ -75,12 +75,13 @@ async function createProject(title) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                title: title
+                title: title,
+                pmRelease: pmRelease
             })
         });
 
         const data = await response.json();
-
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
 
 
@@ -126,7 +127,7 @@ async function removeProject(id){
         });
 
         const data = await response.json();
-
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);

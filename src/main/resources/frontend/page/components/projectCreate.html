@@ -42,6 +42,12 @@
                       focus:outline-none focus:bg-white">
       </div>
 
+      <div id="projectPmReleaseField" class="flex flex-col gap-1">
+        <label class="text-xs tracking-wide text-gray-700">PM RELEASE (OPTIONAL)</label>
+        <input type="text" id="projectPmReleaseInput"
+               class="px-2 py-1 border border-gray-500 bg-gray-100 focus:outline-none focus:bg-white">
+      </div>
+
     </div>
 
     <!-- FOOTER -->
@@ -64,7 +70,8 @@
     const input = document.getElementById('projectTitleInput');
     const modal = document.getElementById('projectModal');
 
-    await createProject(input.value);
+    const pmRelease = document.getElementById('projectPmReleaseInput')?.value || '';
+    if (!await createProject(input.value, pmRelease)) return;
     await loadProjects();
 
     modal.remove();

@@ -20,7 +20,7 @@ async function createTask(projectId, title, isCompleted, deadline, estimatedTime
         });
 
         const data = await response.json();
-
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);
@@ -46,7 +46,7 @@ async function updateTask(taskId, title, isCompleted, deadline, estimatedTime, d
         });
 
         const data = await response.json();
-
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);
@@ -107,7 +107,8 @@ async function unscheduleUser(id, userId){
 
 async function clockIn(id){
     try {
-        const response = await fetch(`${API_ROOT}/task/time/start?taskId=${encodeURIComponent(id)}`, {
+        const key = String(id).includes(":") ? "taskRef" : "taskId";
+        const response = await fetch(`${API_ROOT}/task/time/start?${key}=${encodeURIComponent(id)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -115,7 +116,7 @@ async function clockIn(id){
         });
 
         const data = await response.json();
-
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);
@@ -125,7 +126,8 @@ async function clockIn(id){
 
 async function clockOut(id){
     try {
-        const response = await fetch(`${API_ROOT}/task/time/stop?taskId=${encodeURIComponent(id)}`, {
+        const key = String(id).includes(":") ? "taskRef" : "taskId";
+        const response = await fetch(`${API_ROOT}/task/time/stop?${key}=${encodeURIComponent(id)}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -133,12 +135,18 @@ async function clockOut(id){
         });
 
         const data = await response.json();
-
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
     } catch (e) {
         log(e, Levels.SEVERE);
         return false;
     }
+}
+
+async function getRemoteTaskDetails(taskRef) {
+    const response = await fetch(`${API_ROOT}/task/details?taskRef=${encodeURIComponent(taskRef)}`);
+    const data = await response.json();
+    return data.success ? Task.fromJson(data.data) : null;
 }
 
 async function changeTaskPriority(id, priority){

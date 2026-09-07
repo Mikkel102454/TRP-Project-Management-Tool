@@ -9,6 +9,8 @@ import solutions.trp.pmt.dto.request.CreateTaskRequest;
 import solutions.trp.pmt.dto.request.UpdateTaskRequest;
 import solutions.trp.pmt.service.TaskService;
 import solutions.trp.pmt.service.TimeService;
+import solutions.trp.pmt.service.integration.RemoteWorkItemService;
+import solutions.trp.pmt.dto.TaskDto;
 
 import java.sql.Timestamp;
 
@@ -17,18 +19,26 @@ import java.sql.Timestamp;
 public class TaskController {
     private final TaskService taskService;
     private final TimeService timeService;
+    private final RemoteWorkItemService remoteWorkItemService;
 
-    public TaskController(TaskService taskService, TimeService timeService) {
+    public TaskController(TaskService taskService, TimeService timeService, RemoteWorkItemService remoteWorkItemService) {
         this.taskService = taskService;
         this.timeService = timeService;
+        this.remoteWorkItemService = remoteWorkItemService;
+    }
+
+    @GetMapping("/details")
+    public ResponseEntity<ApiResponse<TaskDto>> getRemoteTaskDetails(@RequestParam String taskRef) {
+        return ResponseEntity.ok(ApiResponse.ok(remoteWorkItemService.details(taskRef)));
     }
 
     @PostMapping("/time/start")
     public ResponseEntity<ApiResponse<Void>> startTimeUser(
-            @RequestParam() int taskId
+            @RequestParam(required = false) Integer taskId,
+            @RequestParam(required = false) String taskRef
     ) {
 
-        timeService.startTimeUser(taskId);
+        timeService.startTimeUser(taskId, taskRef);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
@@ -36,10 +46,11 @@ public class TaskController {
 
     @PostMapping("/time/stop")
     public ResponseEntity<ApiResponse<Void>> stopTimeUser(
-            @RequestParam() int taskId
+            @RequestParam(required = false) Integer taskId,
+            @RequestParam(required = false) String taskRef
     ) {
 
-        timeService.stopTimeUser(taskId);
+        timeService.stopTimeUser(taskId, taskRef);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());

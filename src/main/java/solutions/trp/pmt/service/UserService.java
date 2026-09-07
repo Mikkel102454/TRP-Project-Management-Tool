@@ -2,6 +2,7 @@ package solutions.trp.pmt.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import solutions.trp.pmt.controller.api.execption.BadRequestException;
 import solutions.trp.pmt.controller.api.execption.ConflictException;
 import solutions.trp.pmt.controller.api.execption.NotFoundException;
@@ -9,6 +10,7 @@ import solutions.trp.pmt.controller.api.execption.UnauthorizedException;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.util.PasswordEncoding;
+import solutions.trp.pmt.service.integration.IntegrationBindingService;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,11 +22,18 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final AppUserDetailsService appUserDetailsService;
+    private final IntegrationBindingService integrationBindingService;
+
+    public UserService(UserRepository userRepository, AppUserDetailsService appUserDetailsService) {
+        this(userRepository, appUserDetailsService, null);
+    }
 
     @Autowired
-    public UserService(UserRepository userRepository, AppUserDetailsService appUserDetailsService) {
+    public UserService(UserRepository userRepository, AppUserDetailsService appUserDetailsService,
+                       IntegrationBindingService integrationBindingService) {
         this.userRepository = userRepository;
         this.appUserDetailsService = appUserDetailsService;
+        this.integrationBindingService = integrationBindingService;
     }
 
     /**
@@ -37,6 +46,12 @@ public class UserService {
      *
      */
     public int addUser(String username, String initial, String password, String email, boolean admin, boolean enabled) {
+        return addUser(username, initial, password, email, admin, enabled, null);
+    }
+
+    @Transactional
+    public int addUser(String username, String initial, String password, String email, boolean admin, boolean enabled,
+                       String pmUserId) {
         if (userRepository.existsByUsername(username)) throw new ConflictException("Username already in use");
         if (password.length() < 3) throw new BadRequestException("Password must be at least 3 characters");
         if (username.length() < 3) throw new BadRequestException("Username must be at least 3 characters");
@@ -54,11 +69,18 @@ public class UserService {
         user.setEnabled(enabled);
 
         userRepository.save(user);
+        if (pmUserId != null && !pmUserId.isBlank()) requireIntegrationBindings().setUserBinding(user, pmUserId);
 
         return 0;
     }
 
     public void updateUser(int userId, String username, String initial, String password, String email, Boolean admin, Boolean enabled) {
+        updateUser(userId, username, initial, password, email, admin, enabled, null);
+    }
+
+    @Transactional
+    public void updateUser(int userId, String username, String initial, String password, String email, Boolean admin,
+                           Boolean enabled, String pmUserId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
         if(username != null && !username.isBlank() && !Objects.equals(user.getUsername(), username)) {
@@ -94,6 +116,7 @@ public class UserService {
         }
 
         userRepository.save(user);
+        if (pmUserId != null) requireIntegrationBindings().setUserBinding(user, pmUserId);
     }
 
     public UserEntity getCurrentUser(){
@@ -149,5 +172,10 @@ public class UserService {
             throw new BadRequestException("Email is not valid");
         }
         return normalizedEmail;
+    }
+
+    private IntegrationBindingService requireIntegrationBindings() {
+        if (integrationBindingService == null) throw new IllegalStateException("PM integration service is unavailable");
+        return integrationBindingService;
     }
 }

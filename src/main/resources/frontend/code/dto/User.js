@@ -6,8 +6,10 @@ class User{
     isAdmin
     isEnabled
     forcedClockedOut
+    pmUserId
+    pmProfileName
 
-    constructor(id, username, initial, email, isAdmin, isEnabled, forcedClockedOut) {
+    constructor(id, username, initial, email, isAdmin, isEnabled, forcedClockedOut, pmUserId = null, pmProfileName = null) {
         this.id = id;
         this.username = username;
         this.initial = initial;
@@ -15,6 +17,8 @@ class User{
         this.isAdmin = isAdmin;
         this.isEnabled = isEnabled;
         this.forcedClockedOut = forcedClockedOut
+        this.pmUserId = pmUserId
+        this.pmProfileName = pmProfileName
     }
 
     static fromJson(json){
@@ -26,7 +30,9 @@ class User{
                 json.email,
                 json.admin ?? json.isAdmin,
                 json.enabled ?? json.isEnabled,
-                json.forcedClockedOut
+                json.forcedClockedOut,
+                json.pmUserId,
+                json.pmProfileName
             )
         } catch (e){
             log(e, Levels.WARNING)

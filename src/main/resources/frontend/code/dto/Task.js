@@ -12,8 +12,21 @@ class Task{
     actives
     scheduled
     spent
+    taskRef
+    source
+    provider
+    externalId
+    externalStatus
+    readOnly
+    module
+    type
+    developmentNotes
+    workedOn
+    unmappedScheduledCount
+    unmappedActiveCount
+    managedActiveUserIds
 
-    constructor(id, title, status, projectId, isCompleted, taskOrder, deadline, estimatedTime, creator, description, actives, scheduled, spent) {
+    constructor(id, title, status, projectId, isCompleted, taskOrder, deadline, estimatedTime, creator, description, actives, scheduled, spent, integration = {}) {
         this.id = id;
         this.title = title;
         this.status = status
@@ -27,25 +40,38 @@ class Task{
         this.actives = actives;
         this.scheduled = scheduled;
         this.spent = spent;
+        this.taskRef = integration.taskRef;
+        this.source = integration.source || "LOCAL";
+        this.provider = integration.provider;
+        this.externalId = integration.externalId;
+        this.externalStatus = integration.externalStatus;
+        this.readOnly = integration.readOnly === true;
+        this.module = integration.module;
+        this.type = integration.type;
+        this.developmentNotes = integration.developmentNotes;
+        this.workedOn = integration.workedOn === true;
+        this.unmappedScheduledCount = integration.unmappedScheduledCount || 0;
+        this.unmappedActiveCount = integration.unmappedActiveCount || 0;
+        this.managedActiveUserIds = integration.managedActiveUserIds || [];
     }
 
     static fromJson(json){
         try {
             const actives = [];
 
-            for (const entry of json.actives) {
+            for (const entry of (json.actives || [])) {
                 actives.push(User.fromJson(entry));
             }
 
             const scheduled = [];
 
-            for (const entry of json.scheduled) {
+            for (const entry of (json.scheduled || [])) {
                 scheduled.push(User.fromJson(entry));
             }
 
-            const creator = User.fromJson(json.creator);
+            const creator = json.creator ? User.fromJson(json.creator) : null;
 
-            return new Task(json.id, json.title, json.status, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled, json.spent)
+            return new Task(json.id, json.title, json.status, json.projectId, json.isCompleted, json.taskOrder, json.deadline ? new Date(json.deadline) : null, json.estimatedTime, creator, json.description, actives, scheduled, json.spent, json)
         } catch (e){
             log(e, Levels.WARNING)
             return null;
@@ -58,6 +84,39 @@ class Task{
     </span>`;
     }
     async loadPreview(parent){
+        if (this.readOnly) {
+            const scheduled = this.renderRemoteAvatars(this.scheduled, this.unmappedScheduledCount);
+            const actives = this.renderRemoteAvatars(this.actives, this.unmappedActiveCount);
+            const led = renderLed(this.workedOn ? "green" : "off");
+            const module = this.module
+                ? `<span title="Module: ${escapeHtmlAttr(this.module)}"
+                         class="block w-full truncate text-left text-[11px] font-medium text-gray-700">
+                       ${escapeHtmlAttr(this.module)}
+                   </span>`
+                : "";
+            const type = this.type
+                ? `<span title="Type: ${escapeHtmlAttr(this.type)}"
+                         class="block w-full truncate text-left text-[11px] font-medium text-gray-700">
+                       ${escapeHtmlAttr(this.type)}
+                   </span>`
+                : "";
+            parent.innerHTML += `<div onclick="openModal('${escapeHtmlAttr(this.taskRef)}')"
+                 data-id="${escapeHtmlAttr(this.taskRef)}"
+                 class="task-item relative grid grid-cols-12 items-center h-14 px-4
+                        bg-gradient-to-r from-gray-100 via-gray-200 to-gray-300
+                        border border-gray-500 hover:bg-gray-300 cursor-pointer transition">
+                <div class="col-span-5 grid items-center gap-2 overflow-hidden pr-5"
+                     style="grid-template-columns: minmax(0, 1fr) 7rem 6rem">
+                    <div class="min-w-0 truncate text-left text-gray-900 tracking-wide">${escapeHtmlAttr(this.title)}</div>
+                    <div class="min-w-0">${module}</div>
+                    <div class="min-w-0">${type}</div>
+                </div>
+                <div class="col-span-3 self-stretch flex items-center gap-1 overflow-hidden pl-5 pr-3">${scheduled}</div>
+                <div class="col-span-3 self-stretch flex items-center gap-1 overflow-hidden pl-5 pr-3">${actives}</div>
+                ${led}
+            </div>`;
+            return;
+        }
         let html = await getComponent("task")
 
         const scheduled = renderAvatars(this.scheduled.map(user => user.initial))
@@ -97,6 +156,26 @@ class Task{
     }
 
     async loadFull(parent){
+        if (this.readOnly) {
+            let html = await getComponent("remoteTaskPopup");
+            const currentUser = await getUser();
+            const isActive = this.actives.some(user => user.id === currentUser.id);
+            const isManagedActive = this.managedActiveUserIds.includes(currentUser.id);
+            const timingLabel = isManagedActive ? "CLOCK OUT" : isActive ? "ACTIVE IN PM" : "CLOCK IN";
+            const timingAction = isManagedActive ? `clockOut('${this.taskRef}')` : `clockIn('${this.taskRef}')`;
+            html = updateComponent(html, {
+                title: escapeHtmlAttr(this.title), status: escapeHtmlAttr(this.externalStatus || this.status || "UNKNOWN"),
+                module: escapeHtmlAttr(this.module || ""), type: escapeHtmlAttr(this.type || ""),
+                scheduled: this.renderRemoteAvatars(this.scheduled, this.unmappedScheduledCount),
+                actives: this.renderRemoteAvatars(this.actives, this.unmappedActiveCount),
+                description: escapeHtmlAttr(this.description || ""), developmentNotes: escapeHtmlAttr(this.developmentNotes || ""),
+                isTimed: timingLabel,
+                isTimedAction: timingAction,
+                timingDisabled: isActive && !isManagedActive ? "disabled" : ""
+            });
+            parent.innerHTML += html;
+            return;
+        }
         let html = await getComponent("taskPopup")
 
         const scheduled = renderAvatars(this.scheduled.map(user => user.initial))
@@ -134,11 +213,17 @@ class Task{
             "scheduled": scheduled,
             "status": this.status,
             "isTimed": isActive ? "CLOCK OUT" : "CLOCK IN",
-            "isTimedAction": isActive ? `clockOut(${this.id})` : `clockIn(${this.id})`,
+            "isTimedAction": isActive ? `clockOut('${this.taskRef}')` : `clockIn('${this.taskRef}')`,
             "statusOption": await getDropdownOptions(this.status),
             "isAdmin": currentUser.isAdmin
         })
 
         parent.innerHTML += html;
+    }
+
+    renderRemoteAvatars(users, unmappedCount) {
+        const initials = users.map(user => user.initial);
+        for (let i = 0; i < unmappedCount; i++) initials.push("PM");
+        return renderAvatars(initials);
     }
 }

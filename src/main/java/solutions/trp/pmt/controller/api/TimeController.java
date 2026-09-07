@@ -32,14 +32,14 @@ public class TimeController {
 
     @GetMapping("/summary/full")
     public ResponseEntity<ApiResponse<List<TimeDto>>> getAllTimeSummary() {
-        return ResponseEntity.ok(ApiResponse.ok(timeService.getAllTime().stream().map(TimingEntity::toDto).toList()));
+        return ResponseEntity.ok(ApiResponse.ok(timeService.getAllTimeDtos()));
     }
 
     @GetMapping("/summary")
     public ResponseEntity<ApiResponse<List<TimeDto>>> getAllTimeSummary(
             @RequestParam Integer userId
     ) {
-        return ResponseEntity.ok(ApiResponse.ok(timeService.getAllTimeByUserId(userId).stream().map(TimingEntity::toDto).toList()));
+        return ResponseEntity.ok(ApiResponse.ok(timeService.getAllTimeDtosByUserId(userId)));
     }
 
     @DeleteMapping("/summary")

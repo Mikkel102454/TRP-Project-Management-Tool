@@ -30,9 +30,9 @@ spring:
           cache-public: true
           max-age: 365d
   datasource:
-    password: dbadmin
-    url: jdbc:mysql://localhost:3306/pmt
-    username: dbadmin
+    password:
+    url:
+    username:
 
   jpa:
     hibernate:
@@ -57,9 +57,9 @@ server:
     context-path: /pmt
 
 feature-system:
-  api-server: "https://pm-staging.trp.solutions/feature-api/"
-  auth-id: "xxxx"
-  auth-key: "xxxx"
+  api-server:
+  auth-id:
+  auth-key:
 
 api:
-  key: "fe163b86dccc73b8d1ca69d0c43c1eb01a3636b872cf64161134c903f3552423"
+  key:

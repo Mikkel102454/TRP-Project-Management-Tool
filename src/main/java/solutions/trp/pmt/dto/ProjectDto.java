@@ -11,6 +11,7 @@ public class ProjectDto {
     List<UserDto> scheduled;
     List<UserDto> leader;
     List<TaskDto> tasks;
+    private ProjectIntegrationDto integration;
 
     public int getId() {
         return id;
@@ -75,4 +76,7 @@ public class ProjectDto {
     public void setArchived(boolean archived) {
         this.archived = archived;
     }
+
+    public ProjectIntegrationDto getIntegration() { return integration; }
+    public void setIntegration(ProjectIntegrationDto integration) { this.integration = integration; }
 }

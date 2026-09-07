@@ -22,6 +22,7 @@ import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.dto.TaskDto;
 import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.util.PasswordEncoding;
+import solutions.trp.pmt.service.integration.IntegrationBindingService;
 
 import java.net.URI;
 import java.net.URLEncoder;
@@ -49,9 +50,17 @@ public class TaskService {
     private final UserRepository userRepository;
     private final ScheduledRepository scheduledRepository;
     private final TimeService timeService;
+    private final IntegrationBindingService integrationBindingService;
+
+    public TaskService(TaskRepository repository, ProjectRepository projectRepository, ActiveRepository activeRepository,
+                       AppUserDetailsService appUserDetailsService, TimingRepository timingRepository,
+                       UserRepository userRepository, ScheduledRepository scheduledRepository, TimeService timeService) {
+        this(repository, projectRepository, activeRepository, appUserDetailsService, timingRepository,
+                userRepository, scheduledRepository, timeService, null);
+    }
 
     @Autowired
-    public TaskService(TaskRepository repository, ProjectRepository projectRepository, ActiveRepository activeRepository, AppUserDetailsService appUserDetailsService, TimingRepository timingRepository, UserRepository userRepository, ScheduledRepository scheduledRepository, TimeService timeService) {
+    public TaskService(TaskRepository repository, ProjectRepository projectRepository, ActiveRepository activeRepository, AppUserDetailsService appUserDetailsService, TimingRepository timingRepository, UserRepository userRepository, ScheduledRepository scheduledRepository, TimeService timeService, IntegrationBindingService integrationBindingService) {
         this.repository = repository;
         this.projectRepository = projectRepository;
         this.activeRepository = activeRepository;
@@ -60,6 +69,7 @@ public class TaskService {
         this.userRepository = userRepository;
         this.scheduledRepository = scheduledRepository;
         this.timeService = timeService;
+        this.integrationBindingService = integrationBindingService;
     }
 
     public List<TaskDto> getFromProjectId(int projectId) {
@@ -74,6 +84,7 @@ public class TaskService {
     public void createTask(String title, int projectId, boolean isCompleted, Timestamp deadline, int estimatedTime, String description) {
         ProjectEntity project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Project not found"));
+        requireLocalProject(projectId);
 
         TaskEntity task = new TaskEntity();
         task.setTitle(title);
@@ -95,6 +106,7 @@ public class TaskService {
 
     public void updateTask(String title, int taskId, Boolean isCompleted, Timestamp deadline, Integer estimatedTime, String description, String status){
         TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
+        requireLocalProject(task.getProjectEntity().getId());
 
         if(title != null && !title.isBlank() && !Objects.equals(task.getTitle(), title)) {
             task.setTitle(title);
@@ -172,6 +184,7 @@ public class TaskService {
 
         TaskEntity task = repository.findById(taskId)
                 .orElseThrow(() -> new NotFoundException("Task not found"));
+        requireLocalProject(task.getProjectEntity().getId());
 
         int projectId = task.getProjectEntity().getId();
         int deletedPriority = task.getTaskOrder();
@@ -192,11 +205,12 @@ public class TaskService {
     }
 
     public void scheduleUser(int taskId, int userId) {
+        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
+        requireLocalProject(task.getProjectEntity().getId());
         if(scheduledRepository.existsByUserEntity_IdAndTaskEntity_Id(userId, taskId)) {
             throw new ConflictException("User is already scheduled for this task");
         }
 
-        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
         ScheduledEntity scheduled = new ScheduledEntity();
@@ -207,6 +221,8 @@ public class TaskService {
     }
 
     public void unscheduleUser(int taskId, int userId) {
+        TaskEntity task = repository.findById(taskId).orElseThrow(() -> new NotFoundException("Task not found"));
+        requireLocalProject(task.getProjectEntity().getId());
         if(!scheduledRepository.existsByUserEntity_IdAndTaskEntity_Id(userId, taskId)) {
             throw new ConflictException("User is not scheduled for this task");
         }
@@ -221,6 +237,7 @@ public class TaskService {
 
         TaskEntity task = repository.findById(taskId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
+        requireLocalProject(task.getProjectEntity().getId());
 
         int projectId = task.getProjectEntity().getId();
         int oldPriority = task.getTaskOrder();
@@ -253,5 +270,9 @@ public class TaskService {
         // place task in final position
         task.setTaskOrder(newPriority);
         repository.save(task);
+    }
+
+    private void requireLocalProject(int projectId) {
+        if (integrationBindingService != null) integrationBindingService.requireLocalProject(projectId);
     }
 }

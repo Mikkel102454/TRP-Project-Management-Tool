@@ -190,6 +190,9 @@ public class TaskEntity {
     public TaskDto toDto(TimeService timeService) {
         TaskDto dto = new TaskDto();
         dto.setId(id);
+        dto.setTaskRef("local:" + id);
+        dto.setSource("LOCAL");
+        dto.setReadOnly(false);
         dto.setTitle(title);
         dto.setStatus(status);
         dto.setProjectId(projectEntity.getId());

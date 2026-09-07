@@ -80,6 +80,13 @@ public class TimingEntity {
         TimeDto dto = new TimeDto();
         dto.setId(getId());
         dto.setTaskId(taskEntity.getId());
+        dto.setTaskRef("local:" + taskEntity.getId());
+        dto.setSource("LOCAL");
+        dto.setRemotelyRegistered(false);
+        dto.setReadOnly(false);
+        dto.setProjectId(taskEntity.getProjectEntity().getId());
+        dto.setProjectTitle(taskEntity.getProjectEntity().getTitle());
+        dto.setTaskTitle(taskEntity.getTitle());
         dto.setUserId(userEntity.getId());
         dto.setStartTime(startTime.toInstant().atOffset(ZoneOffset.UTC));
         dto.setEndTime(endTime.toInstant().atOffset(ZoneOffset.UTC));

@@ -8,7 +8,8 @@ public record CreateUserRequest(
         @NotBlank String initial,
         String email,
         Boolean isAdmin,
-        Boolean isEnabled
+        Boolean isEnabled,
+        String pmUserId
 ){
 
 }

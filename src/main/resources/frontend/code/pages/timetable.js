@@ -32,7 +32,7 @@ function renderEntries() {
         let foundProject = null;
 
         for (const project of projects) {
-            const task = project.task?.find(t => t.id === entry.taskId);
+            const task = project.task?.find(t => t.id === entry.taskId || t.taskRef === entry.taskRef);
             if (task) {
                 foundTask = task;
                 foundProject = project;
@@ -49,7 +49,7 @@ ${entry?.attention ? "bg-gradient-to-r from-yellow-100 via-yellow-200 to-yellow-
 border border-gray-500
 `;
 
-        const deleteButton = isAdmin ? `
+        const deleteButton = isAdmin && !entry.remotelyRegistered && !entry.readOnly ? `
     <button class="px-2 py-1 border border-red-700
                    bg-red-500 text-white text-xs
                    hover:bg-red-600"
@@ -60,17 +60,18 @@ border border-gray-500
 
         div.innerHTML = `
 <div class="col-span-3 text-gray-900 truncate">
-    ${foundProject?.title || "UNKNOWN"}
+    ${entry.projectTitle || foundProject?.title || "UNKNOWN"}
 </div>
 
 <div class="col-span-3 text-gray-700 truncate">
-    ${foundTask?.title || "UNKNOWN"}
+    ${entry.taskTitle || foundTask?.title || "UNKNOWN"} ${entry.remotelyRegistered ? '<span class="text-[9px] text-blue-700">PM</span>' : ''}
 </div>
 
 <div class="col-span-2 flex justify-start">
     <input type="datetime-local"
             step="1"
            value="${toDatetimeLocalValue(entry.startTime)}"
+           ${entry.readOnly ? "disabled" : ""}
            class="w-[95%] border border-gray-500 bg-gray-100 text-xs"
            onchange="updateEntry(${entry.id}, this.value, null, this)">
 </div>
@@ -79,6 +80,7 @@ border border-gray-500
     <input type="datetime-local"
            step="1"
            value="${toDatetimeLocalValue(entry.endTime)}"
+           ${entry.readOnly ? "disabled" : ""}
            class="w-[95%] border border-gray-500 bg-gray-100 text-xs"
            onchange="updateEntry(${entry.id}, null, this.value, this)">
 </div>
@@ -105,6 +107,16 @@ border border-gray-500
                 </div>
             `;
     }
+}
+
+function sortTimeEntriesByStart() {
+    timeEntries.sort((a, b) => {
+        const aStart = Date.parse(a?.startTime);
+        const bStart = Date.parse(b?.startTime);
+        const safeAStart = Number.isFinite(aStart) ? aStart : Number.NEGATIVE_INFINITY;
+        const safeBStart = Number.isFinite(bStart) ? bStart : Number.NEGATIVE_INFINITY;
+        return safeBStart - safeAStart || b.id - a.id;
+    });
 }
 
 function getVisibleEntries() {
@@ -242,10 +254,10 @@ function mergeWorkIntervals(segments) {
 
 function getEntryLabel(entry) {
     const project = findProjectForEntry(entry);
-    const task = project?.task?.find(candidate => candidate.id === entry?.taskId);
+    const task = project?.task?.find(candidate => candidate.id === entry?.taskId || candidate.taskRef === entry?.taskRef);
     return {
-        project: project?.title || "UNKNOWN PROJECT",
-        task: task?.title || "UNKNOWN TASK"
+        project: entry?.projectTitle || project?.title || "UNKNOWN PROJECT",
+        task: entry?.taskTitle || task?.title || "UNKNOWN TASK"
     };
 }
 
@@ -480,7 +492,7 @@ function getWeekStartFromIsoValue(value) {
 }
 
 function findProjectForEntry(entry) {
-    return projects.find(project => project.task?.some(task => task.id === entry.taskId));
+    return projects.find(project => project.id === entry.projectId || project.task?.some(task => task.id === entry.taskId || task.taskRef === entry.taskRef));
 }
 
 function hasOpenTaskForUser(project, userId) {
@@ -532,6 +544,7 @@ function populateProjectFilter() {
 
 async function updateEntry(id, startTime, endTime, input) {
     const entry = timeEntries.find(e => e.id === id);
+    if (entry?.readOnly) return;
     if (startTime != null) entry.startTime = startTime;
     if (endTime != null) entry.endTime = endTime;
     renderGapGraph(timeEntries);
@@ -550,6 +563,7 @@ async function update(id, input) {
 
     entry.attention = false;
     input.classList.add("hidden");
+    sortTimeEntriesByStart();
 
     const row = input.closest(".grid");
     if (row.classList.contains("from-yellow-100")) {
@@ -577,7 +591,7 @@ async function loadEntries() {
 
     selectedUserId = Number(params.get("id"));
     timeEntries = await getTimeEntries(selectedUserId) || [];
-    timeEntries.sort((a, b) => b.id - a.id);
+    sortTimeEntriesByStart();
     projects = await getAllProjects();
 
     populateProjectFilter();

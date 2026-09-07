@@ -31,7 +31,7 @@
 
     <div class="flex items-center gap-4">
 
-      <button onclick="openCreateModal()"
+      <button id="new-task-btn" onclick="openCreateModal()"
               class="px-3 py-1 border border-gray-600
                      bg-gradient-to-b from-gray-300 to-gray-500
                      hover:from-gray-400 hover:to-gray-600">
@@ -129,19 +129,31 @@
               th:attr="onclick=|(async () => {
         const confirmDelete = confirm('Delete project?');
         if (!confirmDelete) return;
-        await deleteProject();
-        window.location.replace('@{/}');
+        if (await deleteProject()) window.location.replace('@{/}');
       })()|">
         DELETE
       </button>
     </div>
   </div>
 
+  <div class="flex justify-end mb-3">
+    <select id="task-user-filter"
+            class="w-56 border border-gray-500 bg-gray-100 px-2 py-1 text-xs"
+            onchange="changeTaskUserFilter(this.value)">
+      <option value="all">ALL USERS</option>
+    </select>
+  </div>
+
   <!-- COLUMN LABELS -->
-  <div class="grid grid-cols-12 text-xs text-gray-700 mb-2 px-2 pl-0">
-    <div class="col-span-5">TASK</div>
-    <div class="col-span-3">ASSIGNED</div>
-    <div class="col-span-3">ACTIVE</div>
+  <div class="grid grid-cols-12 text-xs text-gray-700 mb-2 px-4">
+    <div class="col-span-5 grid items-center gap-2 pr-5"
+         style="grid-template-columns: minmax(0, 1fr) 7rem 6rem">
+      <span>TASK</span>
+      <span id="module-column-label" class="hidden text-left text-[10px] tracking-wider">MODULE</span>
+      <span id="type-column-label" class="hidden text-left text-[10px] tracking-wider">TYPE</span>
+    </div>
+    <div class="col-span-3 pl-5 pr-3">ASSIGNED</div>
+    <div class="col-span-3 pl-5 pr-3">ACTIVE</div>
     <div class="col-span-1"></div>
   </div>
 

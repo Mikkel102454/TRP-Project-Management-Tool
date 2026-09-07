@@ -4,6 +4,7 @@ import java.util.List;
 
 public class DashboardDto {
     private UserDto currentUser;
+    private boolean pmConnected;
     private List<UserDto> users;
     private List<ProjectDto> projects;
 
@@ -13,6 +14,14 @@ public class DashboardDto {
 
     public void setCurrentUser(UserDto currentUser) {
         this.currentUser = currentUser;
+    }
+
+    public boolean isPmConnected() {
+        return pmConnected;
+    }
+
+    public void setPmConnected(boolean pmConnected) {
+        this.pmConnected = pmConnected;
     }
 
     public List<UserDto> getUsers() {

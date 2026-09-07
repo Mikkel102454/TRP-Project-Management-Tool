@@ -7,7 +7,8 @@ public record UpdateUserRequest(
         String password,
         String email,
         Boolean isAdmin,
-        Boolean isEnabled
+        Boolean isEnabled,
+        String pmUserId
 ){
 
 }

@@ -4,7 +4,9 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import solutions.trp.pmt.controller.api.execption.NotFoundException;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
 import solutions.trp.pmt.datasource.projects.ProjectEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
@@ -14,6 +16,7 @@ import solutions.trp.pmt.dto.request.*;
 import solutions.trp.pmt.service.ProjectService;
 import solutions.trp.pmt.service.TaskService;
 import solutions.trp.pmt.service.TimeService;
+import solutions.trp.pmt.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,23 +27,28 @@ public class ProjectController {
     private final TaskService taskService;
     private final ProjectService projectService;
     private final TimeService timeService;
+    private final UserService userService;
 
     @Autowired
-    public ProjectController(ProjectService projectService, TaskService taskService, TimeService timeService) {
+    public ProjectController(ProjectService projectService, TaskService taskService, TimeService timeService,
+                             UserService userService) {
         this.projectService = projectService;
         this.taskService = taskService;
         this.timeService = timeService;
+        this.userService = userService;
     }
 
     @GetMapping
     public ResponseEntity<ApiResponse<List<ProjectDto>>> getProjects(
             @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(required = false) String title
+            @RequestParam(required = false) String title,
+            Authentication authentication
     ) {
 
         List<ProjectEntity> projects = projectService.search(title, offset);
 
-        List<ProjectDto> projectDtos = projects.stream().map(project -> project.toDto(timeService)).toList();
+        List<ProjectDto> projectDtos = visibleProjects(projects, authentication).stream()
+                .map(projectService::toDto).toList();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(projectDtos));
@@ -48,28 +56,25 @@ public class ProjectController {
 
     @GetMapping("/{projectId}")
     public ResponseEntity<ApiResponse<ProjectDto>> getProject(
-            @PathVariable int projectId
+            @PathVariable int projectId,
+            Authentication authentication
     ) {
         ProjectEntity project = projectService.getFromId(projectId);
+        requireVisible(project, authentication);
 
-        ProjectDto projectDto = project.toDto(timeService);
+        ProjectDto projectDto = projectService.toDto(project);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(projectDto));
     }
 
     @GetMapping("/details")
-    public ResponseEntity<ApiResponse<List<ProjectDto>>> getAllProjectDetails() {
+    public ResponseEntity<ApiResponse<List<ProjectDto>>> getAllProjectDetails(Authentication authentication) {
 
         List<ProjectEntity> projects = projectService.getAll();
 
-        List<ProjectDto> projectDtos = projects.stream().map(project -> {
-
-            List<TaskDto> tasks = taskService.getFromProjectId(project.getId());
-
-            ProjectDto dto = project.toDto(timeService);
-
-            return dto;
+        List<ProjectDto> projectDtos = visibleProjects(projects, authentication).stream().map(project -> {
+            return projectService.toDto(project);
 
         }).toList();
 
@@ -81,7 +86,7 @@ public class ProjectController {
             @Valid @RequestBody CreateProjectRequest request
     ) {
 
-        projectService.createProject(request.title());
+        projectService.createProject(request.title(), request.pmRelease(), userService.getCurrentUser().getId());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok());
@@ -165,5 +170,25 @@ public class ProjectController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok());
+    }
+
+    private List<ProjectEntity> visibleProjects(List<ProjectEntity> projects, Authentication authentication) {
+        if (hasApiRole(authentication)) return projects;
+        int userId = userService.getCurrentUser().getId();
+        return projects.stream()
+                .filter(project -> projectService.isVisibleToUser(project, userId))
+                .toList();
+    }
+
+    private void requireVisible(ProjectEntity project, Authentication authentication) {
+        if (hasApiRole(authentication)) return;
+        if (!projectService.isVisibleToUser(project, userService.getCurrentUser().getId())) {
+            throw new NotFoundException("Could not find project with id: " + project.getId());
+        }
+    }
+
+    private boolean hasApiRole(Authentication authentication) {
+        return authentication != null && authentication.getAuthorities().stream()
+                .anyMatch(authority -> "ROLE_API".equals(authority.getAuthority()));
     }
 }

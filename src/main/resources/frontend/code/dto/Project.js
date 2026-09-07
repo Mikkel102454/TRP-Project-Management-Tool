@@ -7,8 +7,9 @@ class Project{
     leader
     task
     archived
+    integration
 
-    constructor(id, title, projectOrder, isWorkedOn, scheduled, leader, task, archived) {
+    constructor(id, title, projectOrder, isWorkedOn, scheduled, leader, task, archived, integration) {
         this.id = id;
         this.title = title;
         this.projectOrder = projectOrder;
@@ -17,6 +18,7 @@ class Project{
         this.leader = leader;
         this.task = task;
         this.archived = archived;
+        this.integration = integration;
     }
 
     static fromJson(json){
@@ -40,7 +42,7 @@ class Project{
             }
 
 
-            return new Project(json.id, json.title, json.projectOrder, json.isWorkedOn, scheduled, leaders, tasks, json.archived)
+            return new Project(json.id, json.title, json.projectOrder, json.isWorkedOn, scheduled, leaders, tasks, json.archived, json.integration || null)
         } catch (e){
             log(e, Levels.WARNING)
             return null;

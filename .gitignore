@@ -38,3 +38,6 @@ out/
 
 ### OTHER ###
 logs
+
+application-dev.yml
+test

@@ -8,6 +8,8 @@ function openCreateModal() {
     document.getElementById("usernameInput").value = "";
     document.getElementById("passwordInput").value = "";
     document.getElementById("emailInput").value = "";
+    document.getElementById("pmUserIdInput").value = "";
+    document.getElementById("pmProfileName").textContent = "";
     document.getElementById("passwordInput").placeholder = "At least 3 characters or more";
     document.getElementById("roleInput").value = "USER";
     document.getElementById("enabledInput").checked = true;
@@ -21,6 +23,8 @@ function openEditModal(user) {
     document.getElementById("usernameInput").value = user.username;
     document.getElementById("passwordInput").value = "";
     document.getElementById("emailInput").value = user.email || "";
+    document.getElementById("pmUserIdInput").value = user.pmUserId || "";
+    document.getElementById("pmProfileName").textContent = user.pmProfileName ? `${user.pmProfileName}` : "";
     document.getElementById("passwordInput").placeholder = "Leave empty to keep current";
     document.getElementById("roleInput").value = user.isAdmin ? "ADMIN" : "USER";
     document.getElementById("enabledInput").checked = user.isEnabled;
@@ -45,12 +49,16 @@ async function saveUser() {
     const email = document.getElementById("emailInput").value;
     const role = document.getElementById("roleInput").value;
     const isEnabled = document.getElementById("enabledInput").checked;
+    const pmUserId = document.getElementById("pmUserIdInput").value;
 
+    let saved;
     if (id) {
-        await updateUser(id, username, password, email, role === "ADMIN", isEnabled);
+        saved = await updateUser(id, username, password, email, role === "ADMIN", isEnabled, pmUserId);
     } else {
-        await createUser(username, password, email, role === "ADMIN", isEnabled);
+        saved = await createUser(username, password, email, role === "ADMIN", isEnabled, pmUserId);
     }
+
+    if (!saved) return;
 
     closeModal();
     loadUsers();
@@ -95,6 +103,7 @@ function renderUsers() {
                 <div class="truncate text-[11px] text-gray-600">
                     ${user.email || ""}
                 </div>
+                <div class="truncate text-[10px] text-gray-600">${user.pmProfileName ? `PM: ${user.pmProfileName} (#${user.pmUserId})` : "NO PM ACCOUNT"}</div>
             </div>
         </div>
 
@@ -117,7 +126,7 @@ function renderUsers() {
 }
 
 async function loadUsers() {
-    users = await getAllUsers();
+    users = await getAdminUsers();
     renderUsers();
 }
 

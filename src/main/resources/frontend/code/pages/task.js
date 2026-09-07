@@ -1,5 +1,7 @@
 let project;
 let openTask;
+let selectedTaskUserId = "all";
+let taskUserFilterStorageKey = null;
 async function loadProject() {
     const params = new URLSearchParams(window.location.search);
 
@@ -9,7 +11,61 @@ async function loadProject() {
     const projectId = params.get('id');
     project = await getProject(projectId);
 
+    if (!project) return;
+
     document.getElementById("title").textContent = project.title
+
+    const integrated = !!project.integration;
+    const currentUser = await getUser();
+    taskUserFilterStorageKey = currentUser
+        ? `taskUserFilter:${currentUser.id}:${project.id}`
+        : `taskUserFilter:${project.id}`;
+    populateTaskUserFilter(currentUser, integrated);
+
+    document.getElementById("new-task-btn").classList.toggle("hidden", integrated);
+    document.getElementById("module-column-label").classList.toggle("hidden", !integrated);
+    document.getElementById("type-column-label").classList.toggle("hidden", !integrated);
+    await renderProjectTasks();
+}
+
+function populateTaskUserFilter(currentUser, integrated) {
+    const select = document.getElementById("task-user-filter");
+    const assignedUsers = new Map();
+
+    for (const task of project.task) {
+        for (const user of task.scheduled || []) assignedUsers.set(user.id, user);
+    }
+
+    if (integrated && currentUser) assignedUsers.set(currentUser.id, currentUser);
+
+    select.innerHTML = '<option value="all">ALL USERS</option>';
+    [...assignedUsers.values()]
+        .sort((left, right) => left.username.localeCompare(right.username))
+        .forEach(user => {
+            const option = document.createElement("option");
+            option.value = String(user.id);
+            option.textContent = user.username;
+            select.appendChild(option);
+        });
+
+    const defaultUserId = integrated && currentUser ? String(currentUser.id) : "all";
+    const savedUserId = taskUserFilterStorageKey
+        ? localStorage.getItem(taskUserFilterStorageKey)
+        : null;
+    selectedTaskUserId = [...select.options].some(option => option.value === savedUserId)
+        ? savedUserId
+        : defaultUserId;
+    select.value = selectedTaskUserId;
+}
+
+function changeTaskUserFilter(userId) {
+    selectedTaskUserId = userId;
+    if (taskUserFilterStorageKey) localStorage.setItem(taskUserFilterStorageKey, userId);
+    renderProjectTasks();
+}
+
+async function renderProjectTasks() {
+    if (!project) return;
 
     const taskHolder = document.getElementById("tasks");
     const taskHolderFinished = document.getElementById("tasks-finished");
@@ -22,14 +78,20 @@ async function loadProject() {
     taskHolderFinished.innerHTML = "";
     taskHolderClosed.innerHTML = "";
 
+    const integrated = !!project.integration;
+    if (integrated && project.integration.available === false) {
+        taskHolder.innerHTML = `<div class="border border-red-500 bg-red-100 text-red-800 px-3 py-4">PM TASKS UNAVAILABLE</div>`;
+    }
+
     for (let task of project.task) {
+        if (selectedTaskUserId !== "all" && !taskHasAssignedUser(task, Number(selectedTaskUserId))) continue;
         let holder;
 
-        if (task.status === "FINISHED") {
+        if (!integrated && task.status === "FINISHED") {
             holder = taskHolderFinished;
             hasFinishedTasks = true;
 
-        } else if (task.status === "CLOSED") {
+        } else if (!integrated && task.status === "CLOSED") {
             holder = taskHolderClosed;
             hasClosedTasks = true;
 
@@ -42,18 +104,28 @@ async function loadProject() {
 
     taskHolderFinishedHeader.classList.toggle(
         "hidden",
-        !hasFinishedTasks
+        integrated || !hasFinishedTasks
     );
 
     taskHolderClosedHeader.classList.toggle(
         "hidden",
-        !hasClosedTasks
+        integrated || !hasClosedTasks
     );
+}
+
+function taskHasAssignedUser(task, userId) {
+    return task.scheduled?.some(user => user.id === userId) || false;
 }
 
 async function openModal(id){
     for (let task of project.task) {
-        if(task.id !== id) continue;
+        if(task.id !== id && task.taskRef !== id) continue;
+
+        if (task.readOnly) {
+            const details = await getRemoteTaskDetails(task.taskRef);
+            if (!details) return;
+            task = details;
+        }
 
         const popupHolder = document.getElementById("popupHolder");
         popupHolder.innerHTML = "";
@@ -61,16 +133,15 @@ async function openModal(id){
 
         const modal = document.getElementById('taskModal');
 
-        initUserPicker(
-            modal,
-            await getAllUsers(),
-            task.scheduled
-        );
-        openTask = task.id;
+        if (!task.readOnly) {
+            initUserPicker(modal, await getAllUsers(), task.scheduled);
+            openTask = task.id;
+        }
     }
 }
 
 async function openCreateModal(){
+    if (project.integration) return;
     let html = await getComponent("taskCreate")
 
     const popupHolder = document.getElementById("popupHolder");
@@ -119,7 +190,7 @@ async function removeUserToProject(userId) {
 }
 
 async function deleteProject(){
-    await removeProject(project.id)
+    return await removeProject(project.id)
 }
 
 async function deleteTask(id){
@@ -148,6 +219,7 @@ function initTaskDragAndDrop() {
     placeholder.className = "h-14 border border-gray-500 bg-gray-300 mx-0 my-1 opacity-60";
 
     list.addEventListener("dragstart", (e) => {
+        if (project?.integration) return;
         if (!e.target.closest("#tasks")) return;
 
         const item = e.target.closest(".task-item");

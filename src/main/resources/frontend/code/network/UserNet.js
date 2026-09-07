@@ -1,4 +1,4 @@
-async function createUser(username, password, email, isAdmin, isEnabled) {
+async function createUser(username, password, email, isAdmin, isEnabled, pmUserId = null) {
     try {
         if(username === null || username === "") {
             log("Username cannot be empty", Levels.SEVERE);
@@ -20,6 +20,7 @@ async function createUser(username, password, email, isAdmin, isEnabled) {
         if (email != null) body.email = email;
         if (isAdmin != null) body.isAdmin = isAdmin;
         if (isEnabled != null) body.isEnabled = isEnabled;
+        if (pmUserId != null) body.pmUserId = pmUserId;
 
         // optional: generate initial from username if provided
         if (username != null) {
@@ -35,6 +36,7 @@ async function createUser(username, password, email, isAdmin, isEnabled) {
         });
 
         const data = await response.json();
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
 
     } catch (e) {
@@ -43,7 +45,7 @@ async function createUser(username, password, email, isAdmin, isEnabled) {
     }
 }
 
-async function updateUser(id, username, password, email, isAdmin, isEnabled) {
+async function updateUser(id, username, password, email, isAdmin, isEnabled, pmUserId = null) {
     try {
         if(username != null && username.length !== 0 && username === "") {
             log("Username cannot be empty", Levels.SEVERE);
@@ -65,6 +67,7 @@ async function updateUser(id, username, password, email, isAdmin, isEnabled) {
         if (email != null) body.email = email;
         if (isAdmin != null) body.isAdmin = isAdmin;
         if (isEnabled != null) body.isEnabled = isEnabled;
+        if (pmUserId != null) body.pmUserId = pmUserId;
 
         if (username != null) {
             body.initial = username.substring(0, 2).toUpperCase();
@@ -79,6 +82,7 @@ async function updateUser(id, username, password, email, isAdmin, isEnabled) {
         });
 
         const data = await response.json();
+        if (!data.success && data.error?.message) log(data.error.message, Levels.SEVERE);
         return data.success;
 
     } catch (e) {
@@ -201,5 +205,16 @@ async function getAllUsers() {
     } catch (e) {
         log(e, Levels.SEVERE);
         return false;
+    }
+}
+
+async function getAdminUsers() {
+    try {
+        const response = await fetch(`${API_ROOT}/admin/user`);
+        const data = await response.json();
+        return data.success ? data.data.map(user => User.fromJson(user)) : [];
+    } catch (e) {
+        log(e, Levels.SEVERE);
+        return [];
     }
 }

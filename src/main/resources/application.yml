@@ -26,3 +26,7 @@ spring:
 pmt:
   mail:
     enabled: false
+
+feature-system:
+  connect-timeout: 5s
+  request-timeout: 15s

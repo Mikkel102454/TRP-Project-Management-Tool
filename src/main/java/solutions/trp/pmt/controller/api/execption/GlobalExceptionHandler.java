@@ -8,9 +8,29 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import solutions.trp.pmt.controller.api.response.ApiErrorCode;
 import solutions.trp.pmt.controller.api.response.ApiResponse;
+import solutions.trp.pmt.integration.IntegrationException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    @ExceptionHandler(IntegrationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIntegration(IntegrationException ex) {
+        ApiErrorCode code = switch (ex.getFailure()) {
+            case AUTHENTICATION -> ApiErrorCode.INTEGRATION_AUTHENTICATION;
+            case TIMEOUT -> ApiErrorCode.INTEGRATION_TIMEOUT;
+            case INVALID_ACCOUNT -> ApiErrorCode.INTEGRATION_INVALID_ACCOUNT;
+            case NOT_FOUND -> ApiErrorCode.INTEGRATION_NOT_FOUND;
+            case BAD_REQUEST -> ApiErrorCode.BAD_REQUEST;
+            case UNAVAILABLE -> ApiErrorCode.INTEGRATION_UNAVAILABLE;
+        };
+        int status = switch (ex.getFailure()) {
+            case INVALID_ACCOUNT, BAD_REQUEST -> 400;
+            case NOT_FOUND -> 404;
+            case TIMEOUT -> 504;
+            case AUTHENTICATION, UNAVAILABLE -> 503;
+        };
+        return ResponseEntity.status(status).body(ApiResponse.fail(code, ex.getMessage()));
+    }
 
     /* ===================== 401 ===================== */
 

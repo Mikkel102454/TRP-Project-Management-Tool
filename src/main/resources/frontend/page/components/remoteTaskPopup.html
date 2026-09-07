@@ -1,0 +1,22 @@
+<div id="taskModal" class="fixed inset-0 bg-black/40 flex items-center justify-center font-mono text-sm">
+  <div class="relative w-full max-w-lg border border-gray-600 bg-gradient-to-b from-gray-200 to-gray-300 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+    <div class="flex justify-between items-center px-4 py-2 border-b border-gray-500 bg-gradient-to-b from-gray-300 to-gray-400">
+      <span class="tracking-wider text-gray-800 truncate block">{{title}}</span>
+      <button onclick="document.getElementById('taskModal').remove()" class="px-2 border border-gray-600 bg-gray-300 hover:bg-gray-400">✕</button>
+    </div>
+    <div class="p-4 space-y-3 text-gray-800">
+      <div class="grid grid-cols-4 gap-3"><span class="text-xs text-gray-700">STATUS</span><span class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100">{{status}}</span></div>
+      <div class="grid grid-cols-4 gap-3"><span class="text-xs text-gray-700">MODULE / TYPE</span><span class="col-span-3 px-2 py-1 border border-gray-500 bg-gray-100">{{module}} / {{type}}</span></div>
+      <div class="grid grid-cols-4 gap-3"><span class="text-xs text-gray-700">ASSIGNED</span><div class="col-span-3">{{scheduled}}</div></div>
+      <div class="grid grid-cols-4 gap-3"><span class="text-xs text-gray-700">ACTIVE</span><div class="col-span-3">{{actives}}</div></div>
+      <div class="grid grid-cols-4 gap-3"><span class="text-xs text-gray-700">DESCRIPTION</span><div class="col-span-3 min-h-16 px-3 py-2 border border-gray-500 bg-gray-100 whitespace-pre-wrap">{{description}}</div></div>
+      <div class="grid grid-cols-4 gap-3"><span class="text-xs text-gray-700">DEV NOTES</span><div class="col-span-3 min-h-16 px-3 py-2 border border-gray-500 bg-gray-100 whitespace-pre-wrap">{{developmentNotes}}</div></div>
+      <div class="text-[10px] text-gray-600">This task is managed by PM and is read only here.</div>
+    </div>
+    <div class="flex justify-end px-4 py-3 border-t border-gray-500 bg-gradient-to-t from-gray-300 to-gray-200">
+      <button class="px-3 py-1 border border-gray-700 bg-gradient-to-b from-gray-500 to-gray-700 text-white hover:from-gray-600 hover:to-gray-800 disabled:opacity-60 disabled:cursor-not-allowed"
+              {{timingDisabled}}
+              onclick="(async () => { await {{isTimedAction}}; await loadProject(); document.getElementById('taskModal').remove(); })()">{{isTimed}}</button>
+    </div>
+  </div>
+</div>

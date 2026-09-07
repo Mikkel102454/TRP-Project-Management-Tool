@@ -1,7 +1,7 @@
 let loadedProjects = [];
 let selectedUserId = "all";
-let showOwnAssignedOnly = false;
 let currentDashboardUser = null;
+let currentDashboardPmConnected = false;
 let draggedProject = null;
 let isProjectDragging = false;
 
@@ -28,6 +28,7 @@ async function loadDashboardBootstrap() {
         if (!data.success) return false;
 
         UserDto = User.fromJson(data.data.currentUser);
+        currentDashboardPmConnected = data.data.pmConnected === true;
         AllUsers = data.data.users.map(user => User.fromJson(user)).filter(user => user !== null);
         loadedProjects = data.data.projects.map(project => Project.fromJson(project)).filter(project => project !== null);
 
@@ -44,7 +45,6 @@ async function renderProjects() {
 
     const projects = loadedProjects.filter(project => {
         if(project.archived) return false;
-        if(showOwnAssignedOnly && !hasAssignedTaskForUser(project, currentDashboardUser?.id)) return false;
         if(selectedUserId !== "all" && !hasAssignedTaskForUser(project, Number(selectedUserId))) return false;
         return true;
     });
@@ -66,7 +66,7 @@ async function renderProjects() {
 }
 
 function canReorderProjects() {
-    return selectedUserId === "all" && !showOwnAssignedOnly;
+    return selectedUserId === "all";
 }
 
 function updateProjectDragState() {
@@ -226,6 +226,9 @@ async function openCreateModal(){
 
     const popupHolder = document.getElementById("popupHolder");
     popupHolder.innerHTML = html;
+    if (!currentDashboardPmConnected) {
+        document.getElementById("projectPmReleaseField")?.remove();
+    }
 }
 
 initializeDashboard();
