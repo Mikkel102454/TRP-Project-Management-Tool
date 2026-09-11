@@ -49,6 +49,8 @@ spring:
 pmt:
   mail:
     enabled: true
+  display:
+    token:
 
 server:
   port: 8080

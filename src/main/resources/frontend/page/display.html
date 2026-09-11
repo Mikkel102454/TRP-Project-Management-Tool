@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Project Display</title>
+    <link th:href="@{/style/style.css}" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+</head>
+
+<body class="bg-gradient-to-b from-gray-300 to-gray-200 min-h-screen font-mono text-sm">
+<main class="max-w-6xl mx-auto px-6 py-4">
+    <div class="grid grid-cols-12 text-gray-700 text-xs mb-2 px-2">
+        <div class="col-span-6">PROJECT</div>
+        <div class="col-span-3">SCHEDULE</div>
+        <div class="col-span-2">TASKS</div>
+        <div class="col-span-1 text-right">STATUS</div>
+    </div>
+
+    <div id="displayStatus" class="hidden bg-gray-200 border border-gray-500 px-4 py-2 mb-2 text-gray-900"></div>
+
+    <div id="projects" class="flex flex-col gap-2">
+        <div class="bg-gray-200 border border-gray-500 px-4 py-3">
+            Loading projects...
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    let CONTEXT_PATH = /*[[@{/}]]*/ '/';
+    CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+</script>
+
+<script th:if="${scriptBundle != null}" th:src="${scriptBundle}"></script>
+</body>
+</html>

@@ -21,18 +21,24 @@ import solutions.trp.pmt.util.PasswordEncoding;
 public class SecurityConfig {
     private final AppUserDetailsService userDetailsService;
     private final ApiKeyFilter apiKeyFilter;
+    private final DisplayTokenFilter displayTokenFilter;
 
-    public SecurityConfig(AppUserDetailsService userDetailsService, ApiKeyFilter apiKeyFilter) {
+    public SecurityConfig(AppUserDetailsService userDetailsService, ApiKeyFilter apiKeyFilter,
+                          DisplayTokenFilter displayTokenFilter) {
         this.userDetailsService = userDetailsService;
         this.apiKeyFilter = apiKeyFilter;
+        this.displayTokenFilter = displayTokenFilter;
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .addFilterBefore(apiKeyFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(displayTokenFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/display/**").hasRole("DISPLAY")
+                        .requestMatchers("/display").hasRole("DISPLAY")
                         .requestMatchers(HttpMethod.DELETE, "/api/time/summary").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/time/summary").permitAll()
                         .requestMatchers(HttpMethod.PATCH, "/api/time/summary").permitAll()
