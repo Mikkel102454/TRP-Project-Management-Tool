@@ -16,9 +16,9 @@ import solutions.trp.pmt.integration.ExternalUserProfile;
 import solutions.trp.pmt.integration.feature.FeatureApiClient;
 
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.EnumSet;
 
 @Service
 public class IntegrationBindingService {
@@ -149,7 +149,8 @@ public class IntegrationBindingService {
                 && (normalized == null || existing.isEmpty() || !normalized.equals(existing.get().getRemoteAccountId()))) {
             throw new ConflictException("Stop the active PM timer before changing or removing the PM user ID");
         }
-        if (operationRepository.existsByUserEntity_IdAndProviderAndStateIn(user.getId(), FeatureApiClient.PROVIDER_KEY, recoverableStates())
+        if (operationRepository.existsByUserEntity_IdAndProviderAndTypeInAndStateIn(user.getId(),
+                FeatureApiClient.PROVIDER_KEY, bindingSensitiveOperationTypes(), recoverableStates())
                 && (normalized == null || existing.isEmpty() || !normalized.equals(existing.get().getRemoteAccountId()))) {
             throw new ConflictException("Wait for pending PM timer operations before changing the PM user ID");
         }
@@ -211,5 +212,9 @@ public class IntegrationBindingService {
         return EnumSet.of(IntegrationOperationEntity.State.PENDING_REMOTE,
                 IntegrationOperationEntity.State.REMOTE_APPLIED,
                 IntegrationOperationEntity.State.RECONCILIATION_REQUIRED);
+    }
+
+    private static EnumSet<IntegrationOperationEntity.Type> bindingSensitiveOperationTypes() {
+        return EnumSet.of(IntegrationOperationEntity.Type.START, IntegrationOperationEntity.Type.STOP);
     }
 }

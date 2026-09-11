@@ -1,6 +1,8 @@
 package solutions.trp.pmt.service;
 
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +32,8 @@ import java.util.List;
 
 @Service
 public class ProjectService {
+    private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+
     private final ProjectRepository repository;
     private final UserRepository userRepository;
     private final LeaderRepository leaderRepository;
@@ -214,6 +218,9 @@ public class ProjectService {
             dto.setIsWorkedOn(tasks.stream().anyMatch(TaskDto::isWorkedOn));
             integration.setAvailable(true);
         } catch (IntegrationException exception) {
+            logger.warn("PM tasks unavailable for project binding {} (provider={}, scope={}, failure={}): {}",
+                    binding.getId(), binding.getProvider(), binding.getScope(), exception.getFailure(),
+                    exception.getMessage(), exception);
             dto.setTasks(List.of());
             dto.setScheduled(List.of());
             dto.setIsWorkedOn(false);

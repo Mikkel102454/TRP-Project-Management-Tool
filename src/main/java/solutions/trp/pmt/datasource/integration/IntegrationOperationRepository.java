@@ -9,6 +9,8 @@ import java.util.List;
 public interface IntegrationOperationRepository extends JpaRepository<IntegrationOperationEntity, String> {
     List<IntegrationOperationEntity> findAllByStateInAndUpdatedAtBefore(Collection<IntegrationOperationEntity.State> states, Instant updatedAt);
     boolean existsByProjectBinding_IdAndStateIn(long bindingId, Collection<IntegrationOperationEntity.State> states);
-    boolean existsByUserEntity_IdAndProviderAndStateIn(int userId, String provider, Collection<IntegrationOperationEntity.State> states);
+    boolean existsByUserEntity_IdAndProviderAndTypeInAndStateIn(int userId, String provider,
+                                                                Collection<IntegrationOperationEntity.Type> types,
+                                                                Collection<IntegrationOperationEntity.State> states);
     void deleteAllByProjectBinding_Id(long bindingId);
 }

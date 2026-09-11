@@ -33,6 +33,8 @@ import java.util.Locale;
 
 @Service
 public class JsonPaper {
+    private static final String DEVICE_FONT = "helvetica";
+
     private final ResourceLoader resourceLoader;
     private final TaskRepository taskRepository;
     private final TimingRepository timingRepository;
@@ -126,32 +128,11 @@ public class JsonPaper {
                             Color.BLACK
                     )
                     .circle(175, 157, 7, Color.RED, Width.W1, FillMode.FULL)
-                    .text(
-                            195,
-                            150,
-                            "Todo",
-                            Font.FONT_16,
-                            Color.RED,
-                            Color.TRANSPARENT
-                    )
+                    .text(label(195, 150, 100, 22, "Todo", 16, Color.RED))
                     .circle(175, 187, 7, Color.YELLOW, Width.W1, FillMode.FULL)
-                    .text(
-                            195,
-                            180,
-                            "Awaiting",
-                            Font.FONT_16,
-                            Color.YELLOW,
-                            Color.TRANSPARENT
-                    )
+                    .text(label(195, 180, 100, 22, "Awaiting", 16, Color.YELLOW))
                     .circle(175, 217, 7, Color.BLACK, Width.W1, FillMode.FULL)
-                    .text(
-                            195,
-                            210,
-                            "Finished",
-                            Font.FONT_16,
-                            Color.BLACK,
-                            Color.TRANSPARENT
-                    );
+                    .text(label(195, 210, 100, 22, "Finished", 16, Color.BLACK));
 
             int chartLeft = 320;
             int chartTop = 10;
@@ -219,35 +200,38 @@ public class JsonPaper {
                     );
                 }
 
-                display.text(
-                        barCenter - 10,
+                display.text(label(
+                        barCenter - 20,
                         165,
+                        40,
+                        16,
                         workDayLabels[barIndex],
-                        Font.FONT_12,
-                        Color.BLACK,
-                        Color.TRANSPARENT
-                );
+                        12,
+                        Color.BLACK
+                ));
             }
 
             long totalWorkSeconds = timingRepository.sumTime(null, null);
             long totalWorkHours = Math.round(totalWorkSeconds / 3600.0);
             display
-                    .text(
+                    .text(label(
                             320,
                             210,
+                            300,
+                            22,
                             "Total hours spend: " + totalWorkHours,
-                            Font.FONT_16,
-                            Color.BLACK,
-                            Color.TRANSPARENT
-                    )
-                    .text(
+                            16,
+                            Color.BLACK
+                    ))
+                    .text(label(
                             320,
                             240,
+                            300,
+                            22,
                             "Total Projects: " + projects.size(),
-                            Font.FONT_16,
-                            Color.BLACK,
-                            Color.TRANSPARENT
-                    );
+                            16,
+                            Color.BLACK
+                    ));
 
             return display.toJson();
         } catch (Exception e){ return ""; }
@@ -342,14 +326,18 @@ public class JsonPaper {
         );
         String tickText = Integer.toString(hour);
 
-        display.text(
-                chartLeft - tickText.length() * 8 - 6,
-                Math.max(chartTop, Math.min(chartBottom - 12, tickY - 6)),
-                tickText,
-                Font.FONT_12,
-                Color.BLACK,
-                Color.TRANSPARENT
-        );
+        display.text(TextBox.builder(
+                        chartLeft - 40,
+                        Math.max(chartTop, Math.min(chartBottom - 12, tickY - 6)),
+                        34,
+                        16
+                )
+                .horizontalAlign(HorizontalAlign.RIGHT)
+                .span(TextSpan.builder(tickText)
+                        .family(DEVICE_FONT)
+                        .size(12)
+                        .build())
+                .build());
 
         if (hour != maxWorkHours) {
             display.line(
@@ -362,5 +350,23 @@ public class JsonPaper {
                     LineStyle.DOTTED
             );
         }
+    }
+
+    private static TextBox label(
+            int x,
+            int y,
+            int width,
+            int height,
+            String text,
+            int size,
+            Color color
+    ) {
+        return new TextBox(x, y, width, height, List.of(
+                TextSpan.builder(text)
+                        .family(DEVICE_FONT)
+                        .size(size)
+                        .color(color)
+                        .build()
+        ));
     }
 }
