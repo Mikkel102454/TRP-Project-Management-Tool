@@ -20,6 +20,7 @@ async function openCreateModal(){
 
     const popupHolder = document.getElementById("popupHolder");
     popupHolder.innerHTML = html;
+    document.getElementById("projectTitleInput")?.focus();
 }
 
 loadProjects();

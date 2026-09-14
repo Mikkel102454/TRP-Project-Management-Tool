@@ -69,7 +69,9 @@ public class SecurityConfig {
                 .headers(headers -> headers
                         .cacheControl(HeadersConfigurer.CacheControlConfig::disable)
                 )
-                .rememberMe(rememberMe -> rememberMe.key("jsR8IZVS2M|6)wf"))
+                .rememberMe(rememberMe -> rememberMe
+                        .key("jsR8IZVS2M|6)wf")
+                        .alwaysRemember(true))
                 .build();
     }
 

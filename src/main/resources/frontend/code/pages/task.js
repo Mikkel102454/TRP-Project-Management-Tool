@@ -146,6 +146,7 @@ async function openCreateModal(){
 
     const popupHolder = document.getElementById("popupHolder");
     popupHolder.innerHTML = html;
+    document.getElementById("taskTitleInput")?.focus();
 }
 
 async function openRenameModal(){

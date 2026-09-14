@@ -229,6 +229,7 @@ async function openCreateModal(){
     if (!currentDashboardPmConnected) {
         document.getElementById("projectPmReleaseField")?.remove();
     }
+    document.getElementById("projectTitleInput")?.focus();
 }
 
 initializeDashboard();
