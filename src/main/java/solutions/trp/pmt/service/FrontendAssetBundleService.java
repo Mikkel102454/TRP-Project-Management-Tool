@@ -50,7 +50,7 @@ public class FrontendAssetBundleService {
                     "util/led.js", "util/status.js", "util/logger.js", "util/components.js", "util/avatar.js",
                     "util/time.js", "util/user.js", "util/string.js", "consts.js", "dto/User.js", "dto/Task.js",
                     "dto/Project.js", "util/header.js", "util/page.js", "network/ProjectNet.js", "network/TaskNet.js",
-                    "pages/task.js"
+                    "util/taskPopup.js", "pages/task.js"
             ),
             "setup", List.of(
                     "util/led.js", "util/logger.js", "util/components.js", "util/avatar.js", "util/user.js",

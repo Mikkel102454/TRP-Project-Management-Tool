@@ -38,9 +38,21 @@ public class TimeService {
     private final IntegrationTimeEntryRepository integrationTimeEntryRepository;
     private final IntegrationTimeCoordinator integrationTimeCoordinator;
     private final IntegrationBindingService integrationBindingService;
+    private final SidekickCountdownService countdownService;
 
     public TimeService(TimingRepository timingRepository, ActiveRepository activeRepository, AppUserDetailsService appUserDetailsService, TaskRepository taskRepository, UserRepository userRepository) {
         this(timingRepository, activeRepository, appUserDetailsService, taskRepository, userRepository, null, null, null, null);
+    }
+
+    public TimeService(TimingRepository timingRepository, ActiveRepository activeRepository,
+                       AppUserDetailsService appUserDetailsService, TaskRepository taskRepository,
+                       UserRepository userRepository, IntegrationActiveRepository integrationActiveRepository,
+                       IntegrationTimeEntryRepository integrationTimeEntryRepository,
+                       IntegrationTimeCoordinator integrationTimeCoordinator,
+                       IntegrationBindingService integrationBindingService) {
+        this(timingRepository, activeRepository, appUserDetailsService, taskRepository, userRepository,
+                integrationActiveRepository, integrationTimeEntryRepository, integrationTimeCoordinator,
+                integrationBindingService, null);
     }
 
     @Autowired
@@ -49,7 +61,7 @@ public class TimeService {
                        UserRepository userRepository, IntegrationActiveRepository integrationActiveRepository,
                        IntegrationTimeEntryRepository integrationTimeEntryRepository,
                        IntegrationTimeCoordinator integrationTimeCoordinator,
-                       IntegrationBindingService integrationBindingService) {
+                       IntegrationBindingService integrationBindingService, SidekickCountdownService countdownService) {
         this.timingRepository = timingRepository;
         this.activeRepository = activeRepository;
         this.appUserDetailsService = appUserDetailsService;
@@ -59,6 +71,7 @@ public class TimeService {
         this.integrationTimeEntryRepository = integrationTimeEntryRepository;
         this.integrationTimeCoordinator = integrationTimeCoordinator;
         this.integrationBindingService = integrationBindingService;
+        this.countdownService = countdownService;
     }
 
     public int calculateTime(int taskId, List<TimingEntity> timings) {
@@ -210,7 +223,10 @@ public class TimeService {
     private void startTime(UserEntity user, Integer taskId, String taskRef) {
         if (taskRef != null && !taskRef.isBlank()) {
             if (taskRef.startsWith("local:")) startLocal(parseLocalTaskRef(taskRef), user);
-            else integrationTimeCoordinator.start(user, taskRef);
+            else {
+                integrationTimeCoordinator.start(user, taskRef);
+                if (countdownService != null) countdownService.clear(user.getId());
+            }
             return;
         }
         if (taskId == null) throw new solutions.trp.pmt.controller.api.execption.BadRequestException("taskId or taskRef is required");
@@ -261,6 +277,7 @@ public class TimeService {
         active.setStamp(Timestamp.from(Instant.now()));
 
         activeRepository.save(active);
+        if (countdownService != null) countdownService.clear(user.getId());
     }
 
     public void stopTimeUser(int taskId) {

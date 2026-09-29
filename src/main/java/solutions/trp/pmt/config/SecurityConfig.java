@@ -37,6 +37,7 @@ public class SecurityConfig {
                 .addFilterBefore(displayTokenFilter, UsernamePasswordAuthenticationFilter.class)
 
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.GET, "/api/gadget/sidekick/config").permitAll()
                         .requestMatchers("/api/display/**").hasRole("DISPLAY")
                         .requestMatchers("/display").hasRole("DISPLAY")
                         .requestMatchers(HttpMethod.DELETE, "/api/time/summary").hasRole("ADMIN")

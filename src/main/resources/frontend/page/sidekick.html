@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sidekick</title>
+    <link th:href="@{/style/style.css}" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" th:href="@{/favicon.svg}">
+    <style>
+        #projects > section + section,
+        #projects {
+            padding-top: 24px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-gray-300 to-gray-200 min-h-screen font-mono text-sm">
+<main class="max-w-6xl mx-auto px-4 py-4">
+    <p id="loadError" role="alert" hidden>Could not refresh Sidekick. Retrying shortly.</p>
+    <h2 id="recentTasksHeading" class="font-semibold text-lg mb-2">Recent unfinished tasks</h2>
+    <div id="recentTasks" class="flex flex-col gap-2">Loading recent tasks...</div>
+    <div id="projects">Loading assigned tasks...</div>
+    <div id="popupHolder"></div>
+</main>
+<script th:inline="javascript">
+    let CONTEXT_PATH = /*[[@{/}]]*/ '/';
+    CONTEXT_PATH = CONTEXT_PATH.replace(/\/$/, '');
+</script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/led.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/status.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/logger.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/components.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/avatar.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/time.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/string.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/consts.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/dto/User.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/dto/Task.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/user.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/page.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/network/TaskNet.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/util/taskPopup.js}"></script>
+<script th:if="${scriptBundle == null}" th:src="@{/code/pages/sidekick.js}"></script>
+<script th:if="${scriptBundle != null}" th:src="${scriptBundle}"></script>
+</body>
+</html>

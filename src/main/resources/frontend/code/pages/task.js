@@ -1,5 +1,4 @@
 let project;
-let openTask;
 let selectedTaskUserId = "all";
 let taskUserFilterStorageKey = null;
 async function loadProject() {
@@ -117,27 +116,9 @@ function taskHasAssignedUser(task, userId) {
     return task.scheduled?.some(user => user.id === userId) || false;
 }
 
-async function openModal(id){
-    for (let task of project.task) {
-        if(task.id !== id && task.taskRef !== id) continue;
-
-        if (task.readOnly) {
-            const details = await getRemoteTaskDetails(task.taskRef);
-            if (!details) return;
-            task = details;
-        }
-
-        const popupHolder = document.getElementById("popupHolder");
-        popupHolder.innerHTML = "";
-        await task.loadFull(popupHolder);
-
-        const modal = document.getElementById('taskModal');
-
-        if (!task.readOnly) {
-            initUserPicker(modal, await getAllUsers(), task.scheduled);
-            openTask = task.id;
-        }
-    }
+async function openModal(id) {
+    const task = project.task.find(task => task.id === id || task.taskRef === id);
+    if (task) await openTaskPopup(task);
 }
 
 async function openCreateModal(){
@@ -174,30 +155,13 @@ async function startCreateTask(title, estimate, deadline, description){
     loadProject();
 }
 
-async function startUpdateTask(title, estimate, deadline, description, status){
-    await updateTask(openTask, title, false, deadline, timeLongerShort(estimate), description, status)
 
-    loadProject();
-}
 
-async function addUserToProject(userId) {
-    await scheduleUser(openTask, userId)
-    loadProject();
-}
-
-async function removeUserToProject(userId) {
-    await unscheduleUser(openTask, userId)
-    loadProject();
-}
 
 async function deleteProject(){
     return await removeProject(project.id)
 }
 
-async function deleteTask(id){
-    await removeTask(id)
-    loadProject();
-}
 
 async function load(){
     await loadProject();
@@ -301,87 +265,6 @@ function getDragAfterElement(container, y) {
     }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-function initUserPicker(modal, allUsers, preselectedUsers = []) {
-    const selectedContainer = modal.querySelector(".selectedUsers");
-    const dropdown = modal.querySelector(".userDropdown");
-    const list = modal.querySelector(".userList");
-    const search = modal.querySelector(".userSearch");
-
-    const selected = new Map();
-    preselectedUsers.forEach(u => selected.set(u.id, u));
-
-    function togglePicker() {
-        dropdown.classList.toggle("hidden");
-        renderList(search.value);
-    }
-
-    function renderList(filter) {
-        list.innerHTML = "";
-
-        const searchValue = (filter || "").toLowerCase();
-        const fragment = document.createDocumentFragment();
-
-        allUsers
-            .filter(u =>
-                u.username.toLowerCase().includes(searchValue) &&
-                !selected.has(u.id)
-            )
-            .forEach(user => {
-                const div = document.createElement("div");
-                div.className = "px-2 py-1 hover:bg-gray-100 cursor-pointer rounded flex justify-between items-center";
-                div.innerHTML = `
-        <span>${user.username}</span>
-        <span class="text-xs text-gray-400">${user.initial}</span>
-      `;
-                div.onclick = () => addUser(user);
-                fragment.appendChild(div);
-            });
-
-        list.appendChild(fragment);
-    }
-
-    function addUser(user) {
-        selected.set(user.id, user);
-        addUserToProject(user.id);
-        renderSelected();
-        renderList(search.value);
-    }
-
-    function renderSelected() {
-        const initials = [...selected.values()].map(u => u.initial);
-        selectedContainer.innerHTML = renderAvatars(initials);
-
-        [...selectedContainer.children].forEach((el, index) => {
-            const user = [...selected.values()][index];
-
-            el.style.cursor = "pointer";
-            el.onclick = () => {
-                selected.delete(user.id);
-                removeUserToProject(user.id);
-                renderSelected();
-                renderList(search.value);
-            };
-        });
-    }
-
-    modal.addEventListener("click", (e) => {
-        if (e.target.closest(".userToggle")) {
-            togglePicker();
-        }
-    });
-
-    search.addEventListener("input", () => {
-        renderList(search.value);
-    });
-
-    window.addEventListener("click", (e) => {
-        if (!modal.contains(e.target)) {
-            dropdown.classList.add("hidden");
-        }
-    });
-
-    renderSelected();
-}
 
 initTaskDragAndDrop();
 initModalDismiss(["taskModal", "projectModal"]);

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IntegrationActiveRepository extends JpaRepository<IntegrationActiveEntity, Long> {
+    boolean existsByUserEntity_Id(int userId);
+    Optional<IntegrationActiveEntity> findFirstByUserEntity_IdOrderByStartTimeDescIdDesc(int userId);
     boolean existsByUserEntity_IdAndProvider(int userId, String provider);
     Optional<IntegrationActiveEntity> findByUserEntity_IdAndTaskRef(int userId, String taskRef);
     List<IntegrationActiveEntity> findAllByTaskRef(String taskRef);

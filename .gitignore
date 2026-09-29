@@ -41,3 +41,5 @@ logs
 
 application-dev.yml
 test
+# Keep Sidekick regression coverage while preserving the existing test exclusion.
+src/test/**

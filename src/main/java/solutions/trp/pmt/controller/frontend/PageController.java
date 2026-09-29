@@ -29,6 +29,12 @@ public class PageController {
         this.appUserDetailsService = appUserDetailsService;
     }
 
+    @GetMapping("/gadget/sidekick/display")
+    public String sidekick(HttpServletRequest request, Model model) {
+        addFrontendModel(request, model, "sidekick");
+        return "frontend/page/sidekick";
+    }
+
     @GetMapping("/login")
     public String loginPage(HttpServletRequest request, Model model) {
         addFrontendModel(request, model, "login");
