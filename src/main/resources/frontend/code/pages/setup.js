@@ -130,7 +130,6 @@ async function loadUsers() {
     renderUsers();
 }
 
-initModalDismiss(["userModal"]);
 window.addEventListener("keydown", function(e) {
     if (e.key === "Escape") closeModal();
 });
