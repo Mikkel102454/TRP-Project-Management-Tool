@@ -43,3 +43,16 @@ application-dev.yml
 test
 # Keep Sidekick regression coverage while preserving the existing test exclusion.
 src/test/**
+
+# Track Feature API authentication regression tests.
+!src/test/
+!src/test/java/
+!src/test/java/solutions/
+!src/test/java/solutions/trp/
+!src/test/java/solutions/trp/pmt/
+!src/test/java/solutions/trp/pmt/integration/
+!src/test/java/solutions/trp/pmt/integration/feature/
+!src/test/java/solutions/trp/pmt/integration/feature/*.java
+!src/test/resources/
+!src/test/resources/ironchannel/
+!src/test/resources/ironchannel/*.php

@@ -12,7 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.security.SecureRandom;
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -31,22 +31,18 @@ public class FeatureApiClient implements ProjectManagementProvider {
 
     private final FeatureApiProperties properties;
     private final HttpClient httpClient;
-    private final HmacRequestSigner signer;
+    private final IronChannelRequestSigner signer;
     private final Gson gson;
 
     @Autowired
     public FeatureApiClient(FeatureApiProperties properties) {
         this(properties,
                 HttpClient.newBuilder().connectTimeout(properties.getConnectTimeout()).build(),
-                new HmacRequestSigner(properties.getAuthId(), properties.getAuthKey(), Clock.systemUTC(), () -> {
-                    byte[] nonce = new byte[8];
-                    new SecureRandom().nextBytes(nonce);
-                    return nonce;
-                }),
+                new IronChannelRequestSigner(properties.getAuthId(), properties.getAuthKey(), Clock.systemUTC()),
                 new Gson());
     }
 
-    public FeatureApiClient(FeatureApiProperties properties, HttpClient httpClient, HmacRequestSigner signer, Gson gson) {
+    public FeatureApiClient(FeatureApiProperties properties, HttpClient httpClient, IronChannelRequestSigner signer, Gson gson) {
         this.properties = properties;
         this.httpClient = httpClient;
         this.signer = signer;
@@ -200,13 +196,14 @@ public class FeatureApiClient implements ProjectManagementProvider {
     private JsonObject request(String method, String endpoint, String body, IntegrationFailure nullFailure,
                                boolean allowEmptyArray) {
         ensureConfigured();
+        byte[] bodyBytes = body.getBytes(StandardCharsets.UTF_8);
         HttpRequest.Builder builder = HttpRequest.newBuilder(resolve(endpoint))
                 .timeout(properties.getRequestTimeout())
                 .header("Content-Type", "application/json")
-                .header("Authorization", signer.authorization(method, endpoint, body));
+                .header("Authorization", signer.authorization(endpoint, bodyBytes));
         builder.method(method, body.isEmpty()
                 ? HttpRequest.BodyPublishers.noBody()
-                : HttpRequest.BodyPublishers.ofString(body));
+                : HttpRequest.BodyPublishers.ofByteArray(bodyBytes));
         try {
             HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
