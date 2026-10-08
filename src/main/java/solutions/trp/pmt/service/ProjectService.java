@@ -19,6 +19,7 @@ import solutions.trp.pmt.datasource.tasks.TaskEntity;
 import solutions.trp.pmt.datasource.users.UserEntity;
 import solutions.trp.pmt.datasource.users.UserRepository;
 import solutions.trp.pmt.dto.TaskDto;
+import solutions.trp.pmt.dto.UserDto;
 import solutions.trp.pmt.dto.ProjectDto;
 import solutions.trp.pmt.dto.ProjectIntegrationDto;
 import solutions.trp.pmt.datasource.integration.ProjectBindingEntity;
@@ -28,7 +29,9 @@ import solutions.trp.pmt.service.integration.IntegrationBindingService;
 import solutions.trp.pmt.service.integration.RemoteWorkItemService;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class ProjectService {
@@ -214,7 +217,13 @@ public class ProjectService {
         try {
             List<TaskDto> tasks = remoteWorkItemService.list(binding);
             dto.setTasks(tasks);
-            dto.setScheduled(tasks.stream().flatMap(task -> task.getScheduled().stream()).distinct().toList());
+            Map<Integer, UserDto> scheduledUsers = new LinkedHashMap<>();
+            for (TaskDto task : tasks) {
+                for (UserDto user : task.getScheduled()) {
+                    scheduledUsers.putIfAbsent(user.getId(), user);
+                }
+            }
+            dto.setScheduled(List.copyOf(scheduledUsers.values()));
             dto.setIsWorkedOn(tasks.stream().anyMatch(TaskDto::isWorkedOn));
             integration.setAvailable(true);
         } catch (IntegrationException exception) {

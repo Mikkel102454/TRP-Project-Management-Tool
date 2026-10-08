@@ -3,6 +3,8 @@ package solutions.trp.pmt.integration.feature;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import solutions.trp.pmt.integration.*;
@@ -26,6 +28,7 @@ import java.util.Map;
 
 @Component
 public class FeatureApiClient implements ProjectManagementProvider {
+    private static final Logger log = LoggerFactory.getLogger(FeatureApiClient.class);
     public static final String PROVIDER_KEY = "feature-system";
     private static final DateTimeFormatter REMOTE_DATE_TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -51,6 +54,13 @@ public class FeatureApiClient implements ProjectManagementProvider {
 
     @Override
     public String key() { return PROVIDER_KEY; }
+
+    @Override
+    public String getWorkItemDeeplink(String externalId) {
+        String template = properties.getFeatureDeeplink();
+        return template == null || template.isBlank() ? null
+                : template.trim().replace("{id}", pathId(externalId, "feature"));
+    }
 
     @Override
     public List<ExternalWorkItem> listWorkItems(String scope) {
@@ -207,6 +217,7 @@ public class FeatureApiClient implements ProjectManagementProvider {
         try {
             HttpResponse<String> response = httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() < 200 || response.statusCode() >= 300) {
+                log.warn("PM request failed: method={}, endpoint={}, status={}", method, endpoint, response.statusCode());
                 throw responseError(response.statusCode(), response.body());
             }
             JsonElement parsed = gson.fromJson(response.body(), JsonElement.class);
@@ -222,17 +233,31 @@ public class FeatureApiClient implements ProjectManagementProvider {
                 throw new IntegrationException(IntegrationFailure.UNAVAILABLE, "PM returned an invalid response");
             }
             JsonObject object = parsed.getAsJsonObject();
-            if (object.has("error")) throw responseError(500, response.body());
+            if (object.has("error")) {
+                log.warn("PM returned an error object: method={}, endpoint={}, status={}", method, endpoint, response.statusCode());
+                throw responseError(500, response.body());
+            }
             return object;
         } catch (java.net.http.HttpTimeoutException e) {
+            logRequestFailure(method, endpoint, e);
             throw new IntegrationException(IntegrationFailure.TIMEOUT, "PM request timed out", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
+            logRequestFailure(method, endpoint, e);
             throw new IntegrationException(IntegrationFailure.UNAVAILABLE, "PM request was interrupted", e);
         } catch (IOException | RuntimeException e) {
             if (e instanceof IntegrationException integrationException) throw integrationException;
+            logRequestFailure(method, endpoint, e);
             throw new IntegrationException(IntegrationFailure.UNAVAILABLE, "PM service is unavailable", e);
         }
+    }
+
+    private void logRequestFailure(String method, String endpoint, Exception exception) {
+        // Exception messages can contain response data; log only exception types.
+        Throwable cause = exception.getCause();
+        log.warn("PM request failed: method={}, endpoint={}, exception={}, cause={}",
+                method, endpoint, exception.getClass().getSimpleName(),
+                cause == null ? "none" : cause.getClass().getSimpleName());
     }
 
     private IntegrationException responseError(int status, String responseBody) {

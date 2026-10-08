@@ -9,6 +9,7 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "feature-system")
 public class FeatureApiProperties {
     private String apiServer = "";
+    private String featureDeeplink = "";
     private String authId = "";
     private String authKey = "";
     private Duration connectTimeout = Duration.ofSeconds(5);
@@ -16,6 +17,8 @@ public class FeatureApiProperties {
 
     public String getApiServer() { return apiServer; }
     public void setApiServer(String apiServer) { this.apiServer = apiServer; }
+    public String getFeatureDeeplink() { return featureDeeplink; }
+    public void setFeatureDeeplink(String featureDeeplink) { this.featureDeeplink = featureDeeplink; }
     public String getAuthId() { return authId; }
     public void setAuthId(String authId) { this.authId = authId; }
     public String getAuthKey() { return authKey; }

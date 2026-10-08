@@ -16,6 +16,7 @@ class Task{
     source
     provider
     externalId
+    deeplink
     externalStatus
     readOnly
     module
@@ -44,6 +45,7 @@ class Task{
         this.source = integration.source || "LOCAL";
         this.provider = integration.provider;
         this.externalId = integration.externalId;
+        this.deeplink = integration.deeplink;
         this.externalStatus = integration.externalStatus;
         this.readOnly = integration.readOnly === true;
         this.module = integration.module;
@@ -170,6 +172,8 @@ class Task{
                 actives: this.renderRemoteAvatars(this.actives, this.unmappedActiveCount),
                 description: escapeHtmlAttr(this.description || ""), developmentNotes: escapeHtmlAttr(this.developmentNotes || ""),
                 isTimed: timingLabel,
+                hasDeeplink: Boolean(this.deeplink),
+                deeplink: escapeHtmlAttr(this.deeplink || ""),
                 isTimedAction: timingAction,
                 timingDisabled: isActive && !isManagedActive ? "disabled" : ""
             });

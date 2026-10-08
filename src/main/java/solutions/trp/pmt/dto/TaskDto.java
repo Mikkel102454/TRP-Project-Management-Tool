@@ -27,6 +27,7 @@ public class TaskDto {
     private String source;
     private String provider;
     private String externalId;
+    private String deeplink;
     private String externalStatus;
     private boolean readOnly;
     private String module;
@@ -151,6 +152,8 @@ public class TaskDto {
     public String getProvider() { return provider; }
     public void setProvider(String provider) { this.provider = provider; }
     public String getExternalId() { return externalId; }
+    public String getDeeplink() { return deeplink; }
+    public void setDeeplink(String deeplink) { this.deeplink = deeplink; }
     public void setExternalId(String externalId) { this.externalId = externalId; }
     public String getExternalStatus() { return externalStatus; }
     public void setExternalStatus(String externalStatus) { this.externalStatus = externalStatus; }

@@ -11,6 +11,8 @@ public interface ProjectManagementProvider {
 
     ExternalWorkItem getWorkItem(String externalId);
 
+    default String getWorkItemDeeplink(String externalId) { return null; }
+
     ExternalUserProfile validateUser(String remoteAccountId);
 
     List<ExternalActivity> getActivities();

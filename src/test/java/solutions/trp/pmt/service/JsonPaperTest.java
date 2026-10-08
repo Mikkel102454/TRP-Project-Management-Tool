@@ -86,7 +86,7 @@ class JsonPaperTest {
             assertFalse(arguments.path("spans").isEmpty());
 
             for (JsonNode span : arguments.path("spans")) {
-                assertEquals("helvetica", span.path("family").asText());
+                assertEquals("cozette", span.path("family").asText());
                 assertTrue(span.path("size").asInt() == 12
                         || span.path("size").asInt() == 16);
                 assertFalse(span.path("color").asText().isBlank());

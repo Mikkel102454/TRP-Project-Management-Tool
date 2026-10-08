@@ -5,6 +5,9 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import solutions.trp.pmt.integration.ExternalWorkItem;
 import solutions.trp.pmt.integration.ExternalActivity;
@@ -98,6 +101,34 @@ class FeatureApiClientTest {
 
         assertEquals(IntegrationFailure.AUTHENTICATION, failure.getFailure());
         assertFalse(failure.getMessage().contains("secret material"));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void logsProfileHttpFailuresWithoutRemoteResponseDetails(CapturedOutput output) throws Exception {
+        server = server(exchange -> respond(exchange, 502, "private upstream response"));
+
+        IntegrationException failure = assertThrows(IntegrationException.class,
+                () -> client(Duration.ofSeconds(2)).validateUser("7"));
+
+        assertEquals(IntegrationFailure.UNAVAILABLE, failure.getFailure());
+        assertEquals("PM service is unavailable", failure.getMessage());
+        assertTrue(output.getOut().contains("method=GET, endpoint=account/7/profile/, status=502"));
+        assertFalse(output.getAll().contains("private upstream response"));
+        assertFalse(output.getAll().contains("secret-key"));
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension.class)
+    void logsProfileParseFailuresWithoutRemoteResponseDetails(CapturedOutput output) throws Exception {
+        server = server(exchange -> respond(exchange, 200, "{\"private upstream response\":"));
+
+        IntegrationException failure = assertThrows(IntegrationException.class,
+                () -> client(Duration.ofSeconds(2)).validateUser("7"));
+
+        assertEquals(IntegrationFailure.UNAVAILABLE, failure.getFailure());
+        assertTrue(output.getOut().contains("method=GET, endpoint=account/7/profile/, exception=JsonSyntaxException"));
+        assertFalse(output.getAll().contains("private upstream response"));
     }
 
     @Test

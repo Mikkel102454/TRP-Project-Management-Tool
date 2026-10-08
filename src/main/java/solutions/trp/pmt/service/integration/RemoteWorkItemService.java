@@ -89,6 +89,7 @@ public class RemoteWorkItemService {
         dto.setMetadata(item.metadata());
 
         String provider = snapshot.getProjectBinding().getProvider();
+        dto.setDeeplink(providerRegistry.get(provider).getWorkItemDeeplink(snapshot.getExternalId()));
         UserDto assigned = activityContext.resolveUser(provider, item.accountId());
         dto.setScheduled(assigned == null ? Collections.emptyList() : List.of(assigned));
         dto.setUnmappedScheduledCount(assigned == null && hasText(item.accountId()) ? 1 : 0);

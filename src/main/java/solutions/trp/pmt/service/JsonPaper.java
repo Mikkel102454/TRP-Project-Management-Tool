@@ -33,7 +33,7 @@ import java.util.Locale;
 
 @Service
 public class JsonPaper {
-    private static final String DEVICE_FONT = "helvetica";
+    private static final String DEVICE_FONT = "cozette";
 
     private final ResourceLoader resourceLoader;
     private final TaskRepository taskRepository;

@@ -60,6 +60,7 @@ server:
 
 feature-system:
   api-server:
+  feature-deeplink:
   auth-id:
   auth-key:
 
